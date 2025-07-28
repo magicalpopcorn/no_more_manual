@@ -27,9 +27,11 @@ class _Menu:
     @classmethod
     def close(cls):
         logger.debug(f"Close {cls.__name__}")
-        SC_CLOSE.press()
+        SC_CLOSE.press(1000)
 
     @classmethod
     def capture(cls):
         if cls.MENU_WINDOW:
             screenshot.capture(cls.MENU_WINDOW, save=True)
+        else:
+            logger.warning(f"RectZone not defined for {cls.__name__}")

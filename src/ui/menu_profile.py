@@ -1,15 +1,15 @@
 from src import logger
 from src.element import Button, P
-from src.element.shortcut import SC_CLOSE, SC_USER_PROFILE
+from src.ui import MenuMain
 
 from .base_menu import _Menu
 
 
 class MenuProfile(_Menu):
-    RECT_GOVERNOR_NAME = Button("Governer_name", P(41, 413), P(325, 446))
-    BTN_SETTINGS = Button("Settings", P(441, 907), P(486, 947))
+    RECT_GOVERNOR_NAME = Button("Governer_name", P(712, 258), P(1107, 295))  # d
+    BTN_SETTINGS = Button("Settings", P(1622, 940), P(1700, 905))  # d
 
     @classmethod
     def open(cls):
         super().open()
-        SC_USER_PROFILE.press()
+        MenuMain.BTN_USER_PROFILE.click()

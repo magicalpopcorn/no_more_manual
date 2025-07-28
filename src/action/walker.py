@@ -2,16 +2,15 @@ import copy
 import random
 import re
 import time
-from typing import Callable, List, Optional
+from typing import Callable, List
 
 from src import const, logger
 from src.element import BTN_ISSUE_CONFIRM
-from src.rok_profile import Account, Character, RokProfile
-from src.ui import MenuAccountCharacters, MenuProfile, MenuSettings
+from src.rok_profile import Character, RokProfile
+from src.ui import MenuAccounts, MenuCharacters, MenuProfile, MenuSettings
 from src.ui.menu_chatbox import confirm_done
 from src.utils import sleep_random
 from src.vision import ocr, screenshot
-from src.window import ROKWindow
 
 
 class Walker:
@@ -118,15 +117,13 @@ class Walker:
         logger.action("Switching account", f"Account {account.name}")
         MenuProfile.open()
         MenuSettings.open()
-        MenuAccountCharacters.open()
-        MenuAccountCharacters.open_account_center()
+        MenuAccounts.open()
 
         # At this point, we are only managing 2 accounts
         # That means when open the account center, we just proceed the switching
         # TODO: Implement to choose account from Menu "Chọn tài khoản"
-        MenuAccountCharacters.BTN_SWITCH_ACCOUNT.click(5000)
-        MenuAccountCharacters.BTN_START_SWITCHING.click(const.DURATION_SWITCH_ACCOUNT)
-        ROKWindow.focus()
+        MenuAccounts.BTN_SWITCH_ACCOUNT.click(2000)
+        MenuAccounts.BTN_LOGIN.click(const.DURATION_SWITCH_ACCOUNT)
 
     def switch_character(self, char_id: str):
         """
@@ -142,9 +139,9 @@ class Walker:
 
         MenuProfile.open()
         MenuSettings.open()
-        MenuAccountCharacters.open()
+        MenuCharacters.open()
 
-        btn = MenuAccountCharacters.get_character_button(character.slot_number)
+        btn = MenuCharacters.get_character_button(character.slot_number)
         btn.click()
         sleep_random(500, 800)
 
@@ -154,17 +151,16 @@ class Walker:
             BTN_ISSUE_CONFIRM.click()
 
         switching_duration = const.DURATION_SWITCH_CHARACTER + random.randint(300, 500)
-        MenuAccountCharacters.BTN_SWITCH_YES.click()
+        MenuCharacters.BTN_SWITCH_YES.click()
 
         logger.info(
             f"Switching to character slot {character.slot_number}. Wait {switching_duration}ms"
         )
         time.sleep(const.DURATION_SWITCH_CHARACTER / 1000)
-        ROKWindow.focus()
 
     def confirm_done(self):
         """UI logic to confirm farming completion"""
-        confirm_done()
+        # confirm_done()
 
     def _get_current_char_name(self) -> str:
         """Open profile menu to capture character name, retrieve char_id from RokProfile"""
@@ -174,17 +170,13 @@ class Walker:
         return char_name
 
     def _get_current_acc_id(self) -> str:
-        """Open sub menu Account in Account/Characters settings to capture account ID"""
+        """Open sub menu Accounts in Settings to capture account ID"""
         with MenuProfile():
-            MenuSettings.open()
-            MenuAccountCharacters.open()
-            MenuAccountCharacters.open_account_center()
-            uid_text = ocr.extract_text_from_rect(MenuAccountCharacters.ZONE_UID, save=True)
-            if not (match_obj := re.match(r"^UID:(\d+)$", uid_text)):
-                screenshot.capture(save=True)
-                raise RuntimeError("Failed to get account UID")
-            uid = match_obj.group(1)
-            # close
-            MenuAccountCharacters.close_account_center()
-            MenuSettings.close()
+            with MenuSettings():
+                with MenuAccounts() as ma:
+                    uid_text = ocr.extract_text_from_rect(ma.ZONE_UID, save=True)
+                    if not (match_obj := re.match(r"^UID:(\d+)$", uid_text)):
+                        screenshot.capture(save=True)
+                        raise RuntimeError("Failed to get account UID")
+                    uid = match_obj.group(1)
         return uid

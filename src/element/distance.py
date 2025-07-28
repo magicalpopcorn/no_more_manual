@@ -1,10 +1,5 @@
-from src.dpi import DPIAwareMixin
-
-
-class Distance(int, DPIAwareMixin):
-    def __new__(cls, length: int):
-        l = int(length * cls.get_ratio())
-        return super().__new__(cls, l)
+class Distance(int):
+    pass
 
 
 class Gap(Distance):
