@@ -14,9 +14,9 @@ class MenuDispatch:
         - Click BTN_MARCH to finalize dispatch.
     """
 
-    MARCH_NUMBER_GAP = Gap(58)
-    _BTN_BASE_MARCH_NUMBER = Button("March", P(1436, 422), P(1451, 437))
-    BTN_MARCH = Button("March", P(1191, 812), P(1341, 837))
+    MARCH_NUMBER_GAP = Gap(82)  # d
+    _BTN_BASE_MARCH_NUMBER = Button("March", P(1636, 371), P(1676, 409))  # d
+    BTN_MARCH = Button("March", P(1222, 905), P(1566, 994))  # d
     selected_loadout = 1  # Assume loadout 1 is always available
 
     @classmethod

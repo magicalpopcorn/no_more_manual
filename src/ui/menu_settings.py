@@ -1,3 +1,4 @@
+from functools import cache
 from math import floor
 
 from src.element import Button, Gap, P, RectZone
@@ -12,13 +13,13 @@ class MenuSettings(_Menu):
 
     @classmethod
     def open(cls):
-        MenuProfile.BTN_SETTINGS.click()
+        MenuProfile.BTN_SETTINGS.click(2000)
 
 
 class MenuCharacters(_Menu):
     _BTN_CHARACTER_BASE = Button("Slot 1", P(313, 335), P(784, 463))
     _X_GAP = Gap(705)
-    _Y_GAP = Gap(15)
+    _Y_GAP = Gap(200)
 
     # Click to User profile -> Sub menu "CHARACTER LOGIN" pop to confirm
     BTN_SWITCH_NO = Button("Switch_No", P(573, 732), P(858, 797))
@@ -26,9 +27,10 @@ class MenuCharacters(_Menu):
 
     @classmethod
     def open(cls):
-        MenuSettings.BTN_CHARACTERS_MENU.click()
+        MenuSettings.BTN_CHARACTERS_MENU.click(2500)
 
     @classmethod
+    @cache
     def get_character_button(cls, slot_number: int) -> Button:
         """Support up to 6th slot, unless implement to scroll down"""
         if slot_number < 1 or slot_number > 6:
@@ -63,7 +65,7 @@ class MenuAccounts(_Menu):
     ZONE_UID = RectZone("UID", P(78, 92), P(234, 127))  # d
     BTN_SWITCH_ACCOUNT = Button("Switch_Accounts", P(775, 92), P(922, 129))  # d
     # BTN_SWITCH_ACCOUNT ->  Sub Menu "Chọn tài khoản" pop
-    BTN_LOGIN = Button("", P(765, 560), P(1060, 615))
+    BTN_LOGIN = Button("Login", P(765, 560), P(1060, 615))  # d
 
     @classmethod
     def open(cls):

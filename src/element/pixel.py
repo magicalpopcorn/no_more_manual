@@ -1,6 +1,6 @@
 import time
 
-from src.api.ldp import LDInstance as ldp
+from src.api import adb, ldp
 from src.utils import sleep_random
 
 
@@ -12,8 +12,8 @@ class P:
         self.y = y
         self._xy = (x, y)
 
-    def click(self, delay=1000):
-        ldp.tap(self.x, self.y)
+    def click(self, delay=1200):
+        adb.tap(self.x, self.y)
         sleep_random(delay, delay + 200)
 
     def hold(self, duration=1000):

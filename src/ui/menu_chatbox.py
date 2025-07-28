@@ -2,8 +2,7 @@ import time
 
 from src import logger
 from src.const import FARM_THREAD_POSITION
-from src.driver import keyboard
-from src.element import SC_CHAT_BOX, SC_CLOSE, SC_ENTER, Button, Gap, P
+from src.element import Button, Gap, P
 from src.utils import sleep_random
 
 

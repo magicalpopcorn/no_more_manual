@@ -6,5 +6,5 @@ from .menu_main import MenuMain
 from .menu_profile import MenuProfile
 from .menu_queue import MenuQueue
 from .menu_search import MenuSearch
-from .menu_settings import MenuAccountCharacters, MenuSettings
+from .menu_settings import MenuAccounts, MenuCharacters, MenuSettings
 from .menu_vip import MenuVip

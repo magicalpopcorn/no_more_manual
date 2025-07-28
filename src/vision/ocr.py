@@ -5,11 +5,11 @@ import pytesseract
 from PIL import Image, ImageOps
 
 from src import logger
+from src.api import adb
 from src.element import Button, RectZone
 
-from .screenshot import IMAGES_FOLDER, capture
-
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+IMAGES_FOLDER = logger.LOG_FOLDER / "images"
 
 
 def extract_text(img, lang="eng") -> str:
@@ -20,36 +20,66 @@ def extract_text(img, lang="eng") -> str:
     return text
 
 
-def extract_text_from_rect(obj: RectZone | Button, lang="eng", save=False) -> str:
-    """obj must be either RectZone or Button"""
-    img_obj = capture(obj, save=save)
-    text = extract_text(img_obj, lang)
-    logger.debug(f"Text extracted from {obj.name}: {repr(text)}")
-    return text
+def save_image(img_obj: Image, name):
+    os.makedirs(IMAGES_FOLDER, exist_ok=True)
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    filename = os.path.join(IMAGES_FOLDER, f"{name}_{timestamp}.png")
+    logger.debug(f"Saved screenshot: {filename} ")
+    img_obj.save(filename)
 
 
-def extract_number_from_image(obj: RectZone | Button, crop_ratio=0.025, save=False) -> str:
-    img = capture(obj)
+def _crop_image_to_rect(image_path: str, rect: RectZone | Button, crop_rate: int = 100) -> Image:
+    """
+    Crop image at image_path to the RectZone,
+    and further crop by crop_rate% (centered).
 
-    # Get image dimensions and compute crop margins (5% total, 2.5% per side)
-    width, height = img.size
+    crop_rate: desired size to capture. E.g 95 (%)
+    """
+    assert 0 < crop_rate <= 100
+
+    img = Image.open(image_path)
+    left, top = rect.p1._xy
+    right, bottom = rect.p2._xy
+
+    # Rectangle crop dimensions
+    width = right - left
+    height = bottom - top
+
+    # Calculate margins for inner crop
+    crop_ratio = round((1 - crop_rate / 100) / 2, 3)
     crop_margin_x = int(width * crop_ratio)
     crop_margin_y = int(height * crop_ratio)
 
-    # Crop to 95% center region
-    cropped = img.crop(
-        (crop_margin_x, crop_margin_y, width - crop_margin_x, height - crop_margin_y)
+    img_obj = img.crop(
+        (left + crop_margin_x, top + crop_margin_y, right - crop_margin_x, bottom - crop_margin_y)
     )
+    return img_obj
+
+
+def extract_text_from_rect(rect: RectZone | Button, lang="eng", save=False) -> str:
+    """Extract text from RectZone object"""
+    img_obj = _crop_image_to_rect(adb.screenshot(), rect)
     if save:
-        os.makedirs(IMAGES_FOLDER, exist_ok=True)
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
-        prefix = obj.name if obj else "fullscreen"
-        filename = os.path.join(IMAGES_FOLDER, f"{prefix}_{timestamp}.png")
-        logger.debug(f"Saved screenshot: {filename} ")
-        cropped.save(filename)
+        save_image(img_obj, rect.name)
+    text = extract_text(img_obj, lang)
+    logger.debug(f"Text extracted from {rect.name}: {repr(text)}")
+    return text
+
+
+def extract_number_from_rect(rect: RectZone | Button, crop_rate=95, save=False) -> str:
+    """Extract number from RectZone object
+
+    crop_rate: desired size to capture. E.g 95 (%)
+    """
+    assert 0 < crop_rate < 100
+
+    img_obj = _crop_image_to_rect(adb.screenshot(), rect, crop_rate)
+
+    if save:
+        save_image(img_obj, rect.name)
 
     # Convert to grayscale and resize for better OCR accuracy
-    gray = ImageOps.grayscale(cropped)
+    gray = ImageOps.grayscale(img_obj)
     resized = gray.resize((gray.width * 2, gray.height * 2))
 
     # Use pytesseract to extract numbers with commas

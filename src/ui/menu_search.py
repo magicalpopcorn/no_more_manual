@@ -1,20 +1,11 @@
-# menu_search.py
-import json
 import re
+import time
+from functools import cache
 from math import ceil, floor
 
-from src.element import (
-    BTN_SEARCH_NODE,
-    SC_SEARCH,
-    Button,
-    Distance,
-    Gap,
-    Length,
-    P,
-    RectZone,
-    Width,
-    click_btn_or_press_sc,
-)
+from src import logger
+from src.element import BTN_SEARCH_NODE, Button, Distance, Gap, Length, P, RectZone, Width
+from src.vision import ocr
 
 
 class MenuSearch:
@@ -26,15 +17,17 @@ class MenuSearch:
     """
 
     RSS_TYPES = ["food", "wood", "stone", "gold"]
-    _GAP = Gap(200)
+    _GAP = Gap(290)
 
     # These private static buttons are captured based on Food
     # They are declared in private static scope to avoid being accessed directly
-    _BTN_BASE_DEPOSITE = Button("Deposite", P(721, 962), P(801, 1022))
-    _BTN_BASE_LEVEL_START = Button("LevelStart", P(646, 742), P(661, 752))
-    _BTN_BASE_SEARCH = Button("SearchRss", P(711, 822), P(821, 852))
+    _BTN_BASE_DEPOSITE = Button("Deposite", P(605, 908), P(740, 999))  # d
+    _BTN_BASE_LEVEL_START = Button("LevelStart", P(508, 587), P(530, 623))  # d
+    _BTN_BASE_SEARCH = Button("SearchRss", P(570, 700), P(783, 765))  # d
 
-    BTN_DEPOSITE_LOC = RectZone("Deposite_Location", P(570, 358), P(690, 385))
+    _BTN_SEARCH_BARB = Button("Search Barbarians", P(300, 700), P(525, 765))
+
+    ZONE_DEPOSITE_LOC = RectZone("Deposite_Location", P(1356, 279), P(1505, 315))  # d
 
     # Shared state
     selected_rss_level = 0
@@ -42,9 +35,29 @@ class MenuSearch:
     last_deposite_loc = ""
     _deposite_loc_template = re.compile(r"X:\d{1,4} Y:\d{1,4}")
 
+    # menu state
+    _is_open = False
+
     @classmethod
     def open(cls):
-        click_btn_or_press_sc(BTN_SEARCH_NODE, SC_SEARCH)
+        """If Menu Search open, button search should exists"""
+        MAX_RETRIES = 3
+        search_btn = cls._BTN_SEARCH_BARB
+        if cls.selected_rss_type:
+            search_btn = cls.get_search_button(cls.selected_rss_type)
+        logger.debug(f"Check for Search BTN: {search_btn}")
+
+        if not cls._is_open:
+            for attempt in range(MAX_RETRIES):
+                BTN_SEARCH_NODE.click()
+                if ocr.extract_text_from_rect(search_btn) == "SEARCH":
+                    break
+                time.sleep(0.5)
+            else:
+                raise TimeoutError("SEARCH button text not detected after 3 attempts.")
+            cls._is_open = True
+        else:
+            logger.debug("MenuSearch already opened")
 
     @classmethod
     def reset(cls):
@@ -56,6 +69,12 @@ class MenuSearch:
         """
         cls.selected_rss_level = 0
         cls.selected_rss_type = ""
+        cls._is_open = False
+
+    @classmethod
+    def update_state(cls, state: bool):
+        """state: true | false -> opened | closed"""
+        cls._is_open = state
 
     @classmethod
     def update_last_deposite_loc(cls, loc):
@@ -85,14 +104,17 @@ class MenuSearch:
         cls.selected_rss_type = rss_type
 
     @classmethod
+    @cache
     def get_deposite_button(cls, rss_type: str) -> Button:
         return cls._get_button(rss_type, cls._BTN_BASE_DEPOSITE)
 
     @classmethod
+    @cache
     def get_search_button(cls, rss_type: str) -> Button:
         return cls._get_button(rss_type, cls._BTN_BASE_SEARCH)
 
     @classmethod
+    @cache
     def get_level_button(cls, rss_type: str, rss_level: int) -> Button:
         """
         Getters for rss level buttons based on rss type and level
@@ -100,11 +122,11 @@ class MenuSearch:
         start_btn = cls._get_button(rss_type, cls._BTN_BASE_LEVEL_START)
 
         LEVEL_COUNT = 8
-        SLIDER_LENGTH = Length(230)
-        BUTTON_WIDTH = Width(15)
-        SHIFT = Distance(5)  # shift to ensure the choosen point closer to the middle
+        SLIDER_LENGTH = Length(325)
+        BUTTON_WIDTH = Width(22)
+        SHIFT = Distance(6)  # shift to ensure the choosen point closer to the middle
 
-        # rss_level 1 - 8 655 -> ... -> 870
+        # rss_level 1 - 8
         step = (SLIDER_LENGTH - BUTTON_WIDTH) / (LEVEL_COUNT - 1)
         x1 = start_btn.p1.x + step * (rss_level - 1)
         x2 = start_btn.p2.x + step * (rss_level - 1)
@@ -126,28 +148,3 @@ class MenuSearch:
         p1 = P(base_button.p1.x + offset, base_button.p1.y)
         p2 = P(base_button.p2.x + offset, base_button.p2.y)
         return Button(f"{rss_type}_{base_button.name}", p1, p2)
-
-
-class MenuSearch2(MenuSearch):
-    pass
-
-
-def load_menu_config(json_file, cls):
-    with open(json_file) as f:
-        data = json.load(f)
-
-    menu_data = data.get(cls.__name__, {})
-    for attr, value in menu_data.items():
-        type_ = value['type']
-        name = value['name']
-        p1 = P(*value['p1'])
-        p2 = P(*value['p2'])
-
-        if type_ == "Button":
-            obj = Button(name, p1, p2)
-        elif type_ == "RectZone":
-            obj = RectZone(name, p1, p2)
-        else:
-            raise ValueError(f"Unknown type: {type_}")
-
-        setattr(cls, attr, obj)  # Set as class attribute

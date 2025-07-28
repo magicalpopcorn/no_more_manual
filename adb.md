@@ -53,7 +53,7 @@ Forward ports between device and host for debugging web or API traffic.
     adb devices
 
 ## Connect to ADB
-    $ netstat -aon | findstr 555
+    $ netstat -aon | findstr LISTEN
     TCP    0.0.0.0:5555           0.0.0.0:0              LISTENING       20352
 
     $ adb connect 127.0.0.1:5555

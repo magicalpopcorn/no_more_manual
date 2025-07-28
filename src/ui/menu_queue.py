@@ -7,4 +7,4 @@ class MenuQueue:
     MenuQueue opens after initiating a gathering or attack action.
     """
 
-    BTN_NEW_TROOP = Button("New_Troop", P(1561, 302), P(1711, 322))
+    BTN_NEW_TROOP = Button("New_Troop", P(1383, 178), P(1651, 257))  # d

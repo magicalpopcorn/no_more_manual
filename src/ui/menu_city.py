@@ -2,8 +2,8 @@ import re
 import time
 
 from src import logger
-from src.element import SC_SPACE, Button, Distance, P, RectZone
-from src.vision import ocr, screenshot
+from src.element import Button, Distance, P, RectZone
+from src.vision import ocr
 
 from .base_menu import _Menu
 from .menu_main import MenuMain
@@ -24,13 +24,13 @@ class MenuCity(_Menu):
     def open(cls):
         super().open()
         MenuMain.navigate_to_map_screen()
-        SC_SPACE.press()
+        MenuMain.BTN_HOME.click()
         cls._is_opened = True
 
     @classmethod
     def close(cls):
         if cls._is_opened:
-            SC_SPACE.press()
+            MenuMain.BTN_HOME.click()
         cls._is_opened = False
 
     @classmethod

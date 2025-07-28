@@ -2,10 +2,10 @@ import re
 import time
 
 from src import const, logger
-from src.element import SC_SPACE, Button, RectZone
+from src.element import Button, RectZone
 from src.ui import MenuCity, MenuMerchant, MenuVip
 from src.utils import only_during_periods
-from src.vision import ocr, screenshot
+from src.vision import ocr
 
 
 class Collect:
@@ -49,7 +49,7 @@ class Collect:
                 # 2 times scroll + 3 times buy
                 for i in range(3):
                     for item in mm.ITEMS:
-                        raw_price = ocr.extract_number_from_image(item, save=True)
+                        raw_price = ocr.extract_number_from_rect(item, save=True)
                         if obj := re.search(r"\d+,\d+", raw_price):
                             try:
                                 if int(obj.group().replace(",", "")) > 250000:

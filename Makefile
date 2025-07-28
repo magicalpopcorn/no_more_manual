@@ -10,3 +10,7 @@ train:
 
 test:
 	yolo task=detect mode=predict model=$(YOLO_MODEL_DIR)/2000_25.pt source=$(IMAGE_DIR)/gem1.png conf=0.2 save=True
+
+
+screenshot:
+	adb exec-out screencap -p > tmp/ldp/screen.png

@@ -5,12 +5,13 @@ import time
 from typing import Callable, List
 
 from src import const, logger
+from src.api import adb
 from src.element import BTN_ISSUE_CONFIRM
 from src.rok_profile import Character, RokProfile
 from src.ui import MenuAccounts, MenuCharacters, MenuProfile, MenuSettings
 from src.ui.menu_chatbox import confirm_done
 from src.utils import sleep_random
-from src.vision import ocr, screenshot
+from src.vision import ocr
 
 
 class Walker:
@@ -33,7 +34,7 @@ class Walker:
             char_id = self.profile.get_char_id_by_name(self._get_current_char_name())
             if char_id is None:
                 return
-
+        logger.info(f"walk_character {char_id}")
         char = self.profile.chars[char_id]
         if self._actions:
             logger.info(f"Proceed actions on character '{char.name}'")
@@ -55,6 +56,7 @@ class Walker:
         """
         if acc_id is None:
             acc_id = self._get_current_acc_id()
+        logger.info(f"walk_account {acc_id}")
         account = self.profile.accounts[acc_id]
 
         current_account = copy.deepcopy(account)
@@ -91,6 +93,7 @@ class Walker:
         Raises:
             RuntimeError: If no valid account or profile is found.
         """
+        logger.action("WALK ALL", "start with current account & user")
         all_accounts = self.profile.all_accounts()
         uid = self._get_current_acc_id()
         # if account is configured, it should be prioritized
@@ -147,7 +150,7 @@ class Walker:
 
         # Check for network error confirmation
         if ocr.extract_text_from_rect(BTN_ISSUE_CONFIRM).upper() == "CONFIRM":
-            screenshot.capture_fullscreen()
+            adb.screenshot()
             BTN_ISSUE_CONFIRM.click()
 
         switching_duration = const.DURATION_SWITCH_CHARACTER + random.randint(300, 500)
@@ -175,8 +178,8 @@ class Walker:
             with MenuSettings():
                 with MenuAccounts() as ma:
                     uid_text = ocr.extract_text_from_rect(ma.ZONE_UID, save=True)
-                    if not (match_obj := re.match(r"^UID:(\d+)$", uid_text)):
-                        screenshot.capture(save=True)
+                    if not (match_obj := re.match(r"UID (\d+)", uid_text)):
+                        adb.screenshot()
                         raise RuntimeError("Failed to get account UID")
                     uid = match_obj.group(1)
         return uid

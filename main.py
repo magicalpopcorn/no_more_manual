@@ -1,96 +1,105 @@
 #!python
 # -*- coding: utf-8 -*-
 import os
+import subprocess
 import sys
 import time
-from pprint import pprint as pp
 
-import pyautogui  # Required to stabilize screenshot accuracy
+FARM_INSTANCE = "farm1"
+MAIN_INSTANCE = "main"
+instance = FARM_INSTANCE
+# instance = MAIN_INSTANCE
+
+PACKAGE = "com.rok.gp.vn"
 
 
-def init_process():
-    sys.stdout.reconfigure(encoding="utf-8")
-    logger.info("Starting script")
-    privilege.run_as_admin()
-    ROKWindow.get()
-    logger.info(
-        "Client resolution: ({}x{}), DPI scale: {}".format(
-            *ROKWindow.get_client_size(), get_system_dpi_scale()
+def init_ldp(instance_name):
+    ldp.init_instance(instance_name)
+    if ldp.isrunning() != "running":
+        ldp.launch()
+        logger.debug(f"Start instance '{instance_name}', wait for 15s")
+        while ldp.isrunning() != "running":
+            time.sleep(1)
+        # time.sleep(15)
+        logger.debug(f"Instance '{instance_name}' started")
+    else:
+        logger.debug(f"Instance '{instance_name}' already started")
+    utils.reallocate_and_resize(instance_name, ldc.list().splitlines().index(instance_name))
+
+
+def init_adb(instance_name):
+    subprocess.check_call("adb start-server")
+    adb.init_instance(ldc.list().splitlines().index(instance_name))
+
+
+def init_rok(instance_name):
+    logger.info("Init Rise of Kingdoms")
+    if not (
+        out := subprocess.check_output(
+            [
+                "ldconsole.exe",
+                "adb",
+                "--name",
+                instance_name,
+                "--command",
+                f"shell ps | grep {PACKAGE}",
+            ],
+            universal_newlines=True,
         )
-    )
-    time.sleep(0.5)
-    if not ROKWindow.is_correct_resolution():
-        raise Exception("Wrong resolution")
+    ):
+        ldp.runapp(packagename=PACKAGE)
+        logger.debug(f"Wait for app open: 30s")
+        time.sleep(30)
+    else:
+        logger.debug(f"ROK already started:\nshell ps | grep {PACKAGE}\n{out.strip()}")
 
 
-def experiment_if_any():
-    logger.info(str(sys.argv))
-    if len(sys.argv) >= 2:
-        if sys.argv[1] in ("test", "cap", "smoke"):
-            match sys.argv[1]:
-                case "test":
-                    test()
-                case "cap":
-                    cap()
-                case "smoke":
-                    smoke_test()
-                case _:
-                    logger.critical(f"Unknown option {sys.argv[1]}")
+def init_process(instance_name):
+    sys.stdout.reconfigure(encoding="utf-8")
+    logger.action("Init start", f"Instance name: '{instance_name}'")
 
-            sys.exit(0)
+    if instance_name not in (instances := ldc.list()):
+        raise RuntimeError(f"Instance {instance_name} not exists\nInstances: {instances}")
+
+    init_ldp(instance_name)
+    init_adb(instance_name)
+    init_rok(instance_name)
+
+    logger.info("Init done\n")
 
 
 def test():
-    """"""
-    # with ui.MenuCity():
-    #     collector = action.Collect()
-    #     collector.purchase_items()
-
-    MARCH_STATUS = element.RectZone("", element.P(1855, 158), element.P(1885, 178))
-    vision.ocr.extract_text_from_rect(MARCH_STATUS, save=True)
-    time.sleep(2)
-
-
-def cap():
-    # btn = ui.menu_city.MenuMerchant.BTN_REFRESH
-    # for btn in ui.menu_city.MenuMerchant.f_bttn():
-    # vision.ocr.extract_text_from_rect(btn, save=True)
-    time.sleep(0.5)
-    vision.screenshot.capture_fullscreen()
-    time.sleep(0.5)
-
-
-def smoke_test():
-    profile = RokProfile()
-    walker = action.Walker()
-    walker.walk_all()
+    # ui.MenuMain.navigate_to_map_screen()
+    sys.exit(0)
 
 
 if __name__ == "__main__":
     try:
-        from src import action, element, logger, privilege, ui, vision
+        from src import action, const, element, logger, ui, utils, vision
+        from src.api import adb, ldc, ldp
         from src.const import ActionMode
-        from src.dpi import get_system_dpi_scale
         from src.rok_profile import RokProfile
-        from src.window import ROKWindow
 
         DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
-        init_process()
-        experiment_if_any()
+        init_process(instance)
+
+        if len(sys.argv) > 1:
+            if sys.argv[1] == "test":
+                test()
 
         profile = RokProfile()
         walker = action.Walker()
 
         # Declare and register actions to walker
-        gather = action.Gather()
+        gatherer = action.Gather()
         use_item = action.UseItems()
         collector = action.Collect()
 
         for action in [
             use_item.use_24h_gather_boost,
-            gather.run,
-            collector.collect_all,
+            gatherer.gather,
+            # collector.collect_all,
         ]:
             walker.register_action(action)
 

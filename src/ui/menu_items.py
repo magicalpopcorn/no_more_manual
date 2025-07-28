@@ -3,11 +3,12 @@ import os
 import yaml
 
 from src import const, logger
-from src.element import SC_CLOSE, SC_ITEMS, Button, Gap, P, RectZone, TextButton
-from src.rok_profile import Character, RokProfile
+from src.element import Button, Gap, P, RectZone, TextButton
+from src.rok_profile import RokProfile
 from src.vision import ocr
 
 from .base_menu import _Menu
+from .menu_main import MenuMain
 
 CACHE_DIR = os.path.join(const.PROJECT_ROOT, "tmp", ".cache")
 
@@ -30,16 +31,20 @@ class MenuItems(_Menu):
         - Vertical gap between rows:    160 px
     """
 
-    BTN_RESOURCES = TextButton("RESOURCES", P(273, 140), P(472, 180))
-    BTN_BOOSTS = TextButton("BOOSTS", P(730, 140), P(935, 180))
+    BTN_RESOURCES = TextButton("RESOURCES", P(261, 84), P(459, 165))  # d
+    BTN_BOOSTS = TextButton("BOOSTS", P(723, 84), P(920, 165))  # d
 
-    _BTN_BASE_ITEM = Button("_", P(280, 240), P(395, 350))  # top left item
-    _ITEM_WIDTH = Gap(165)  # Horizontal spacing between items (left edge)
-    _ITEM_HEIGHT = Gap(160)  # Vertical spacing between rows (top edge)
+    _BTN_BASE_ITEM = Button("Item_1_1", P(290, 237), P(447, 398))  # top left item
+    _ITEM_WIDTH = Gap(240)  # Horizontal spacing between items (left edge)
+    _ITEM_HEIGHT = Gap(228)  # Vertical spacing between rows (top edge)
 
     # Right side of the sub-menu
-    _ITEM_NAME_ZONE = RectZone("Item_name", P(1325, 435), P(1655, 510))
-    BTN_USE_ITEM = TextButton("USE", P(1390, 810), P(1560, 890), 0.3)
+    _ITEM_NAME_ZONE = RectZone("Item_name", P(1270, 445), P(1655, 550))
+    BTN_USE_ITEM = TextButton("USE", P(1360, 890), P(1585, 970), 0.3)
+
+    # If the buff already exits, confirm popup
+    BTN_NOTICE_YES = TextButton("YES", P(550, 730), P(888, 807))
+    BTN_NOTICE_NO = TextButton("NO", P(1050, 730), P(1395, 807))
 
     # Common items
     BOOST_GATHER_24 = "24-Hour Enhanced Gathering"
@@ -58,7 +63,7 @@ class MenuItems(_Menu):
     @classmethod
     def open(cls):
         super().open()
-        SC_ITEMS.press()
+        MenuMain.BTN_ITEM.click()
 
     def _load_cache(self):
         if os.path.exists(self._cache_path):
@@ -82,7 +87,7 @@ class MenuItems(_Menu):
             self._cache_data[self.char_id] = {}
 
         item_type.click()
-        max_rows, max_cols = 4, 6
+        max_rows, max_cols = 3, 4
         last_text = ""
 
         for i in range(max_rows):
@@ -106,13 +111,13 @@ class MenuItems(_Menu):
         Returns a button for an item based on grid position.
 
         Args:
-            index_v (int): Vertical index (row), starting from 0
-            index_h (int): Horizontal index (col), 0 to 5
+            index_v (int): Vertical index (row), 0 to 2
+            index_h (int): Horizontal index (col), 0 to 3
 
         Returns:
             Button: Clickable button at given position
         """
-        if index_h > 5 or index_v < 0 or index_h < 0:
+        if not (0 <= index_v <= 2 and 0 <= index_h <= 3):
             raise ValueError("Invalid item position: outside grid bounds")
 
         x_offset = index_h * self._ITEM_WIDTH
@@ -154,16 +159,14 @@ class MenuItems(_Menu):
 
     def use_boost_item(self, force=False):
         logger.debug(f"Use item with {"" if force else "no "}force")
-        btn_yes = TextButton("YES", P(660, 665), P(920, 730))
-        btn_no = TextButton("NO", P(1010, 665), P(1270, 730))
         self.BTN_USE_ITEM.click()
 
         # Check if popup Notice exists
-        if ocr.extract_text_from_rect(btn_yes) == btn_yes.name:
+        if ocr.extract_text_from_rect(self.BTN_NOTICE_YES) == self.BTN_NOTICE_YES.name:
             if force:
-                btn_yes.click()
+                self.BTN_NOTICE_YES.click()
             else:
-                btn_no.click()
+                self.BTN_NOTICE_NO.click()
 
     def _get_item_name(self):
         return ocr.extract_text_from_rect(self._ITEM_NAME_ZONE).replace("\n", " ").strip()

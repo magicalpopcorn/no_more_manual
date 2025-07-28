@@ -1,4 +1,4 @@
-from src.element import SC_CLOSE, SC_VIP, Button, P
+from src.element import Button, P
 
 from .base_menu import _Menu
 
