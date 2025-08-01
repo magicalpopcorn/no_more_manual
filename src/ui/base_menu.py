@@ -1,7 +1,7 @@
 from src import logger
 from src.api import adb
 from src.element import RectZone
-from src.vision import ocr
+from src.vision import image
 
 
 class _Menu:
@@ -33,7 +33,6 @@ class _Menu:
     @classmethod
     def capture(cls):
         if cls.MENU_WINDOW:
-            img_obj = ocr._crop_image_to_rect(adb.screenshot(), cls.MENU_WINDOW)
-            ocr.save_image(img_obj, cls.MENU_WINDOW.name)
+            image.get_image_from_rect(cls.MENU_WINDOW, save=True)
         else:
             logger.warning(f"RectZone not defined for {cls.__name__}")

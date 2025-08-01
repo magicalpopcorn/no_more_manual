@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
         for action in [
             # use_item.use_24h_gather_boost,
-            gatherer.gather,
+            # gatherer.gather,
             # collector.collect_all,
         ]:
             walker.register_action(action)

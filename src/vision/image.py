@@ -33,22 +33,29 @@ def crop_image_to_rect(image_path: str, rect: RectZone | Button, crop_rate: int 
     """
     assert 0 < crop_rate <= 100
 
-    img = Image.open(image_path)
-    left, top = rect.p1._xy
-    right, bottom = rect.p2._xy
+    with Image.open(image_path) as img:
+        left, top = rect.p1._xy
+        right, bottom = rect.p2._xy
 
-    # Rectangle crop dimensions
-    width = right - left
-    height = bottom - top
+        # Rectangle crop dimensions
+        width = right - left
+        height = bottom - top
 
-    # Calculate margins for inner crop
-    crop_ratio = round((1 - crop_rate / 100) / 2, 3)
-    crop_margin_x = int(width * crop_ratio)
-    crop_margin_y = int(height * crop_ratio)
+        # Calculate margins for inner crop
+        crop_ratio = round((1 - crop_rate / 100) / 2, 3)
+        crop_margin_x = int(width * crop_ratio)
+        crop_margin_y = int(height * crop_ratio)
 
-    img_obj = img.crop(
-        (left + crop_margin_x, top + crop_margin_y, right - crop_margin_x, bottom - crop_margin_y)
-    )
+        img_obj = img.crop(
+            (
+                left + crop_margin_x,
+                top + crop_margin_y,
+                right - crop_margin_x,
+                bottom - crop_margin_y,
+            )
+        )
+
+    os.remove(image_path)
     return img_obj
 
 
