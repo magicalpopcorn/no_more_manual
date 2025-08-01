@@ -21,11 +21,11 @@ class MenuCity(_Menu):
     _is_opened = False
 
     @classmethod
-    def open(cls):
-        super().open()
+    def _open(cls):
         MenuMain.open_map_screen()
         MenuMain.BTN_HOME.click()
         cls._is_opened = True
+        return True
 
     @classmethod
     def close(cls):
@@ -64,13 +64,13 @@ class MenuMerchant(_Menu):
     ITEMS = (ITEM_1, ITEM_2, ITEM_3, ITEM_4)
 
     @classmethod
-    def open(cls):
-        super().open()
+    def _open(cls):
         if not MenuCity.is_open():
             raise RuntimeError("Not in city")
 
         MenuCity.BTN_COURIER_STATION.click()
         MenuCity.BTN_COURIER_MERCHANT.click()
+        return True
 
     @classmethod
     def scrollup_for_next(cls):

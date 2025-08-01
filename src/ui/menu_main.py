@@ -7,13 +7,16 @@ class MenuMain:
     BTN_HOME = Button("Home", P(45, 942), P(140, 1022))  # d
     BTN_HOME_BUILDINGS = Button("Buildings", P(375, 1000), P(440, 1055))  # d
     BTN_USER_PROFILE = Button("User_Profile", P(25, 10), P(105, 95))  # d
-    BTN_ITEM = Button("Items", P(1203, 969), P(1284, 1034))  # d
+
+    # Expansion
+    BTN_SUB_MENU = Button("Sub_Menu", P(1800, 970), P(1890, 1037))
+    BTN_ITEMS = Button("Items", P(1203, 970), P(1284, 1037))  # d
 
     RECT_SWORD = RectZone("Sword_of_Power", P(144, 16), P(180, 54))
     RECT_MARCH = RectZone("Rect_March_Status", P(1815, 207), P(1860, 232))  # d
 
     @classmethod
-    @utils.retry(max_attempts=4, delay=1.0, info="Open Map screen")
+    @utils.retry(max_attempts=3, delay=1.0, info="Open Map screen")
     def open_map_screen(cls):
         if cls.is_in_map_screen():
             logger.debug("In Map Screen")
@@ -22,13 +25,22 @@ class MenuMain:
         return cls.is_in_map_screen()
 
     @classmethod
-    @utils.retry(max_attempts=4, delay=1.0, info="Open City screen")
+    @utils.retry(max_attempts=3, delay=1.0, info="Open City screen")
     def open_city_screen(cls):
         if cls.is_in_city_screen():
             logger.debug("In City Screen")
             return True
         cls.BTN_HOME.click()
         return cls.is_in_city_screen()
+
+    @classmethod
+    @utils.retry(max_attempts=3, delay=1.0, info="Open Sub Menu")
+    def open_sub_menu(cls):
+        if cls.is_sub_menu_expanded():
+            logger.debug("Sub menu already expanded")
+            return True
+        cls.BTN_SUB_MENU.click()
+        return cls.is_sub_menu_expanded()
 
     @classmethod
     @utils.timed_polling(timeout=60, interval=5, info="Wait for loading ingame")
@@ -55,3 +67,7 @@ class MenuMain:
     @classmethod
     def is_in_city_screen(cls):
         return cv.match_region_with_template(cls.BTN_HOME, image.RokImages.MAP_ICON, verbose=False)
+
+    @classmethod
+    def is_sub_menu_expanded(cls):
+        return cv.match_region_with_template(cls.BTN_ITEMS, image.RokImages.BTN_ITEMS)

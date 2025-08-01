@@ -10,6 +10,6 @@ class MenuProfile(_Menu):
     BTN_SETTINGS = Button("Settings", P(1622, 840), P(1700, 905))  # d
 
     @classmethod
-    def open(cls):
-        super().open()
+    def _open(cls):
         MenuMain.BTN_USER_PROFILE.click()
+        return True

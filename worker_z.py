@@ -73,14 +73,21 @@ def test():
     # text = ui.MenuItems._get_item_name()
     # print(text)
     # ui.MenuMain.wait_for_ingame_ready()
-    vision.image.get_image_from_rect2(ui.MenuMain.BTN_HOME, save=True)
-    time.sleep(1)
+    # vision.image.get_image_from_rect(ui.MenuMain.BTN_HOME, save=True)
+    with ui.MenuItems("dei 2f1"):
+        time.sleep(1)
+    # print(
+    #     vision.cv.match_region_with_template(
+    #         ui.MenuItems.BTN_RESOURCES, vision.image.TemplateImage("picked_res.png"), verbose=True
+    #     )
+    # )
     sys.exit(0)
 
 
 def capture():
     # capture button
-    btn = ui.MenuSearch._BTN_BASE_DEPOSITE
+    # btn = ui.MenuSearch._BTN_BASE_DEPOSITE
+    btn = ui.MenuItems.BTN_RESOURCES
     vision.image.get_image_from_rect(btn, save=True)
     sys.exit(0)
 
@@ -111,8 +118,8 @@ if __name__ == "__main__":
         collector = action.Collect()
 
         for action in [
-            use_item.use_24h_gather_boost,
-            gatherer.gather,
+            use_item.use_8h_gather_boost,
+            # gatherer.gather,
             # collector.collect_all,
         ]:
             walker.register_action(action)

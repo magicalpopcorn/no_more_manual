@@ -9,5 +9,5 @@ class MenuVip(_Menu):
 
     @classmethod
     def open(cls):
-        super().open()
-        SC_VIP.press()
+        """"""
+        return True

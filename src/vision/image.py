@@ -92,7 +92,16 @@ class TemplateImage:
 
 
 class RokImages:
+    # Menu Main
     CASTLE_ICON = TemplateImage("castle_icon.png")
     MAP_ICON = TemplateImage("map_icon.png")
     SWORD_ICON = TemplateImage("sword_of_power.png")
+
+    # Menu Search
     CROPLAND = TemplateImage("cropland.png")
+
+    # Menu Main - Expanded
+    BTN_ITEMS = TemplateImage("btn_items.png")
+
+    # Menu Items
+    BTN_ITEMS_RESOURCES = TemplateImage("btn_items_resources.png")

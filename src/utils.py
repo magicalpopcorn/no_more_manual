@@ -4,7 +4,7 @@ import functools
 import random
 import time
 from time import sleep
-from typing import Callable
+from typing import Callable, Union
 
 import pygetwindow as gw
 
@@ -130,7 +130,7 @@ def reallocate_and_resize(window_title, slot_index=0, total_slots=2):
     )
 
 
-def timed_polling(timeout, interval=1.0, info=""):
+def timed_polling(timeout=30, interval=1.0, info=""):
     """
     Decorator to wrap a polling function with timeout logic.
 
@@ -169,18 +169,18 @@ def retry(max_attempts=3, delay=1.0, info="", action_if_fail: Callable = None):
         delay (float): Delay (seconds) between attempts.
     """
 
-    def decorator(func: Callable):
+    def decorator(func: Callable[[], bool]):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if info:
-                logger.info(info)
+                logger.debug(info)
             for attempt in range(1, max_attempts + 1):
                 result = func(*args, **kwargs)
                 if result:
                     return result
                 if action_if_fail:
                     action_if_fail()
-                print(f"[retry] Attempt {attempt} failed, retrying in {delay}s...")
+                logger.warning(f"[retry] Attempt {attempt} failed, retrying in {delay}s...")
                 time.sleep(delay)
             else:
                 raise TimeoutError(f"Failed to proceed action with {max_attempts} retries")

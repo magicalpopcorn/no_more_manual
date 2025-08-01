@@ -12,8 +12,9 @@ class MenuSettings(_Menu):
     BTN_ACCOUNT_MENU = Button("Account", P(1050, 510), P(1165, 605))  # d
 
     @classmethod
-    def open(cls):
+    def _open(cls):
         MenuProfile.BTN_SETTINGS.click(2000)
+        return True
 
 
 class MenuCharacters(_Menu):
@@ -26,8 +27,9 @@ class MenuCharacters(_Menu):
     BTN_SWITCH_YES = Button("Switch_Yes", P(1081, 732), P(1367, 797))
 
     @classmethod
-    def open(cls):
+    def _open(cls):
         MenuSettings.BTN_CHARACTERS_MENU.click(2500)
+        return True
 
     @classmethod
     @cache
@@ -68,5 +70,6 @@ class MenuAccounts(_Menu):
     BTN_LOGIN = Button("Login", P(765, 560), P(1060, 615))  # d
 
     @classmethod
-    def open(cls):
+    def _open(cls):
         MenuSettings.BTN_ACCOUNT_MENU.click(delay=1200)
+        return True

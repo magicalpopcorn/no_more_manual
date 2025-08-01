@@ -1,9 +1,7 @@
 import json
 import os
 
-import yaml
-
-from src import const, logger
+from src import const, logger, utils
 from src.element import Button, Gap, P, RectZone, TextButton
 from src.rok_profile import RokProfile
 from src.vision import ocr
@@ -62,9 +60,11 @@ class MenuItems(_Menu):
         self._save_cache()
 
     @classmethod
-    def open(cls):
-        super().open()
-        MenuMain.BTN_ITEM.click()
+    def _open(cls):
+        MenuMain.open_sub_menu()
+        MenuMain.BTN_ITEMS.click()
+        # TODO: Checking if failed here -> return False
+        return True
 
     def _load_cache(self):
         if os.path.exists(self._cache_path):

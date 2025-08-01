@@ -1,4 +1,4 @@
-from src import logger
+from src import logger, utils
 from src.api import adb
 from src.element import RectZone
 from src.vision import image
@@ -22,8 +22,15 @@ class _Menu:
 
     @classmethod
     def open(cls):
+        # child classes should not inherit
         logger.info(f"Open {cls.__name__}")
-        # child classes should inherit
+        cls._open()
+
+    @classmethod
+    @utils.retry(info=lambda cls: f"Openn {cls.__name__}")
+    def _open(cls):
+        """Child classes define how to open menu, it will automatically retry if failed"""
+        return True
 
     @classmethod
     def close(cls):
