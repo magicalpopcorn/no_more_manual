@@ -3,9 +3,9 @@ import time
 from functools import cache
 from math import ceil, floor
 
-from src import logger
+from src import logger, utils
 from src.element import BTN_SEARCH_NODE, Button, Distance, Gap, Length, P, RectZone, Width
-from src.vision import ocr
+from src.vision import cv, image, ocr
 
 
 class MenuSearch:
@@ -39,25 +39,20 @@ class MenuSearch:
     _is_open = False
 
     @classmethod
+    @utils.retry(max_attempts=3, info="Open Search Menu")
     def open(cls):
         """If Menu Search open, button search should exists"""
-        MAX_RETRIES = 3
-        search_btn = cls._BTN_SEARCH_BARB
-        if cls.selected_rss_type:
-            search_btn = cls.get_search_button(cls.selected_rss_type)
-        logger.debug(f"Check for Search BTN: {search_btn}")
-
         if not cls._is_open:
-            for attempt in range(MAX_RETRIES):
-                BTN_SEARCH_NODE.click()
-                if ocr.extract_text_from_rect(search_btn) == "SEARCH":
-                    break
-                time.sleep(0.5)
-            else:
-                raise TimeoutError("SEARCH button text not detected after 3 attempts.")
-            cls._is_open = True
+            BTN_SEARCH_NODE.click()
+            if cv.match_region_with_template(
+                cls._BTN_BASE_DEPOSITE, image.RokImages.CROPLAND, verbose=True
+            ):
+                cls._is_open = True
+                return True
+            return False
         else:
-            logger.debug("MenuSearch already opened")
+            logger.debug("Menu Search already opened")
+            return True
 
     @classmethod
     def reset(cls):

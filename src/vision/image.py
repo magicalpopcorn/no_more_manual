@@ -92,3 +92,4 @@ class RokImages:
     CASTLE_ICON = TemplateImage("castle_icon.png")
     MAP_ICON = TemplateImage("map_icon.png")
     SWORD_ICON = TemplateImage("sword_of_power.png")
+    CROPLAND = TemplateImage("cropland.png")

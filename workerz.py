@@ -55,6 +55,7 @@ def init_rok(instance_name):
 
 def init_process(instance_name):
     sys.stdout.reconfigure(encoding="utf-8")
+    logger.setup_logger()
     logger.action("Init start", f"Instance name: '{instance_name}'")
 
     if instance_name not in (instances := ldc.list()):
@@ -64,14 +65,22 @@ def init_process(instance_name):
     init_adb(instance_name)
     init_rok(instance_name)
 
-    logger.info("Init done\n")
+    logger.info("-----------------INIT DONE-----------------\n")
 
 
 def test():
     # ui.MenuMain.navigate_to_map_screen()
     # text = ui.MenuItems._get_item_name()
     # print(text)
-    ui.MenuMain.wait_for_ingame_ready()
+    # ui.MenuMain.wait_for_ingame_ready()
+    time.sleep(1)
+    sys.exit(0)
+
+
+def capture():
+    # capture button
+    btn = ui.MenuSearch._BTN_BASE_DEPOSITE
+    vision.image.get_image_from_rect(btn, save=True)
     sys.exit(0)
 
 
@@ -89,6 +98,8 @@ if __name__ == "__main__":
         if len(sys.argv) > 1:
             if sys.argv[1] == "test":
                 test()
+            elif sys.argv[1] == "cap":
+                capture()
 
         profile = RokProfile()
         walker = action.Walker()
@@ -100,7 +111,7 @@ if __name__ == "__main__":
 
         for action in [
             # use_item.use_24h_gather_boost,
-            # gatherer.gather,
+            gatherer.gather,
             # collector.collect_all,
         ]:
             walker.register_action(action)
@@ -117,6 +128,9 @@ if __name__ == "__main__":
                 raise RuntimeError(f"Weird action mode {profile.action_mode}")
 
         logger.info("Finished !!!")
+    except KeyboardInterrupt:
+        logger.error("KeyboardInterrupt")
+        sys.exit(1)
     except Exception:
         logger.exception("Exception", stack_info=True)
         sys.exit(1)
