@@ -26,7 +26,7 @@ class RectZone:
 
     def locate(self):
         for corner in self._get_corners():
-            corner.mouse_move()
+            logger.debug(corner)
             time.sleep(1)
 
     def get_random_P(self):
@@ -63,7 +63,7 @@ class Button(RectZone):
 
     Behavior:
         - Provides random points within the rectangular area.
-        - Supports precise mouse movement, click, and hold actions.
+        - Supports precise click, and hold actions.
         - Can be visually located by corner highlights for debugging or mapping.
 
     This class assumes the defined rectangle corresponds to a visible and clickable

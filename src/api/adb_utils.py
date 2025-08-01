@@ -14,7 +14,7 @@ class ADBInstance:
 
     @classmethod
     def init_instance(cls, device_index: int):
-        """BUG: using device index is wrong, temprarily still working with sole instance
+        """FIXME: using device index is wrong, temprarily still working with sole instance
         Use case: start main before farm
         """
         if cls._device is None:

@@ -1,3 +1,5 @@
+from typing import final
+
 from src import logger, utils
 from src.api import adb
 from src.element import RectZone
@@ -21,8 +23,9 @@ class _Menu:
         self.close()
 
     @classmethod
+    @final
     def open(cls):
-        # child classes should not inherit
+        # child classes should not modify
         logger.info(f"Open {cls.__name__}")
         cls._open()
 

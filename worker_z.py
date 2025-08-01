@@ -118,8 +118,8 @@ if __name__ == "__main__":
         collector = action.Collect()
 
         for action in [
-            use_item.use_8h_gather_boost,
-            # gatherer.gather,
+            use_item.use_24h_gather_boost,
+            gatherer.gather,
             # collector.collect_all,
         ]:
             walker.register_action(action)
@@ -141,4 +141,5 @@ if __name__ == "__main__":
         sys.exit(1)
     except Exception:
         logger.exception("Exception", stack_info=True)
+        time.sleep(10)
         sys.exit(1)

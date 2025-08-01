@@ -23,7 +23,6 @@ class Collect:
         with MenuCity():
             self.purchase_items()
             self.claim_vip()
-            # self.claim_sth()
             self.claim_rss_in_city()
 
     @only_during_periods([const.TIME_EARLY_MORNING, const.TIME_NIGHT])
@@ -34,10 +33,6 @@ class Collect:
     @only_during_periods(const.TIME_EARLY_MORNING)
     def claim_vip(self):
         logger.debug("This should only triggered in the morning")
-
-    @only_during_periods(const.TIME_NIGHT)
-    def claim_sth(self):
-        logger.debug("This should only trigger in the night")
 
     def purchase_items(self):
         with MenuMerchant() as mm:

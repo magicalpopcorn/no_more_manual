@@ -81,7 +81,6 @@ class MenuItems(_Menu):
                 indent=2,
                 ensure_ascii=False,
                 sort_keys=True,
-                separators=(",", ": "),
             )
 
     def scan(self, item_type: Button):

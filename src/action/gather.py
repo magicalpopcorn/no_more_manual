@@ -74,6 +74,9 @@ class Gather:
                     MenuSearch.update_last_deposite_loc(cur_loc)
                     # once found, MenuSearch close
                     MenuSearch.update_state(False)
+
+                    # FIXME: There is small chance that the node is found with higher level
+                    # which does not fit the load of the march.
                     break
                 else:
                     logger.debug("The same node found, still search for next one")

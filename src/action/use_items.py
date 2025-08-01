@@ -1,5 +1,4 @@
 from src import const, logger
-from src.rok_profile import Character
 from src.ui import MenuItems
 from src.utils import only_during_periods
 
