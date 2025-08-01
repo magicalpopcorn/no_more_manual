@@ -3,14 +3,13 @@ import time
 
 from src import logger
 from src.api import adb
-from src.element import BTN_GATHER, P, RectZone
+from src.element import BTN_GATHER
 from src.rok_profile import RokProfile
 from src.ui import MenuDispatch, MenuMain, MenuSearch
 from src.vision import ocr
 
 
 class Gather:
-    MARCH_STATUS = RectZone("March_status", P(1815, 205), P(1860, 230))  # d
 
     def __init__(self):
         self.profile = RokProfile()
@@ -20,9 +19,8 @@ class Gather:
         rss_level = char.rss_level
         rss_order = list(char.rss_order)
 
-        text = ocr.extract_text_from_rect(Gather.MARCH_STATUS)
-        if text:
-            if obj := re.match(r"(\d)/(\d)", text):
+        if marches := MenuMain.get_available_march():
+            if obj := re.match(r"(\d)/(\d)", marches):
                 used_m, all_m = map(int, obj.groups())
                 for _ in range(used_m):
                     rss_order.pop()
@@ -33,7 +31,7 @@ class Gather:
             f", Marches available: {len(rss_order)}",
         )
 
-        MenuMain.navigate_to_map_screen()
+        MenuMain.open_map_screen()
         MenuSearch.reset()
 
         if not rss_order:

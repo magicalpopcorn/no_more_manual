@@ -23,7 +23,7 @@ class MenuCity(_Menu):
     @classmethod
     def open(cls):
         super().open()
-        MenuMain.navigate_to_map_screen()
+        MenuMain.open_map_screen()
         MenuMain.BTN_HOME.click()
         cls._is_opened = True
 

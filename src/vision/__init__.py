@@ -1,1 +1,1 @@
-from . import ocr
+from . import cv, image, ocr

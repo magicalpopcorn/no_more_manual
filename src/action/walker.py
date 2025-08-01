@@ -8,7 +8,7 @@ from src import const, logger
 from src.api import adb
 from src.element import BTN_ISSUE_CONFIRM
 from src.rok_profile import Character, RokProfile
-from src.ui import MenuAccounts, MenuCharacters, MenuProfile, MenuSettings
+from src.ui import MenuAccounts, MenuCharacters, MenuMain, MenuProfile, MenuSettings
 from src.ui.menu_chatbox import confirm_done
 from src.utils import sleep_random
 from src.vision import ocr
@@ -126,7 +126,9 @@ class Walker:
         # That means when open the account center, we just proceed the switching
         # TODO: Implement to choose account from Menu "Chọn tài khoản"
         MenuAccounts.BTN_SWITCH_ACCOUNT.click(2000)
-        MenuAccounts.BTN_LOGIN.click(const.DURATION_SWITCH_ACCOUNT)
+        MenuAccounts.BTN_LOGIN.click()
+
+        MenuMain.wait_for_ingame_ready()
 
     def switch_character(self, char_id: str):
         """
@@ -153,13 +155,12 @@ class Walker:
             adb.screenshot()
             BTN_ISSUE_CONFIRM.click()
 
-        switching_duration = const.DURATION_SWITCH_CHARACTER + random.randint(300, 500)
         MenuCharacters.BTN_SWITCH_YES.click()
 
-        logger.info(
-            f"Switching to character slot {character.slot_number}. Wait {switching_duration}ms"
-        )
-        time.sleep(const.DURATION_SWITCH_CHARACTER / 1000)
+        # switching_duration = const.DURATION_SWITCH_CHARACTER + random.randint(300, 500)
+        logger.info(f"Switching to character slot {character.slot_number}")
+        # time.sleep(const.DURATION_SWITCH_CHARACTER / 1000)
+        MenuMain.wait_for_ingame_ready()
 
     def confirm_done(self):
         """UI logic to confirm farming completion"""

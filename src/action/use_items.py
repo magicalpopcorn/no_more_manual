@@ -17,7 +17,7 @@ class UseItems:
             item = mi.get_boost_item_by_name(mi.BOOST_GATHER_8)
             if item is None:
                 return
-            mi.use_boost_item(force=True)
+            mi.use_boost_item(force=False)
 
     @only_during_periods(const.TIME_EARLY_MORNING)
     def use_24h_gather_boost(self, char_id: str):

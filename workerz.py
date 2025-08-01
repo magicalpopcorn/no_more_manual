@@ -48,8 +48,7 @@ def init_rok(instance_name):
         )
     ):
         ldp.runapp(packagename=PACKAGE)
-        logger.debug(f"Wait for app open: 30s")
-        time.sleep(30)
+        ui.MenuMain.wait_for_ingame_ready()
     else:
         logger.debug(f"ROK already started:\nshell ps | grep {PACKAGE}\n{out.strip()}")
 
@@ -70,6 +69,9 @@ def init_process(instance_name):
 
 def test():
     # ui.MenuMain.navigate_to_map_screen()
+    # text = ui.MenuItems._get_item_name()
+    # print(text)
+    ui.MenuMain.wait_for_ingame_ready()
     sys.exit(0)
 
 
@@ -97,7 +99,7 @@ if __name__ == "__main__":
         collector = action.Collect()
 
         for action in [
-            use_item.use_24h_gather_boost,
+            # use_item.use_24h_gather_boost,
             gatherer.gather,
             # collector.collect_all,
         ]:

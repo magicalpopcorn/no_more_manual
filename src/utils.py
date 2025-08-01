@@ -87,7 +87,7 @@ def get_taskbar_height():
     return physical_height - work_height
 
 
-def reallocate_and_resize(window_title, slot_index=0, total_slots=3):
+def reallocate_and_resize(window_title, slot_index=0, total_slots=2):
     """
     Place the specified window (by unique title) in the correct 'slot' (top=0),
     based on screen size, aspect ratio, and DPI.
@@ -127,3 +127,63 @@ def reallocate_and_resize(window_title, slot_index=0, total_slots=3):
         f"Window '{window_title}' placed at slot {slot_index} "
         f"({x},{y}), size {logical_width}x{logical_height}"
     )
+
+
+def timed_polling(timeout, interval=1.0, info=""):
+    """
+    Decorator to wrap a polling function with timeout logic.
+
+    The wrapped function should return True when the desired condition is met,
+    otherwise return False or None to keep polling.
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.perf_counter()
+            deadline = time.monotonic() + timeout
+            if info:
+                logger.info(info)
+            while time.monotonic() < deadline:
+                if func(*args, **kwargs):
+                    duration = time.perf_counter() - start_time
+                    logger.info(f"Completed in {duration:.2f} seconds.")
+                    return
+                time.sleep(interval)
+            duration = time.perf_counter() - start_time
+            logger.error(f"Timeout after {duration:.2f} seconds.")
+            raise TimeoutError("Timeout exceeded")
+
+        return wrapper
+
+    return decorator
+
+
+def retry(max_attempts=3, delay=1.0, info="", action_if_fail=None):
+    """
+    Retry decorator.
+
+    Args:
+        max_attempts (int): Max number of attempts before giving up.
+        delay (float): Delay (seconds) between attempts.
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if info:
+                logger.info(info)
+            for attempt in range(1, max_attempts + 1):
+                result = func(*args, **kwargs)
+                if result:
+                    return result
+                if action_if_fail:
+                    action_if_fail()
+                print(f"[retry] Attempt {attempt} failed, retrying in {delay}s...")
+                time.sleep(delay)
+            else:
+                raise TimeoutError(f"Failed to proceed action with {max_attempts} retries")
+
+        return wrapper
+
+    return decorator

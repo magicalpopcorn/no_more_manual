@@ -1,3 +1,4 @@
+import json
 import os
 
 import yaml
@@ -53,7 +54,7 @@ class MenuItems(_Menu):
     def __init__(self, char_id: str):
         """Each character has their own item inventory"""
         self.char_id = char_id
-        self._cache_path = os.path.join(CACHE_DIR, "items.yml")
+        self._cache_path = os.path.join(CACHE_DIR, "items.json")
         self._cache_data = self._load_cache()
         self.profile = RokProfile()
 
@@ -68,14 +69,19 @@ class MenuItems(_Menu):
     def _load_cache(self):
         if os.path.exists(self._cache_path):
             with open(self._cache_path, "r", encoding="utf-8") as f:
-                return yaml.safe_load(f) or {}
+                return json.load(f)
         return {}
 
     def _save_cache(self):
         os.makedirs(os.path.dirname(self._cache_path), exist_ok=True)
         with open(self._cache_path, "w", encoding="utf-8") as f:
-            yaml.safe_dump(
-                self._cache_data, f, sort_keys=True, allow_unicode=True, default_flow_style=False
+            json.dump(
+                self._cache_data,
+                f,
+                indent=2,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ": "),
             )
 
     def scan(self, item_type: Button):
@@ -168,5 +174,6 @@ class MenuItems(_Menu):
             else:
                 self.BTN_NOTICE_NO.click()
 
-    def _get_item_name(self):
-        return ocr.extract_text_from_rect(self._ITEM_NAME_ZONE).replace("\n", " ").strip()
+    @classmethod
+    def _get_item_name(cls):
+        return " ".join(ocr.extract_multi_text_from_rect(cls._ITEM_NAME_ZONE))

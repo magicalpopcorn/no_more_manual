@@ -9,11 +9,6 @@ RESOLUTION = (1920, 1080)
 MIL = 1000000  # 1M rss
 BIL = 1000 * MIL  # 1B rss
 
-# Time
-# TODO: Implement smart switch_duration
-DURATION_SWITCH_CHARACTER = 20000  # 15s
-DURATION_SWITCH_ACCOUNT = 20000  # 15s
-
 FARM_THREAD_POSITION = 1
 
 TIME_EARLY_MORNING = (datetime.time(6, 0), datetime.time(8, 0))
