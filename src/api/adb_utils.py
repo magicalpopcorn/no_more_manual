@@ -1,3 +1,4 @@
+import io
 import os
 import time
 
@@ -42,6 +43,10 @@ class ADBInstance:
             f.write(image_bytes)
         logger.debug(f"Capture screenshot: {image_path}")
         return image_path
+
+    @classmethod
+    def screencap(cls):
+        return io.BytesIO(cls._device.screencap())
 
     @classmethod
     def send_escape(cls):

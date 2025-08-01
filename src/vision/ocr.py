@@ -1,11 +1,7 @@
-import os
-import time
-
 import pytesseract
 from PIL import Image, ImageFilter, ImageOps
 
 from src import logger
-from src.api import adb
 from src.element import Button, RectZone
 
 from .image import crop_image_to_rect, get_image_from_rect, save_image
@@ -52,7 +48,7 @@ def extract_number_from_rect(rect: RectZone | Button, crop_rate=95, save=False) 
     """
     assert 0 < crop_rate < 100
 
-    img_obj = crop_image_to_rect(adb.screenshot(), rect, crop_rate)
+    img_obj = crop_image_to_rect(rect, crop_rate)
 
     if save:
         save_image(img_obj, rect.name)

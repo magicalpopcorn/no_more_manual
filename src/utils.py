@@ -4,6 +4,7 @@ import functools
 import random
 import time
 from time import sleep
+from typing import Callable
 
 import pygetwindow as gw
 
@@ -159,7 +160,7 @@ def timed_polling(timeout, interval=1.0, info=""):
     return decorator
 
 
-def retry(max_attempts=3, delay=1.0, info="", action_if_fail=None):
+def retry(max_attempts=3, delay=1.0, info="", action_if_fail: Callable = None):
     """
     Retry decorator.
 
@@ -168,7 +169,7 @@ def retry(max_attempts=3, delay=1.0, info="", action_if_fail=None):
         delay (float): Delay (seconds) between attempts.
     """
 
-    def decorator(func):
+    def decorator(func: Callable):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if info:

@@ -14,17 +14,16 @@ from src.element import Button, RectZone
 IMAGES_FOLDER = logger.LOG_FOLDER / "images"
 
 
-def save_image(img_obj: Image, name, path=""):
+def save_image(img_obj: Image, name):
     os.makedirs(IMAGES_FOLDER, exist_ok=True)
-    filename = path
-    if not path:
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(IMAGES_FOLDER, f"{name}_{timestamp}.png")
+
+    timestamp = time.strftime("%H%M%S")
+    filename = os.path.join(IMAGES_FOLDER, f"{name}_{timestamp}.png")
     logger.debug(f"Saved screenshot: {filename} ")
     img_obj.save(filename)
 
 
-def crop_image_to_rect(image_path: str, rect: RectZone | Button, crop_rate: int = 100) -> Image:
+def crop_image_to_rect(rect: RectZone | Button, crop_rate: int = 100) -> Image:
     """
     Crop image at image_path to the RectZone,
     and further crop by crop_rate% (centered).
@@ -33,34 +32,38 @@ def crop_image_to_rect(image_path: str, rect: RectZone | Button, crop_rate: int 
     """
     assert 0 < crop_rate <= 100
 
-    with Image.open(image_path) as img:
-        left, top = rect.p1._xy
-        right, bottom = rect.p2._xy
+    fullscreen = Image.open(adb.screencap())
+    left, top = rect.p1._xy
+    right, bottom = rect.p2._xy
 
-        # Rectangle crop dimensions
-        width = right - left
-        height = bottom - top
+    # Rectangle crop dimensions
+    width = right - left
+    height = bottom - top
 
-        # Calculate margins for inner crop
-        crop_ratio = round((1 - crop_rate / 100) / 2, 3)
-        crop_margin_x = int(width * crop_ratio)
-        crop_margin_y = int(height * crop_ratio)
+    # Calculate margins for inner crop
+    crop_ratio = round((1 - crop_rate / 100) / 2, 3)
+    crop_margin_x = int(width * crop_ratio)
+    crop_margin_y = int(height * crop_ratio)
 
-        img_obj = img.crop(
-            (
-                left + crop_margin_x,
-                top + crop_margin_y,
-                right - crop_margin_x,
-                bottom - crop_margin_y,
-            )
+    img_obj = fullscreen.crop(
+        (
+            left + crop_margin_x,
+            top + crop_margin_y,
+            right - crop_margin_x,
+            bottom - crop_margin_y,
         )
+    )
 
-    os.remove(image_path)
     return img_obj
 
 
+def screenshot(name="screen"):
+    fullscreen = Image.open(adb.screencap())
+    save_image(fullscreen, name)
+
+
 def get_image_from_rect(rect: RectZone | Button, save=False) -> Image:
-    img = crop_image_to_rect(adb.screenshot(), rect)
+    img = crop_image_to_rect(rect)
     if save:
         save_image(img, rect.name)
     return img

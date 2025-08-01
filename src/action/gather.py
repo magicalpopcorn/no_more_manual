@@ -2,11 +2,10 @@ import re
 import time
 
 from src import logger
-from src.api import adb
 from src.element import BTN_GATHER
 from src.rok_profile import RokProfile
 from src.ui import MenuDispatch, MenuMain, MenuSearch
-from src.vision import ocr
+from src.vision import image, ocr
 
 
 class Gather:
@@ -78,13 +77,13 @@ class Gather:
                     break
                 else:
                     logger.debug("The same node found, still search for next one")
-                    adb.screenshot()
+                    image.screenshot("same_loc")
                     # If found the same node, MenuSearch closed
                     # Re-open to search for next one
                     MenuSearch.update_state(False)
                     MenuSearch.open()
             else:
-                adb.screenshot()
+                image.screenshot("gather_not_found")
 
             cur_level = node_level
             node_level -= 1

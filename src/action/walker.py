@@ -1,5 +1,4 @@
 import copy
-import random
 import re
 import time
 from typing import Callable, List
@@ -11,7 +10,7 @@ from src.rok_profile import Character, RokProfile
 from src.ui import MenuAccounts, MenuCharacters, MenuMain, MenuProfile, MenuSettings
 from src.ui.menu_chatbox import confirm_done
 from src.utils import sleep_random
-from src.vision import ocr
+from src.vision import image, ocr
 
 
 class Walker:
@@ -151,15 +150,14 @@ class Walker:
         sleep_random(500, 800)
 
         # Check for network error confirmation
+        # TODO: Should be handled more properly - a Error Checking Class ???
         if ocr.extract_text_from_rect(BTN_ISSUE_CONFIRM).upper() == "CONFIRM":
-            adb.screenshot()
+            image.screenshot("network_issue")
             BTN_ISSUE_CONFIRM.click()
 
         MenuCharacters.BTN_SWITCH_YES.click()
 
-        # switching_duration = const.DURATION_SWITCH_CHARACTER + random.randint(300, 500)
         logger.info(f"Switching to character slot {character.slot_number}")
-        # time.sleep(const.DURATION_SWITCH_CHARACTER / 1000)
         MenuMain.wait_for_ingame_ready()
 
     def confirm_done(self):
@@ -180,7 +178,7 @@ class Walker:
                 with MenuAccounts() as ma:
                     uid_text = ocr.extract_text_from_rect(ma.ZONE_UID, save=True)
                     if not (match_obj := re.match(r"UID (\d+)", uid_text)):
-                        adb.screenshot()
+                        image.screenshot("uid_not_found")
                         raise RuntimeError("Failed to get account UID")
                     uid = match_obj.group(1)
         return uid

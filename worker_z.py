@@ -69,10 +69,11 @@ def init_process(instance_name):
 
 
 def test():
-    # ui.MenuMain.navigate_to_map_screen()
+    # ui.MenuMain.open_city_screen()
     # text = ui.MenuItems._get_item_name()
     # print(text)
     # ui.MenuMain.wait_for_ingame_ready()
+    vision.image.get_image_from_rect2(ui.MenuMain.BTN_HOME, save=True)
     time.sleep(1)
     sys.exit(0)
 
@@ -110,7 +111,7 @@ if __name__ == "__main__":
         collector = action.Collect()
 
         for action in [
-            # use_item.use_24h_gather_boost,
+            use_item.use_24h_gather_boost,
             gatherer.gather,
             # collector.collect_all,
         ]:
