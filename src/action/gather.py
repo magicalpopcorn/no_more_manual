@@ -19,7 +19,7 @@ class Gather:
         rss_order = list(char.rss_order)
 
         if marches := MenuMain.get_available_march():
-            if obj := re.match(r"(\d)/(\d)", marches):
+            if obj := re.search(r"(\d)/(\d)", marches):
                 used_m, all_m = map(int, obj.groups())
                 for _ in range(used_m):
                     rss_order.pop()

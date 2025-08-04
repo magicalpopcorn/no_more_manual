@@ -1,4 +1,5 @@
 import io
+import json
 import os
 import time
 
@@ -6,29 +7,77 @@ from ppadb.client import Client as AdbClient
 from ppadb.device import Device
 
 from src import logger
+from src.const import PROJECT_ROOT
+
+from .ldp_utils import LDInstance as ldp
+
+MAPPING_FILE = PROJECT_ROOT / "adb_ldp_mapping.json"
 
 
 class ADBInstance:
     _client = AdbClient(host="127.0.0.1", port=5037)
     _device: Device = None
+    _pre_running_devices: set = None
 
     @classmethod
-    def init_instance(cls, device_index: int):
-        """FIXME: using device index is wrong, temprarily still working with sole instance
-        Use case: start main before farm
+    def init_instance(cls, instance_name):
+        """FIXME: Spagetti code, pls refactor
+
+        Raise: ConnectionError
         """
         if cls._device is None:
-            logger.debug(f"Init ADBInstance with index {device_index}")
+            logger.debug(f"Init ADBInstance with LDPInstance {instance_name}")
+            logger.debug(f"_pre_running_devices: {cls._pre_running_devices}")
             timeout = 30  # seconds
             start_time = time.time()
-            while len(cls._client.devices()) < (device_index + 1):
-                if time.time() - start_time > timeout:
-                    logger.error("Timeout reached, exiting.")
-                    raise RuntimeError(f"Failed to init ADBInstance")
-                time.sleep(1)
-            cls._device = cls._client.devices()[device_index]
+
+            if instance_name not in ldp._running_instances:
+                logger.debug("Fresh init. Wait for device up")
+                # At this point ldpinstance should be already started
+                # wait for new element in cls._client.devices()
+                while len(cls._client.devices()) == len(cls._pre_running_devices):
+                    if time.time() - start_time > timeout:
+                        raise TimeoutError("Timeout: No new device appeared within the given time.")
+                    logger.warning(f"Device not ready, wait for more... {cls._client.devices()}")
+                    time.sleep(5)
+                # adb devices will have new device
+                devices = {device.serial for device in cls._client.devices()}
+                logger.debug(f"Device ready: {devices}")
+                device_serial = devices - cls._pre_running_devices
+                if len(device_serial) != 1:
+                    raise ConnectionError(
+                        f"How TF device_serial more than 2: {device_serial}. Recheck pls"
+                    )
+                device_serial = device_serial.pop()
+                logger.info(f"Desired device to connect {device_serial}")
+                for device in cls._client.devices():
+                    if device_serial == device.serial:
+                        cls._device = device
+                        logger.info(f"Connected adb {device.serial} with instance {instance_name}")
+                        with open(MAPPING_FILE, "r+", encoding="utf-8") as f:
+                            data = json.load(f)
+                            data[instance_name] = device.serial
+                            f.seek(0)
+                            json.dump(data, f, indent=4)
+                            f.truncate()
+                        break
+                else:
+                    raise ConnectionError(f"Device for LDPInstance {instance_name} not found")
+            else:
+                # In case instance already started, but just get the instance
+                logger.debug("Instance already initiated")
+                with open(MAPPING_FILE, "r+", encoding="utf-8") as f:
+                    data = json.load(f)
+                device_serial = data[instance_name]
+                for device in cls._client.devices():
+                    if device_serial == device.serial:
+                        cls._device = device
+                        logger.info(f"Connected adb {device.serial} with instance {instance_name}")
+                        break
+                else:
+                    raise ConnectionError(f"Device for LDPInstance {instance_name} not found")
         else:
-            logger.warning(f"ADBInstance initiated: {cls._device}")
+            logger.warning(f"ADBInstance already initiated: {cls._device}")
 
     @classmethod
     def screenshot(cls, image_path=""):

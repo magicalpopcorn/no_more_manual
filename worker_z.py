@@ -10,7 +10,7 @@ MAIN_INSTANCE = "main"
 instance = FARM_INSTANCE
 # instance = MAIN_INSTANCE
 
-PACKAGE = "com.rok.gp.vn"
+ROK_PACKAGE = "com.rok.gp.vn"
 
 
 def init_ldp(instance_name):
@@ -20,37 +20,35 @@ def init_ldp(instance_name):
         logger.debug(f"Start instance '{instance_name}', wait for 15s")
         while ldp.isrunning() != "running":
             time.sleep(1)
-        # time.sleep(15)
         logger.debug(f"Instance '{instance_name}' started")
     else:
         logger.debug(f"Instance '{instance_name}' already started")
-    utils.reallocate_and_resize(instance_name, ldc.list().splitlines().index(instance_name))
+    # utils.reallocate_and_resize(instance_name, ldc.list().splitlines().index(instance_name))
 
 
 def init_adb(instance_name):
-    subprocess.check_call("adb start-server")
-    adb.init_instance(ldc.list().splitlines().index(instance_name))
+    @utils.retry(max_attempts=2, info="Verify adb connection")
+    def init_and_verify_connection():
+        try:
+            adb.init_instance(instance_name)
+            adb.shell("true")
+            return True
+        except (RuntimeError, TimeoutError) as err:
+            logger.warning(f"adb error: {err}. Try rebooting LDplayer...")
+            ldc.reboot(instance_name)
+            adb._device = None
+            time.sleep(10)
+            subprocess.check_call("adb disconnect")
+            time.sleep(5)
+            return False
+
+    init_and_verify_connection()
 
 
 def init_rok(instance_name):
     logger.info("Init Rise of Kingdoms")
-    if not (
-        out := subprocess.check_output(
-            [
-                "ldconsole.exe",
-                "adb",
-                "--name",
-                instance_name,
-                "--command",
-                f"shell ps | grep {PACKAGE}",
-            ],
-            universal_newlines=True,
-        )
-    ):
-        ldp.runapp(packagename=PACKAGE)
-        ui.MenuMain.wait_for_ingame_ready()
-    else:
-        logger.debug(f"ROK already started:\nshell ps | grep {PACKAGE}\n{out.strip()}")
+    ldp.runapp(packagename=ROK_PACKAGE)
+    ui.MenuMain.wait_for_ingame_ready()
 
 
 def init_process(instance_name):
@@ -60,6 +58,12 @@ def init_process(instance_name):
 
     if instance_name not in (instances := ldc.list()):
         raise RuntimeError(f"Instance {instance_name} not exists\nInstances: {instances}")
+
+    subprocess.check_call("adb start-server")
+    subprocess.check_call("adb disconnect")
+    time.sleep(5)
+    adb._pre_running_devices = {device.serial for device in adb._client.devices()}
+    ldp._running_instances = set(ldc.runninglist().splitlines())
 
     init_ldp(instance_name)
     init_adb(instance_name)
@@ -74,6 +78,7 @@ def test():
     # print(text)
     # ui.MenuMain.wait_for_ingame_ready()
     # vision.image.get_image_from_rect(ui.MenuMain.BTN_HOME, save=True)
+    vision.image.screenshot()
     with ui.MenuItems("dei 2f1"):
         time.sleep(1)
     # print(

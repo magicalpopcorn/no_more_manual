@@ -13,6 +13,7 @@ ldc = LDConsole(_app_attr)
 
 class LDInstance:
     _instance_name: str = None
+    _running_instances = None
 
     @classmethod
     def init_instance(cls, name: str):
@@ -21,10 +22,6 @@ class LDInstance:
             cls._instance_name = name
         else:
             logger.warning(f"Failed to init LDInstance: {cls._instance_name}")
-
-    @staticmethod
-    def list() -> List[str]:
-        return ldc.list().splitlines()
 
     @staticmethod
     def launch():

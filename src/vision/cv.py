@@ -25,7 +25,7 @@ def match_region_with_template(
     Returns:
         True if match exceeds threshold, False otherwise.
     """
-    img_obj = get_image_from_rect(rect)
+    img_obj = get_image_from_rect(rect, save=verbose)
     region_np = np.array(img_obj)
     region_np = cv2.cvtColor(region_np, cv2.COLOR_RGB2GRAY)  # Always grayscale here
 

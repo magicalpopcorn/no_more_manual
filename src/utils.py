@@ -41,13 +41,13 @@ def only_during_periods(periods):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             now = datetime.datetime.now().time()
+            time_fmt = lambda s, e: f"{s.strftime('%H:%M')}-{e.strftime('%H:%M')}"
             for start, end in periods:
                 if start <= now <= end:
+                    logger.info(f"Schedule action: {time_fmt(start, end)}")
                     return func(*args, **kwargs)
             # If current time is not in any period
-            period_str = ", ".join(
-                f"{s.strftime('%H:%M')}-{e.strftime('%H:%M')}" for s, e in periods
-            )
+            period_str = ", ".join(f"{time_fmt(s, e)}" for s, e in periods)
             logger.warning(
                 f"[{func.__name__}] skipped: now={now.strftime('%H:%M:%S')}, "
                 f"outside allowed period(s): {period_str}"
@@ -150,6 +150,7 @@ def timed_polling(timeout=30, interval=1.0, info=""):
                     duration = time.perf_counter() - start_time
                     logger.info(f"Completed in {duration:.2f} seconds.")
                     return
+                logger.debug(f"Not ready, retry checking after {interval} second(s)")
                 time.sleep(interval)
             duration = time.perf_counter() - start_time
             logger.error(f"Timeout after {duration:.2f} seconds.")

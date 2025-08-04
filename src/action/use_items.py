@@ -23,7 +23,7 @@ class UseItems:
         """
         Use 24h gathering boost item for character
         """
-        logger.action("Use boost item in EARLY_MORNING", MenuItems.BOOST_GATHER_24)
+        logger.action("Use boost item", MenuItems.BOOST_GATHER_24)
         with MenuItems(char_id) as mi:
             item = mi.get_boost_item_by_name(mi.BOOST_GATHER_24)
             if item is None:
