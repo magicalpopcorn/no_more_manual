@@ -77,6 +77,9 @@ class TemplateImage:
         self._to_grayscale = to_grayscale
         self._image = None  # Not loaded yet
 
+        if not os.path.exists(self.path):
+            raise FileNotFoundError(f"image {image_name} not found")
+
     def as_array(self) -> np.ndarray:
         """Returns the image as a NumPy array. Loads it if not already loaded."""
         if self._image is None:
@@ -105,3 +108,7 @@ class RokImages:
 
     # Menu Items
     BTN_ITEMS_RESOURCES = TemplateImage("btn_items_resources.png")
+    BTN_ITEMS_BOOSTS = TemplateImage("btn_items_boosts.png")
+
+    # Menu Dispatch
+    RECT_DISPATCH_TITLE = TemplateImage("dispatch_title.png")

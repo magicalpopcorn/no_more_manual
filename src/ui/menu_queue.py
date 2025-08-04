@@ -1,4 +1,4 @@
-from src.element import Button, P
+from src.element import P, TextButton
 
 
 class MenuQueue:
@@ -7,4 +7,4 @@ class MenuQueue:
     MenuQueue opens after initiating a gathering or attack action.
     """
 
-    BTN_NEW_TROOP = Button("New_Troop", P(1383, 178), P(1651, 257))  # d
+    BTN_NEW_TROOP = TextButton("New_Troop", P(1383, 178), P(1651, 257))  # d

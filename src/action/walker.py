@@ -123,9 +123,9 @@ class Walker:
 
         # At this point, we are only managing 2 accounts
         # That means when open the account center, we just proceed the switching
-        # TODO: Implement to choose account from Menu "Chọn tài khoản"
-        MenuAccounts.BTN_SWITCH_ACCOUNT.click(2000)
-        MenuAccounts.BTN_LOGIN.click()
+        # TODO: Implement to choose account from Menu "Switch Accounts"
+        MenuAccounts.BTN_SWITCH_ACCOUNT.click(2000, verify=MenuAccounts.is_switch_menu_open)
+        MenuAccounts.BTN_LOGIN.click(verify=MenuAccounts.is_switch_menu_close)
 
         MenuMain.wait_for_ingame_ready()
 
@@ -146,16 +146,16 @@ class Walker:
         MenuCharacters.open()
 
         btn = MenuCharacters.get_character_button(character.slot_number)
-        btn.click()
+        btn.click(verify=MenuCharacters.is_login_menu_open)
         sleep_random(500, 800)
 
         # Check for network error confirmation
         # TODO: Should be handled more properly - a Error Checking Class ???
-        if ocr.extract_text_from_rect(BTN_ISSUE_CONFIRM).upper() == "CONFIRM":
+        if ocr.extract_text_from_rect(BTN_ISSUE_CONFIRM) == "CONFIRM":
             image.screenshot("network_issue")
             BTN_ISSUE_CONFIRM.click()
 
-        MenuCharacters.BTN_SWITCH_YES.click()
+        MenuCharacters.BTN_SWITCH_YES.click(verify=MenuCharacters.is_login_menu_close)
 
         logger.info(f"Switching to character slot {character.slot_number}")
         MenuMain.wait_for_ingame_ready()
@@ -176,7 +176,7 @@ class Walker:
         with MenuProfile():
             with MenuSettings():
                 with MenuAccounts() as ma:
-                    uid_text = ocr.extract_text_from_rect(ma.ZONE_UID, save=True)
+                    uid_text = ocr.extract_text_from_rect(ma.RECT_UID, save=True)
                     if not (match_obj := re.match(r"UID (\d+)", uid_text)):
                         image.screenshot("uid_not_found")
                         raise RuntimeError("Failed to get account UID")

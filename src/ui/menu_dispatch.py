@@ -1,5 +1,6 @@
 # menu_dispatch.py
-from src.element import Button, Gap, P
+from src.element import Button, Gap, P, RectZone
+from src.vision import cv, image
 
 from .menu_queue import MenuQueue
 
@@ -18,6 +19,18 @@ class MenuDispatch:
     _BTN_BASE_MARCH_NUMBER = Button("March", P(1636, 371), P(1676, 409))  # d
     BTN_MARCH = Button("March", P(1222, 905), P(1566, 994))  # d
     selected_loadout = 1  # Assume loadout 1 is always available
+
+    RECT_DISPATCH_TITLE = RectZone("Dispatch_Title", P(821, 37), P(1093, 94))
+
+    @classmethod
+    def is_open(cls):
+        return cv.match_region_with_template(
+            cls.RECT_DISPATCH_TITLE, image.RokImages.RECT_DISPATCH_TITLE
+        )
+
+    @classmethod
+    def is_close(cls):
+        return not cls.is_open()
 
     @classmethod
     def get_march_button(cls, march_number: int) -> Button:
@@ -42,6 +55,6 @@ class MenuDispatch:
             3. Click final 'March' button to confirm
         """
 
-        MenuQueue.BTN_NEW_TROOP.click()
+        MenuQueue.BTN_NEW_TROOP.click(verify=MenuDispatch.is_open)
         MenuDispatch.get_march_button(march_number).click()
-        MenuDispatch.BTN_MARCH.click()
+        MenuDispatch.BTN_MARCH.click(verify=MenuDispatch.is_close)

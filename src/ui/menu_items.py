@@ -4,7 +4,7 @@ import os
 from src import const, logger, utils
 from src.element import Button, Gap, P, RectZone, TextButton
 from src.rok_profile import RokProfile
-from src.vision import ocr
+from src.vision import cv, image, ocr
 
 from .base_menu import _Menu
 from .menu_main import MenuMain
@@ -38,7 +38,7 @@ class MenuItems(_Menu):
     _ITEM_HEIGHT = Gap(228)  # Vertical spacing between rows (top edge)
 
     # Right side of the sub-menu
-    _ITEM_NAME_ZONE = RectZone("Item_name", P(1270, 445), P(1655, 550))
+    _RECT_ITEM_NAME = RectZone("Item_name", P(1270, 445), P(1655, 550))
     BTN_USE_ITEM = TextButton("USE", P(1360, 890), P(1585, 970), 0.3)
 
     # If the buff already exits, confirm popup
@@ -48,6 +48,7 @@ class MenuItems(_Menu):
     # Common items
     BOOST_GATHER_24 = "24-Hour Enhanced Gathering"
     BOOST_GATHER_8 = "8-Hour Enhanced Gathering"
+    BOOST_SHIELD_8 = "8-Hour Peace Shield"
 
     def __init__(self, char_id: str):
         """Each character has their own item inventory"""
@@ -60,11 +61,17 @@ class MenuItems(_Menu):
         self._save_cache()
 
     @classmethod
-    def _open(cls):
+    def open(cls):
+        if cls.is_open():
+            logger.debug("Menu Items already opened")
+            return
         MenuMain.open_sub_menu()
-        MenuMain.BTN_ITEMS.click()
-        # TODO: Checking if failed here -> return False
-        return True
+        super().open()
+        MenuMain.BTN_ITEMS.click(verify=cls.is_open)
+
+    @classmethod
+    def is_open(cls):
+        return cv.match_region_with_template(cls.BTN_RESOURCES, image.RokImages.BTN_ITEMS_RESOURCES)
 
     def _load_cache(self):
         if os.path.exists(self._cache_path):
@@ -133,13 +140,14 @@ class MenuItems(_Menu):
 
         return Button(f"Item_{index_v}_{index_h}", p1, p2)
 
-    def get_item_by_name(self, item_type: Button, item_name: str) -> Button | None:
+    def get_item_by_name(self, item_type: TextButton, item_name: str) -> Button | None:
         """
         Retrieves an item button by item_name, using cached position if available.
         If not found, rescans and retries once.
         Item will be clicked already, just use it
         """
-        item_type.click()
+        item_type.click(verify=lambda: self.is_item_type_menu_open(item_type))
+
         if self.char_id in self._cache_data and item_name in self._cache_data[self.char_id]:
             i, j = self._cache_data[self.char_id][item_name]
             logger.debug(f"Using cached position for '{item_name}' at ({i}x{j})")
@@ -175,4 +183,13 @@ class MenuItems(_Menu):
 
     @classmethod
     def _get_item_name(cls):
-        return " ".join(ocr.extract_multi_text_from_rect(cls._ITEM_NAME_ZONE))
+        return " ".join(ocr.extract_multi_text_from_rect(cls._RECT_ITEM_NAME))
+
+    @classmethod
+    def is_item_type_menu_open(cls, item_type: TextButton):
+        match item_type.name:
+            case cls.BTN_BOOSTS.name:
+                img = image.RokImages.BTN_ITEMS_BOOSTS
+            case _:
+                raise NotImplemented(f"Item type: {item_type.name} not yet captured")
+        return cv.match_region_with_template(item_type, img)

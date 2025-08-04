@@ -1,10 +1,10 @@
 import re
 import time
 
-from src import logger
+from src import logger, utils
 from src.element import BTN_GATHER
 from src.rok_profile import RokProfile
-from src.ui import MenuDispatch, MenuMain, MenuSearch
+from src.ui import MenuDispatch, MenuMain, MenuQueue, MenuSearch
 from src.vision import image, ocr
 
 
@@ -45,7 +45,11 @@ class Gather:
                 )
                 break
             else:
-                BTN_GATHER.click(1000)
+                BTN_GATHER.click(
+                    1000,
+                    verify=lambda: ocr.extract_text_from_rect(MenuQueue.BTN_NEW_TROOP)
+                    == "New Troop",
+                )
                 MenuDispatch.dispatch(march_number)
 
     @staticmethod
@@ -68,7 +72,7 @@ class Gather:
             if Gather.is_gather_popup_shown():
                 # If searching with exhausted nodes and pointer stay at previous node
                 # we don't count on it
-                cur_loc = ocr.extract_text_from_rect(MenuSearch.ZONE_DEPOSITE_LOC)
+                cur_loc = ocr.extract_text_from_rect(MenuSearch.RECT_DEPOSITE_LOC)
                 if MenuSearch.is_different_loc(cur_loc):
                     logger.debug(f"Found node level {node_level}")
                     MenuSearch.update_last_deposite_loc(cur_loc)
@@ -106,13 +110,17 @@ class Gather:
             Gather.search_rss(next_rss_type, rss_level)
 
     @staticmethod
-    def find_and_click_deposit_button(rss_type):
+    def find_and_click_deposit_button(rss_type: str):
         if MenuSearch.selected_rss_type == rss_type:
             logger.debug(f"Resource type {rss_type} is already selected")
             return
 
         deposite = MenuSearch.get_deposite_button(rss_type)
-        deposite.click()
+        deposite.click(
+            verify=lambda: ocr.extract_text_from_rect(MenuSearch.get_search_button(rss_type))
+            == "SEARCH"
+        )
+
         MenuSearch.update_selected_rss_type(rss_type)
 
     @staticmethod

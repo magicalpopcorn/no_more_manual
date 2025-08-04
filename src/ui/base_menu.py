@@ -1,18 +1,20 @@
+from abc import ABC, abstractmethod
 from typing import final
 
-from src import logger, utils
+from src import logger
 from src.api import adb
 from src.element import RectZone
-from src.vision import image
+from src.vision import image, ocr
 
 
-class _Menu:
+class _Menu(ABC):
     """Base Menu, suitable for menus that require manual closing.
     NOT all menus should inherit this
 
     Closing Menu is default by pressing Esc shortcut
     """
 
+    RECT_TITLE: RectZone = None
     MENU_WINDOW: RectZone = None
 
     def __enter__(self):
@@ -23,16 +25,16 @@ class _Menu:
         self.close()
 
     @classmethod
-    @final
+    @abstractmethod
     def open(cls):
-        # child classes should not modify
+        """Child classes should override this method"""
         logger.info(f"Open {cls.__name__}")
-        cls._open()
 
     @classmethod
-    @utils.retry(info=lambda cls: f"Openn {cls.__name__}")
-    def _open(cls):
-        """Child classes define how to open menu, it will automatically retry if failed"""
+    def is_open(cls):
+        if cls.RECT_TITLE:
+            return ocr.extract_text_from_rect(cls.RECT_TITLE) == cls.RECT_TITLE.name
+        logger.warning(f"RECT_TITLE is not defined in {cls.__name__}")
         return True
 
     @classmethod
@@ -41,6 +43,7 @@ class _Menu:
         adb.send_escape()
 
     @classmethod
+    @final
     def capture(cls):
         if cls.MENU_WINDOW:
             image.get_image_from_rect(cls.MENU_WINDOW, save=True)

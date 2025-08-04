@@ -27,7 +27,7 @@ class MenuSearch:
 
     _BTN_SEARCH_BARB = Button("Search Barbarians", P(300, 700), P(525, 765))
 
-    ZONE_DEPOSITE_LOC = RectZone("Deposite_Location", P(1356, 279), P(1505, 315))  # d
+    RECT_DEPOSITE_LOC = RectZone("Deposite_Location", P(1356, 279), P(1505, 315))  # d
 
     # Shared state
     selected_rss_level = 0
@@ -39,20 +39,20 @@ class MenuSearch:
     _is_open = False
 
     @classmethod
-    @utils.retry(max_attempts=3, info="Open Search Menu")
     def open(cls):
-        """If Menu Search open, button search should exists"""
-        if not cls._is_open:
-            BTN_SEARCH_NODE.click()
-            if cv.match_region_with_template(
-                cls._BTN_BASE_DEPOSITE, image.RokImages.CROPLAND, verbose=True
-            ):
-                cls._is_open = True
-                return True
-            return False
-        else:
-            logger.debug("Menu Search already opened")
-            return True
+        if cls.is_open():
+            logger.warning("Menu Search already opened")
+            return
+
+        logger.info("Open Search Menu")
+        BTN_SEARCH_NODE.click(verify=cls.is_open)
+
+    @classmethod
+    def is_open(cls):
+        """If Menu Search open, deposites should exist"""
+        return cv.match_region_with_template(
+            cls._BTN_BASE_DEPOSITE, image.RokImages.CROPLAND, verbose=True
+        )
 
     @classmethod
     def reset(cls):

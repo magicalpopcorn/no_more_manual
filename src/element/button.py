@@ -2,13 +2,13 @@ import math
 import random
 import time
 
-from src import logger
+from src import logger, utils
 
 from .pixel import P
 
 
 class RectZone:
-    def __init__(self, name: str, p1: P, p2: P, padding_ratio=0.1):
+    def __init__(self, name: str, p1: P, p2: P, padding_ratio=0.2):
         self.name = name
         self.p1 = p1
         self.p2 = p2
@@ -70,10 +70,19 @@ class Button(RectZone):
     region in the RoK UI, such as a confirm button, VIP icon, or chat bubble.
     """
 
-    def click(self, delay=1200):
+    @utils.retry(max_attempts=3)
+    def click(self, delay=1200, verify=None):
+        """
+        Click a random P inside Button with defined padding
+        If verify is provided, use verify to check if the button is clicked successfully
+        """
         p = self.get_random_P()
-        p.click(delay)
         logger.debug(f"Click {self.name}{p}")
+        p.click(delay)
+
+        if verify is not None:
+            return verify()
+        return True
 
     def hold(self, duration=1200):
         p = self.get_random_P()

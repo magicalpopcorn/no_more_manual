@@ -59,9 +59,9 @@ def init_process(instance_name):
     if instance_name not in (instances := ldc.list()):
         raise RuntimeError(f"Instance {instance_name} not exists\nInstances: {instances}")
 
-    subprocess.check_call("adb start-server")
-    subprocess.check_call("adb disconnect")
-    time.sleep(5)
+    # subprocess.check_call("adb start-server")
+    # subprocess.check_call("adb disconnect")
+    # time.sleep(5)
     adb._pre_running_devices = {device.serial for device in adb._client.devices()}
     ldp._running_instances = set(ldc.runninglist().splitlines())
 
@@ -73,14 +73,19 @@ def init_process(instance_name):
 
 
 def test():
-    # ui.MenuMain.open_city_screen()
+    # ui.MenuCity.open()
+    # time.sleep(1)
+    # ui.MenuMain.open_map_screen()
+
     # text = ui.MenuItems._get_item_name()
     # print(text)
     # ui.MenuMain.wait_for_ingame_ready()
-    # vision.image.get_image_from_rect(ui.MenuMain.BTN_HOME, save=True)
-    vision.image.screenshot()
-    with ui.MenuItems("dei 2f1"):
-        time.sleep(1)
+    # vision.image.get_image_from_rect(ui.MenuSearch.get_search_button("gold"), save=True)
+    # vision.image.screenshot()
+    # with ui.MenuItems("dei 2f3"):
+    #     time.sleep(1)
+    item_user = action.UseItems()
+    item_user.use_item("dei 2f3", ui.MenuItems.BOOST_SHIELD_8)
     # print(
     #     vision.cv.match_region_with_template(
     #         ui.MenuItems.BTN_RESOURCES, vision.image.TemplateImage("picked_res.png"), verbose=True
@@ -92,7 +97,7 @@ def test():
 def capture():
     # capture button
     # btn = ui.MenuSearch._BTN_BASE_DEPOSITE
-    btn = ui.MenuItems.BTN_RESOURCES
+    btn = ui.MenuItems.BTN_BOOSTS
     vision.image.get_image_from_rect(btn, save=True)
     sys.exit(0)
 

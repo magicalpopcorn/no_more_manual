@@ -16,31 +16,22 @@ class MenuMain:
     RECT_MARCH = RectZone("Rect_March_Status", P(1815, 207), P(1860, 232))  # d
 
     @classmethod
-    @utils.retry(max_attempts=3, delay=1.0, info="Open Map screen")
     def open_map_screen(cls):
         if cls.is_in_map_screen():
             logger.debug("In Map Screen")
-            return True
-        cls.BTN_HOME.click()
-        return cls.is_in_map_screen()
+            return
+
+        logger.info("Open Map screen")
+        cls.BTN_HOME.click(verify=cls.is_in_map_screen)
 
     @classmethod
-    @utils.retry(max_attempts=3, delay=1.0, info="Open City screen")
-    def open_city_screen(cls):
-        if cls.is_in_city_screen():
-            logger.debug("In City Screen")
-            return True
-        cls.BTN_HOME.click()
-        return cls.is_in_city_screen()
-
-    @classmethod
-    @utils.retry(max_attempts=3, delay=1.0, info="Open Sub Menu")
     def open_sub_menu(cls):
         if cls.is_sub_menu_expanded():
             logger.debug("Sub menu already expanded")
-            return True
-        cls.BTN_SUB_MENU.click()
-        return cls.is_sub_menu_expanded()
+            return
+
+        logger.info("Open Sub Menu")
+        cls.BTN_SUB_MENU.click(verify=cls.is_sub_menu_expanded)
 
     @classmethod
     @utils.timed_polling(timeout=60, interval=5, info="Wait for loading ingame")
@@ -63,10 +54,6 @@ class MenuMain:
         return cv.match_region_with_template(
             cls.BTN_HOME, image.RokImages.CASTLE_ICON, verbose=False
         )
-
-    @classmethod
-    def is_in_city_screen(cls):
-        return cv.match_region_with_template(cls.BTN_HOME, image.RokImages.MAP_ICON, verbose=False)
 
     @classmethod
     def is_sub_menu_expanded(cls):

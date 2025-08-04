@@ -3,7 +3,7 @@ import time
 
 from src import logger
 from src.element import Button, Distance, P, RectZone
-from src.vision import ocr
+from src.vision import cv, image
 
 from .base_menu import _Menu
 from .menu_main import MenuMain
@@ -18,20 +18,25 @@ class MenuCity(_Menu):
     BTN_COURIER_STATION = Button("Courier_Station", P(1040, 370), P(1170, 450))
     BTN_COURIER_MERCHANT = Button("Courier_Merchant", P(1185, 530), P(1275, 620))
 
-    _is_opened = False
-
     @classmethod
-    def _open(cls):
-        MenuMain.open_map_screen()
-        MenuMain.BTN_HOME.click()
-        cls._is_opened = True
-        return True
+    def open(cls):
+        super().open()
+        if cls.is_open():
+            logger.debug("In City Screen")
+            return
+
+        logger.info("Open City screen")
+        MenuMain.BTN_HOME.click(verify=cls.is_open)
 
     @classmethod
     def close(cls):
-        if cls._is_opened:
-            MenuMain.BTN_HOME.click()
-        cls._is_opened = False
+        MenuMain.open_map_screen()
+
+    @classmethod
+    def is_open(cls):
+        return cv.match_region_with_template(
+            MenuMain.BTN_HOME, image.RokImages.MAP_ICON, verbose=False
+        )
 
     @classmethod
     def get_deposite_buttons(cls):
@@ -41,10 +46,6 @@ class MenuCity(_Menu):
             cls.BTN_STONE_DEPOSITE,
             cls.BTN_GOLD_DEPOSITE,
         )
-
-    @classmethod
-    def is_open(cls):
-        return cls._is_opened
 
 
 class MenuMerchant(_Menu):
@@ -64,7 +65,7 @@ class MenuMerchant(_Menu):
     ITEMS = (ITEM_1, ITEM_2, ITEM_3, ITEM_4)
 
     @classmethod
-    def _open(cls):
+    def open(cls):
         if not MenuCity.is_open():
             raise RuntimeError("Not in city")
 
