@@ -110,3 +110,7 @@ class ADBInstance:
     @classmethod
     def tap(cls, x, y):
         cls.shell(f"input tap {x} {y}")
+
+    @classmethod
+    def swipe(cls, x1, y1, x2, y2, duration):
+        cls._device.input_swipe(x1, y1, x2, y2, duration)

@@ -42,3 +42,5 @@ tmp
 assests/dataset/**
 yolo11n.pt
 runs
+adb_ldp_mapping.json
+test.py

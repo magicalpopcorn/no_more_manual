@@ -20,5 +20,9 @@ class P:
         ldp.long_press(self.x, self.y, duration)
         time.sleep(duration / 1000)
 
+    def swipe(self, other: "P", duration=300):
+        adb.swipe(self.x, self.y, other.x, other.y, duration)
+        self.hold(1500)
+
     def __str__(self):
         return f"({self.x},{self.y})"

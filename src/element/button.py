@@ -41,6 +41,31 @@ class RectZone:
         y = random.randint(self.p1.y + pad_y, self.p2.y - pad_y)
         return P(x, y)
 
+    def swipe(self, offset_x=(0,), offset_y=(0,), duration=1000):
+        """
+        Fixed vertical drag	 |  offset_y=(-200,)
+        Random scroll right	 |  offset_x=(100, 150)
+        Diagonal flick	     |  offset_x=(30, 50), offset_y=(-150,)
+        No drag	             |  offset_x=(0,), offset_y=(0,)
+        """
+        start = self.get_random_P()
+
+        # Resolve offset_x
+        if len(offset_x) == 1:
+            dx = offset_x[0]
+        else:
+            dx = random.randint(*offset_x)
+
+        # Resolve offset_y
+        if len(offset_y) == 1:
+            dy = offset_y[0]
+        else:
+            dy = random.randint(*offset_y)
+
+        target = P(start.x + dx, start.y + dy)
+        # Duration can also be randomized or fixed
+        start.swipe(target, duration)
+
     def __str__(self):
         return f"{self.name}: [{self.p1} - {self.p2}]"
 

@@ -112,3 +112,10 @@ class RokImages:
 
     # Menu Dispatch
     RECT_DISPATCH_TITLE = TemplateImage("dispatch_title.png")
+
+    # Menu City
+    BTN_COURIER_STATION = TemplateImage("Courier_Station.png")
+    BTN_COURIER_MERCHANT = TemplateImage("Courier_Merchant.png")
+
+    # Menu Merchant
+    BTN_REFRESH = TemplateImage("free_refresh.png")

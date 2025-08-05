@@ -15,8 +15,8 @@ class MenuCity(_Menu):
     BTN_STONE_DEPOSITE = Button("STONE_DEPOSITE", P(1415, 640), P(1500, 690))
     BTN_GOLD_DEPOSITE = Button("GOLD_DEPOSITE", P(1515, 555), P(1600, 600))
 
-    BTN_COURIER_STATION = Button("Courier_Station", P(1040, 370), P(1170, 450))
-    BTN_COURIER_MERCHANT = Button("Courier_Merchant", P(1185, 530), P(1275, 620))
+    BTN_COURIER_STATION = Button("Courier_Station", P(1060, 276), P(1260, 402))  # d
+    BTN_COURIER_MERCHANT = Button("Courier_Merchant", P(1296, 482), P(1429, 570))  # d
 
     @classmethod
     def open(cls):
@@ -50,34 +50,62 @@ class MenuCity(_Menu):
 
 class MenuMerchant(_Menu):
     MENU_WINDOW = RectZone("Mechant Menu", P(555, 220), P(1470, 860))
-    MERCHANT_TITLE = RectZone("Merchant Title", P(665, 236), P(1255, 270))
+    RECT_TITLE = RectZone("BOUTIQUE", P(1136, 100), P(1376, 154))
 
-    BTN_REFRESH = Button("Refresh", P(1245, 305), P(1440, 370))
+    BTN_REFRESH = Button("Refresh", P(1380, 207), P(1650, 285))  # d
 
+    RECT_ITEM_TYPE = RectZone("Item_type", P(975, 307), P(1188, 360))
     # captured in row 1 Resources
-    ITEM_1 = Button("Item_1", P(705, 580), P(825, 610))
-    ITEM_2 = Button("Item_2", P(897, 580), P(1018, 610))
-    ITEM_3 = Button("Item_3", P(1090, 580), P(1210, 610))
-    ITEM_4 = Button("Item_4", P(1280, 580), P(1400, 610))
+    ITEM_PRICE_1 = Button("Item_price_1", P(600, 590), P(760, 643))
+    ITEM_PRICE_2 = Button("Item_price_2", P(875, 590), P(1045, 643))
+    ITEM_PRICE_3 = Button("Item_price_3", P(1150, 590), P(1320, 643))
+    ITEM_PRICE_4 = Button("Item_price_4", P(1425, 590), P(1595, 643))
 
-    _ITEM_8 = Button("Item_8", P(1280, 700), P(1400, 820))
+    RECT_DRAG_ZONE = Button("Drag_zone", P(1350, 765), P(1400, 950))
 
-    ITEMS = (ITEM_1, ITEM_2, ITEM_3, ITEM_4)
+    ITEM_PRICES = (ITEM_PRICE_1, ITEM_PRICE_2, ITEM_PRICE_3, ITEM_PRICE_4)
 
     @classmethod
     def open(cls):
         if not MenuCity.is_open():
             raise RuntimeError("Not in city")
 
-        MenuCity.BTN_COURIER_STATION.click()
-        MenuCity.BTN_COURIER_MERCHANT.click()
-        return True
+        if not cls.is_courier_located_right():
+            image.get_image_from_rect(MenuCity.BTN_COURIER_STATION, save=True)
+            raise RuntimeError("Courier station is not setup at right location")
+        super().open()
+        MenuCity.BTN_COURIER_STATION.click(verify=cls.is_station_menu_dropdown)
+        MenuCity.BTN_COURIER_MERCHANT.click(verify=lambda: not cls.is_station_menu_dropdown())
 
     @classmethod
-    def scrollup_for_next(cls):
+    def scrollup(cls, extra=0):
         """I set up some magic number here
         offset_x=(25, 50) -> drag to right direction
-        offset_y=(-267,) -> drag to upper around 265-270 pixel, but some buggies
-        that I cannot control then I pick 267 and it works.
+        offset_y=(-315,) -> drag to upper 315 pixel
+        80 88
         """
-        cls._ITEM_8.drag(offset_x=(Distance(25), Distance(50)), offset_y=(Distance(-267),))
+        cls.RECT_DRAG_ZONE.swipe(offset_x=(25, 50), offset_y=(-350 + extra,), duration=1500)
+
+    @classmethod
+    def is_open_for_sell(cls):
+        return cls.is_open()
+
+    @classmethod
+    def is_courier_located_right(cls):
+        """threshold is lower since it's affected by ingame day/night"""
+        return cv.match_region_with_template(
+            MenuCity.BTN_COURIER_STATION,
+            image.RokImages.BTN_COURIER_STATION,
+            threshold=0.8,
+            verbose=True,
+        )
+
+    @classmethod
+    def is_station_menu_dropdown(cls):
+        return cv.match_region_with_template(
+            MenuCity.BTN_COURIER_MERCHANT, image.RokImages.BTN_COURIER_MERCHANT
+        )
+
+    @classmethod
+    def is_free_refresh_available(cls):
+        return cv.match_region_with_template(MenuMerchant.BTN_REFRESH, image.RokImages.BTN_REFRESH)

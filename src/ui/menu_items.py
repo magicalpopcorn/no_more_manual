@@ -161,7 +161,7 @@ class MenuItems(_Menu):
             i, j = self._cache_data[self.char_id][item_name]
             logger.debug(f"Found '{item_name}' after rescanning at ({i}x{j})")
             btn = self.get_item_by_pos(i, j)
-            btn.click()
+            btn.click(verify=lambda: self._get_item_name() == item_name)
             return btn
 
         logger.warning(f"Item '{item_name}' not found for character {self.char_id}.")
@@ -175,11 +175,14 @@ class MenuItems(_Menu):
         self.BTN_USE_ITEM.click()
 
         # Check if popup Notice exists
-        if ocr.extract_text_from_rect(self.BTN_NOTICE_YES) == self.BTN_NOTICE_YES.name:
+        is_notice_menu_open = (
+            lambda: ocr.extract_text_from_rect(self.BTN_NOTICE_YES) == self.BTN_NOTICE_YES.name
+        )
+        if is_notice_menu_open():
             if force:
-                self.BTN_NOTICE_YES.click()
+                self.BTN_NOTICE_YES.click(verify=lambda: not is_notice_menu_open())
             else:
-                self.BTN_NOTICE_NO.click()
+                self.BTN_NOTICE_NO.click(verify=lambda: not is_notice_menu_open())
 
     @classmethod
     def _get_item_name(cls):
