@@ -48,7 +48,7 @@ def init_adb(instance_name):
 def init_rok(instance_name):
     logger.info("Init Rise of Kingdoms")
     ldp.runapp(packagename=ROK_PACKAGE)
-    # ui.MenuMain.wait_for_ingame_ready()
+    ui.MenuMain.wait_for_ingame_ready()
 
 
 def init_process(instance_name):
@@ -93,11 +93,11 @@ def test():
 
 def capture():
     # capture button
-    btn = ui.MenuMerchant.BTN_REFRESH
-    vision.image.get_image_from_rect(btn, save=True)
+    # btn = ui.MenuMerchant.BTN_REFRESH
+    # vision.image.get_image_from_rect(btn, save=True)
 
     # capture fullscreen
-    # vision.image.screenshot()
+    vision.image.screenshot()
     sys.exit(0)
 
 
@@ -125,17 +125,19 @@ if __name__ == "__main__":
         gatherer = action.Gather()
         use_item = action.UseItems()
         collector = action.Collect()
+        reporter = action.Report()
 
         for action in [
-            collector.collect_all,
-            # use_item.use_24h_gather_boost,
-            # gatherer.gather,
+            # collector.collect_all,
+            use_item.use_24h_gather_boost,
+            reporter.collect_info,
+            gatherer.gather,
         ]:
             walker.register_action(action)
 
         # Run with action mode
         action_mode = profile.action_mode
-        action_mode = ActionMode.CHARACTER
+        # action_mode = ActionMode.CHARACTER
         match action_mode:
             case ActionMode.CHARACTER:
                 walker.walk_character()

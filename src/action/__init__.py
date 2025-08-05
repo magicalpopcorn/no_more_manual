@@ -1,5 +1,6 @@
 from .collect import Collect
 from .gather import Gather
+from .report import Report
 from .use_items import UseItems
 from .walker import Walker
 

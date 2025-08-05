@@ -62,8 +62,8 @@ def screenshot(name="screen"):
     save_image(fullscreen, name)
 
 
-def get_image_from_rect(rect: RectZone | Button, save=False) -> Image:
-    img = crop_image_to_rect(rect)
+def get_image_from_rect(rect: RectZone | Button, crop_rate=100, save=False) -> Image:
+    img = crop_image_to_rect(rect, crop_rate)
     if save:
         save_image(img, rect.name)
     return img

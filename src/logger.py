@@ -88,7 +88,7 @@ def setup_logger(max_log_folders=4):
         )
 
         log_handler = RotatingFileHandler(
-            log_file, maxBytes=50_000, backupCount=5, encoding="utf-8"
+            log_file, maxBytes=200_000, backupCount=5, encoding="utf-8"
         )
         log_handler.setLevel(logging.DEBUG)
         log_handler.setFormatter(formatter)

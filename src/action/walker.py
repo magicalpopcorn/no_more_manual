@@ -154,7 +154,7 @@ class Walker:
         if ocr.extract_text_from_rect(BTN_ISSUE_CONFIRM) == "CONFIRM":
             image.screenshot("network_issue")
             BTN_ISSUE_CONFIRM.click()
-
+        image.screenshot(f"Confirm_switch {char_id}")
         MenuCharacters.BTN_SWITCH_YES.click(verify=MenuCharacters.is_login_menu_close)
 
         logger.info(f"Switching to character slot {character.slot_number}")
