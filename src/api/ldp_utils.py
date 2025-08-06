@@ -1,6 +1,6 @@
 from pyldplayer import LDAppAttr, LDConsole
 
-from src import logger
+from src import const, logger
 
 _app_attr = LDAppAttr(r"D:\LDPlayer\LDPlayer9")
 ldc = LDConsole(_app_attr)
@@ -23,6 +23,15 @@ class LDInstance:
         return ldc.launch(name=LDInstance._instance_name)
 
     @staticmethod
+    def killapp():
+        return ldc.killapp(name=LDInstance._instance_name, packagename=const.ROK_PACKAGE)
+
+    @staticmethod
+    def reload_app():
+        LDInstance.killapp()
+        LDInstance.runapp()
+
+    @staticmethod
     def quit():
         return ldc.quit(name=LDInstance._instance_name)
 
@@ -39,8 +48,8 @@ class LDInstance:
         LDInstance.adb(f"shell input tap {x} {y}")
 
     @staticmethod
-    def runapp(packagename):
-        ldc.runapp(name=LDInstance._instance_name, packagename=packagename)
+    def runapp():
+        ldc.runapp(name=LDInstance._instance_name, packagename=const.ROK_PACKAGE)
 
     @staticmethod
     def long_press(x, y, ms):

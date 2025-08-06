@@ -4,7 +4,7 @@ import time
 from typing import Callable, List
 
 from src import const, logger
-from src.api import adb
+from src.api import adb, ldp
 from src.element import BTN_ISSUE_CONFIRM
 from src.rok_profile import Character, RokProfile
 from src.ui import MenuAccounts, MenuCharacters, MenuMain, MenuProfile, MenuSettings
@@ -38,7 +38,15 @@ class Walker:
         if self._actions:
             logger.info(f"Proceed actions on character '{char.name}'")
             for action in self._actions:
-                action(char_id)
+                try:
+                    action(char_id)
+                except Exception as e:
+                    logger.error(
+                        f"Error occurred while processing action {action.__name__} on character '{char.name}': {e}"
+                    )
+                    logger.info("Reload app and continue with next action...")
+                    ldp.reload_app()
+                    MenuMain.wait_for_ingame_ready()
         else:
             logger.warning(f"No actions registered on character '{char.name}', ignore")
         # TODO: this should be one of registered actions

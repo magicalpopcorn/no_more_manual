@@ -10,8 +10,6 @@ MAIN_INSTANCE = "main"
 instance = FARM_INSTANCE
 # instance = MAIN_INSTANCE
 
-ROK_PACKAGE = "com.rok.gp.vn"
-
 
 def init_ldp(instance_name):
     ldp.init_instance(instance_name)
@@ -48,7 +46,7 @@ def init_adb(instance_name):
 
 def init_rok(instance_name):
     logger.info("Init Rise of Kingdoms")
-    ldp.runapp(packagename=ROK_PACKAGE)
+    ldp.runapp()
     ui.MenuMain.wait_for_ingame_ready()
 
 

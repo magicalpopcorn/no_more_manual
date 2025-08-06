@@ -24,3 +24,4 @@ class ActionMode(IntFlag):
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+ROK_PACKAGE = "com.rok.gp.vn"
