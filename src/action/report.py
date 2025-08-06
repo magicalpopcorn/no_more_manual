@@ -4,7 +4,7 @@ import os
 from src import const, logger, utils
 from src.rok_profile import RokProfile
 from src.ui import MenuItems, MenuStatistics
-from src.ui.menu_items import ResourceAmount, ResourceSet
+from src.ui.menu_items import ResourceSet
 
 
 class Report:
@@ -35,7 +35,7 @@ class Report:
         result = {}
 
         # Iterate through each character's data
-        for char_id, char_data in data.items():
+        for char_data in data.values():
             for key, key_data in char_data.items():
                 if key not in result:
                     result[key] = ResourceSet.from_dict(key_data)

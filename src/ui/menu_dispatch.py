@@ -1,4 +1,5 @@
-# menu_dispatch.py
+from src import logger
+from src.api import adb
 from src.element import Button, Gap, P, RectZone
 from src.vision import cv, image
 
@@ -15,12 +16,17 @@ class MenuDispatch:
         - Click BTN_MARCH to finalize dispatch.
     """
 
-    MARCH_NUMBER_GAP = Gap(82)  # d
-    _BTN_BASE_MARCH_NUMBER = Button("March", P(1636, 371), P(1676, 409))  # d
-    BTN_MARCH = Button("March", P(1222, 905), P(1566, 994))  # d
-    selected_loadout = 1  # Assume loadout 1 is always available
-
     RECT_DISPATCH_TITLE = RectZone("Dispatch_Title", P(821, 37), P(1093, 94))
+
+    MARCH_NUMBER_GAP = Gap(82)
+    _BTN_BASE_MARCH_NUMBER = Button("March", P(1636, 371), P(1676, 409))
+    SHIFT = -168
+    BTN_MULTI_SELECT = Button("Multi_Select", P(1638, 936), P(1683, 979))
+    BTN_MULTI_CHECKED = Button("Multi_Checked", P(1638 + SHIFT, 936), P(1683 + SHIFT, 979))
+
+    BTN_MARCH = Button("March", P(1222, 905), P(1566, 994))
+
+    selected_loadout = 1  # Assume loadout 1 is always available
 
     @classmethod
     def is_open(cls):
@@ -29,17 +35,32 @@ class MenuDispatch:
         )
 
     @classmethod
+    def close(cls):
+        logger.debug("Close MenuDispatch")
+        adb.send_escape()
+
+    @classmethod
     def is_close(cls):
         return not cls.is_open()
+
+    @classmethod
+    def is_multi_select_checked(cls):
+        return cv.match_region_with_template(
+            cls.BTN_MULTI_CHECKED, image.RokImages.BTN_MULTI_CHECKED
+        )
 
     @classmethod
     def get_march_button(cls, march_number: int) -> Button:
         if march_number < 1 or march_number > 7:
             raise ValueError(f"Invalid march number: {march_number}")
-
+        x_offset = cls.SHIFT if cls.is_multi_select_checked() else 0
         y_offset = (march_number - 1) * cls.MARCH_NUMBER_GAP
-        p1 = P(cls._BTN_BASE_MARCH_NUMBER.p1.x, cls._BTN_BASE_MARCH_NUMBER.p1.y + y_offset)
-        p2 = P(cls._BTN_BASE_MARCH_NUMBER.p2.x, cls._BTN_BASE_MARCH_NUMBER.p2.y + y_offset)
+        p1 = P(
+            cls._BTN_BASE_MARCH_NUMBER.p1.x + x_offset, cls._BTN_BASE_MARCH_NUMBER.p1.y + y_offset
+        )
+        p2 = P(
+            cls._BTN_BASE_MARCH_NUMBER.p2.x + x_offset, cls._BTN_BASE_MARCH_NUMBER.p2.y + y_offset
+        )
 
         return Button(f"March_{march_number}", p1, p2)
 

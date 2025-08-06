@@ -1,9 +1,3 @@
-from .collect import Collect
-from .gather import Gather
-from .report import Report
-from .use_items import UseItems
-from .walker import Walker
-
 """
 TODO: Add backlog: Add Timer decorator for these actions which only trigger
 actions at certain time of the day. Could be:
@@ -24,3 +18,9 @@ actions at certain time of the day. Could be:
 (Anytime with condition)
 + Buy items from Courier Station DONE
 """
+
+from .collect import Collect
+from .gather import Gather
+from .report import Report
+from .use_items import UseItems
+from .walker import Walker

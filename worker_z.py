@@ -31,6 +31,7 @@ def init_adb(instance_name):
     def init_and_verify_connection():
         try:
             adb.init_instance(instance_name)
+            time.sleep(1)
             adb.shell("true")
             return True
         except (RuntimeError, TimeoutError) as err:
@@ -83,9 +84,7 @@ def test():
     # with ui.MenuMerchant() as mm:
     #     logger.debug(f"is open for sell ?? {mm.is_open_for_sell()}")
     #     time.sleep(1)
-    vision.ocr.extract_text_from_rect(ui.MenuMerchant.RECT_ITEM_TYPE, save=True)
-    ui.MenuMerchant.scrollup(-12)
-    vision.ocr.extract_text_from_rect(ui.MenuMerchant.RECT_ITEM_TYPE, save=True)
+
     # ui.MenuMerchant.scrollup()
     # vision.ocr.extract_text_from_rect(ui.MenuMerchant.RECT_ITEM_TYPE, save=True)
     sys.exit(0)
@@ -93,11 +92,15 @@ def test():
 
 def capture():
     # capture button
-    # btn = ui.MenuMerchant.BTN_REFRESH
+    # btn = ui.MenuDispatch.BTN_MULTI_CHECKED
     # vision.image.get_image_from_rect(btn, save=True)
 
+    for i in range(1, 6):
+        btn = ui.MenuDispatch.get_march_button(i)
+        vision.image.get_image_from_rect(btn, save=True)
+
     # capture fullscreen
-    vision.image.screenshot()
+    # vision.image.screenshot()
     sys.exit(0)
 
 

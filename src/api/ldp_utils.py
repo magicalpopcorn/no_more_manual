@@ -1,11 +1,6 @@
-import os
-import time
-from typing import List
-
 from pyldplayer import LDAppAttr, LDConsole
 
 from src import logger
-from src.const import PROJECT_ROOT
 
 _app_attr = LDAppAttr(r"D:\LDPlayer\LDPlayer9")
 ldc = LDConsole(_app_attr)

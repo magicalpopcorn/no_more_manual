@@ -1,14 +1,15 @@
 import re
 import time
 
-from src import logger, utils
+from src import logger
 from src.element import BTN_GATHER
 from src.rok_profile import RokProfile
 from src.ui import MenuDispatch, MenuMain, MenuQueue, MenuSearch
-from src.vision import image, ocr
+from src.vision import cv, image, ocr
 
 
 class Gather:
+    MAX_MARCHES = 5
 
     def __init__(self):
         self.profile = RokProfile()
@@ -18,30 +19,36 @@ class Gather:
         rss_level = char.rss_level
         rss_order = list(char.rss_order)
 
-        if marches := MenuMain.get_available_march():
+        avail_m = Gather.MAX_MARCHES
+        if marches := MenuMain.get_avail_march_on_screen():
             if obj := re.search(r"(\d)/(\d)", marches):
                 used_m, all_m = map(int, obj.groups())
-                for _ in range(used_m):
-                    rss_order.pop()
-
-        logger.action(
-            "Gather Resources",
-            f"Name: {char.name}, Level: {rss_level}, Order: {rss_order}"
-            f", Marches available: {len(rss_order)}",
-        )
+                avail_m = all_m - used_m
 
         MenuMain.open_map_screen()
         MenuSearch.reset()
 
-        if not rss_order:
+        if avail_m == 0:
             logger.info("There is no marches available, skip farming")
             return
+        elif avail_m < 5:
+            marches = Gather.get_avail_marches()
+            rss_order = [rss_type if marches[i] > 0 else "" for i, rss_type in enumerate(rss_order)]
+
+        logger.action(
+            "Gather Resources",
+            f"Name: {char.name}, Level: {rss_level}, Order: {rss_order}"
+            f", Marches available: {avail_m}",
+        )
+
         for march_number, rss_type in enumerate(rss_order, start=1):
+            if not rss_type:
+                continue
             try:
                 self.search_rss(rss_type, rss_level)
             except RuntimeWarning as warning:
                 logger.warning(
-                    f"NO DEPOSITE LEFT !!! REALLY ???. Skip this gathering for char {char_id}"
+                    f"NO DEPOSITE LEFT !!! REALLY ???. Skip this gathering for char {char_id}\n{warning}"
                 )
                 break
             else:
@@ -51,6 +58,27 @@ class Gather:
                     == "New Troop",
                 )
                 MenuDispatch.dispatch(march_number)
+
+    @staticmethod
+    def get_avail_marches():
+        logger.info("Try to get which marches are available")
+        Gather.search_rss("wood", 7)
+        BTN_GATHER.click(
+            1000,
+            verify=lambda: ocr.extract_text_from_rect(MenuQueue.BTN_NEW_TROOP) == "New Troop",
+        )
+        MenuQueue.BTN_NEW_TROOP.click(verify=MenuDispatch.is_open)
+        MenuDispatch.BTN_MULTI_SELECT.click(verify=MenuDispatch.is_multi_select_checked)
+        marches = []
+        for i in range(1, 6):
+            btn = MenuDispatch.get_march_button(i)
+            if cv.match_region_with_template(btn, image.RokImages.get_march_image(i)):
+                logger.debug(f"March {i} is available")
+                marches.append(i)
+            else:
+                marches.append(0)
+        MenuDispatch.close()
+        return marches
 
     @staticmethod
     def search_rss(rss_type, rss_level):

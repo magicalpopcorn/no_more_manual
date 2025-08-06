@@ -46,7 +46,7 @@ class MenuMain:
         return False
 
     @classmethod
-    def get_available_march(cls):
+    def get_avail_march_on_screen(cls):
         return ocr.extract_text_from_rect(cls.RECT_MARCH)
 
     @classmethod

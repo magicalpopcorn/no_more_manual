@@ -91,10 +91,13 @@ class TemplateImage:
         return self._image
 
     def __repr__(self):
-        return f"TemplateImage(path='{self.path}', shape={self.image.shape})"
+        return f"TemplateImage(path='{self.path}', shape={self._image.shape})"
 
 
 class RokImages:
+    # Sub folders
+    _DISPATCH = Path("dispatch")
+
     # Menu Main
     CASTLE_ICON = TemplateImage("castle_icon.png")
     MAP_ICON = TemplateImage("map_icon.png")
@@ -119,3 +122,22 @@ class RokImages:
 
     # Menu Merchant
     BTN_REFRESH = TemplateImage("free_refresh.png")
+
+    # Menu Dispatch
+    BTN_MULTI_CHECKED = TemplateImage(_DISPATCH / "btn_multi_checked.png")
+    BTN_M1_CHECKED = TemplateImage(_DISPATCH / "m1_checked.png")
+    BTN_M2_CHECKED = TemplateImage(_DISPATCH / "m2_checked.png")
+    BTN_M3_CHECKED = TemplateImage(_DISPATCH / "m3_checked.png")
+    BTN_M4_CHECKED = TemplateImage(_DISPATCH / "m4_checked.png")
+    BTN_M5_CHECKED = TemplateImage(_DISPATCH / "m5_checked.png")
+
+    @staticmethod
+    def get_march_image(march_number: int) -> TemplateImage:
+        march_images = {
+            1: RokImages.BTN_M1_CHECKED,
+            2: RokImages.BTN_M2_CHECKED,
+            3: RokImages.BTN_M3_CHECKED,
+            4: RokImages.BTN_M4_CHECKED,
+            5: RokImages.BTN_M5_CHECKED,
+        }
+        return march_images.get(march_number)

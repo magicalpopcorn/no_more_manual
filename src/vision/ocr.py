@@ -1,10 +1,10 @@
 import pytesseract
-from PIL import Image, ImageEnhance, ImageFilter, ImageOps
+from PIL import Image, ImageFilter
 
 from src import logger
 from src.element import Button, RectZone
 
-from .image import crop_image_to_rect, get_image_from_rect, save_image
+from .image import get_image_from_rect
 
 # pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
