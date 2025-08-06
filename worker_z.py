@@ -21,7 +21,6 @@ def init_ldp(instance_name):
         logger.debug(f"Instance '{instance_name}' started")
     else:
         logger.debug(f"Instance '{instance_name}' already started")
-    # utils.reallocate_and_resize(instance_name, ldc.list().splitlines().index(instance_name))
 
 
 def init_adb(instance_name):
@@ -33,12 +32,10 @@ def init_adb(instance_name):
             adb.shell("true")
             return True
         except (RuntimeError, TimeoutError) as err:
-            logger.warning(f"adb error: {err}. Try rebooting LDplayer...")
-            ldc.reboot(instance_name)
+            logger.warning(f"adb error: {err}. Try rebooting ADB server...")
+            # ldc.reboot(instance_name)
             adb._device = None
-            time.sleep(10)
-            subprocess.check_call("adb disconnect")
-            time.sleep(5)
+            api.adb_utils.refresh_adb_server(brutal=True)
             return False
 
     init_and_verify_connection()
@@ -58,11 +55,9 @@ def init_process(instance_name):
     if instance_name not in (instances := ldc.list()):
         raise RuntimeError(f"Instance {instance_name} not exists\nInstances: {instances}")
 
-    subprocess.check_call("adb start-server")
-    subprocess.check_call("adb disconnect")
-    time.sleep(5)
-    adb._pre_running_devices = {device.serial for device in adb._client.devices()}
-    ldp._running_instances = set(ldc.runninglist().splitlines())
+    api.adb_utils.refresh_adb_server()
+    adb.collect_pre_running_devices()
+    ldp.collect_pre_running_instances()
 
     init_ldp(instance_name)
     init_adb(instance_name)
@@ -104,7 +99,7 @@ def capture():
 
 if __name__ == "__main__":
     try:
-        from src import action, const, element, logger, ui, utils, vision
+        from src import action, api, const, element, logger, ui, utils, vision
         from src.api import adb, ldc, ldp
         from src.const import ActionMode
         from src.rok_profile import RokProfile
