@@ -165,3 +165,12 @@ class Gather:
     def is_gather_popup_shown():
         text = ocr.extract_text_from_rect(BTN_GATHER)
         return text.upper() == BTN_GATHER.name.upper()
+
+
+class GatherGem:
+    def __init__(self):
+        pass
+
+    def gather(self):
+        MenuMain.open_map_screen()
+        

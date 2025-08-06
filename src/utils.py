@@ -8,7 +8,7 @@ from typing import Callable
 
 import pygetwindow as gw
 
-from src import logger
+from . import logger
 
 
 def sleep_random(a: int, b=0):

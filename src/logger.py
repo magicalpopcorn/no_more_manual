@@ -5,7 +5,7 @@ from functools import partial
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-from src.const import PROJECT_ROOT
+from .const import PROJECT_ROOT
 
 # === Dynamically build today's timestamped log folder ===
 _TMP_DIR = PROJECT_ROOT / "tmp" / "logs"
@@ -40,7 +40,7 @@ critical = partial(_logger.critical)
 exception = partial(_logger.exception)
 
 
-def setup_logger(max_log_folders=4):
+def setup_logger(max_log_folders=3):
 
     # Cleanup old logs
     def _cleanup_old_logs(root_dir: Path, max_folders: int):

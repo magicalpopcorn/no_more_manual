@@ -4,16 +4,18 @@ from src.vision import cv, image, ocr
 
 
 class MenuMain:
-    BTN_HOME = Button("Home", P(45, 942), P(140, 1022))  # d
-    BTN_HOME_BUILDINGS = Button("Buildings", P(375, 1000), P(440, 1055))  # d
-    BTN_USER_PROFILE = Button("User_Profile", P(25, 10), P(105, 95))  # d
+    BTN_HOME = Button("Home", P(45, 942), P(140, 1022))
+    BTN_HOME_BUILDINGS = Button("Buildings", P(375, 1000), P(440, 1055))
+    BTN_HOME_RESOURCES = Button("Resources", P(500, 1000), P(565, 1055))
+
+    BTN_USER_PROFILE = Button("User_Profile", P(25, 10), P(105, 95))
 
     # Expansion
     BTN_SUB_MENU = Button("Sub_Menu", P(1800, 970), P(1890, 1037))
-    BTN_ITEMS = Button("Items", P(1203, 970), P(1284, 1037))  # d
+    BTN_ITEMS = Button("Items", P(1203, 970), P(1284, 1037))
 
     RECT_SWORD = RectZone("Sword_of_Power", P(144, 16), P(180, 54))
-    RECT_MARCH = RectZone("Rect_March_Status", P(1815, 207), P(1860, 232))  # d
+    RECT_MARCH = RectZone("Rect_March_Status", P(1815, 207), P(1860, 232))
 
     @classmethod
     def open_map_screen(cls):

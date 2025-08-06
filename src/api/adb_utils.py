@@ -12,7 +12,7 @@ from src.const import PROJECT_ROOT
 
 from .ldp_utils import LDInstance as ldp
 
-MAPPING_FILE = PROJECT_ROOT / "adb_ldp_mapping.json"
+MAPPING_FILE = PROJECT_ROOT / "tmp" / ".data" / "adb_ldp_mapping.json"
 
 
 def refresh_adb_server(brutal: bool = False):

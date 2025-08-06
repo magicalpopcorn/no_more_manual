@@ -5,8 +5,8 @@ from typing import Dict, List
 
 import yaml
 
-from src import logger
-from src.const import PROJECT_ROOT
+from . import logger
+from .const import PROJECT_ROOT
 
 
 class SingletonMeta(type):
