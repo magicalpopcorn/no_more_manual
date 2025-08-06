@@ -80,6 +80,7 @@ def test():
 
     # ui.MenuMerchant.scrollup()
     # vision.ocr.extract_text_from_rect(ui.MenuMerchant.RECT_ITEM_TYPE, save=True)
+    vision.image.RokImages.BTN_MULTI_CHECKED.as_array()
     sys.exit(0)
 
 

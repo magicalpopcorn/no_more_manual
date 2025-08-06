@@ -64,6 +64,7 @@ class MenuSearch:
         cls.selected_rss_level = 0
         cls.selected_rss_type = ""
         cls._is_open = False
+        cls.last_deposite_loc = ""
 
     @classmethod
     def update_state(cls, state: bool):

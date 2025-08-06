@@ -39,9 +39,9 @@ class Walker:
             for action in self._actions:
                 try:
                     action(char_id)
-                except Exception as e:
-                    logger.error(
-                        f"Error occurred while processing action {action.__name__} on character '{char.name}': {e}"
+                except Exception:
+                    logger.exception(
+                        f"Error occurred while processing action {action.__name__} on character '{char.name}'"
                     )
                     logger.info("Reload app and continue with next action...")
                     ldp.reload_app()
@@ -161,7 +161,7 @@ class Walker:
         if ocr.extract_text_from_rect(BTN_ISSUE_CONFIRM) == "CONFIRM":
             image.screenshot("network_issue")
             BTN_ISSUE_CONFIRM.click()
-        image.screenshot(f"Confirm_switch {char_id}")
+        image.screenshot(f"Confirm_switch_{char_id}")
         MenuCharacters.BTN_SWITCH_YES.click(verify=MenuCharacters.is_login_menu_close)
 
         logger.info(f"Switching to character slot {character.slot_number}")
