@@ -62,7 +62,7 @@ class Gather:
     @staticmethod
     def get_avail_marches():
         logger.info("Try to get which marches are available")
-        Gather.search_rss("wood", 7)
+        Gather.search_rss("wood", 7)  # No need to choose rss level
         BTN_GATHER.click(
             1000,
             verify=lambda: ocr.extract_text_from_rect(MenuQueue.BTN_NEW_TROOP) == "New Troop",
@@ -70,7 +70,7 @@ class Gather:
         MenuQueue.BTN_NEW_TROOP.click(verify=MenuDispatch.is_open)
         MenuDispatch.BTN_MULTI_SELECT.click(verify=MenuDispatch.is_multi_select_checked)
         marches = []
-        for i in range(1, 6):
+        for i in range(1, Gather.MAX_MARCHES + 1):
             btn = MenuDispatch.get_march_button(i)
             if cv.match_region_with_template(btn, image.RokImages.get_march_image(i)):
                 logger.debug(f"March {i} is available")

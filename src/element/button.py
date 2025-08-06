@@ -1,17 +1,18 @@
 import random
 import time
+from dataclasses import dataclass
 
 from src import logger, utils
 
 from .pixel import P
 
 
+@dataclass(frozen=True)
 class RectZone:
-    def __init__(self, name: str, p1: P, p2: P, padding_ratio=0.2):
-        self.name = name
-        self.p1 = p1
-        self.p2 = p2
-        self.padding = padding_ratio
+    name: str
+    p1: P
+    p2: P
+    padding_ratio: float = 0.2
 
     def _get_corners(self):
         x1, y1 = self.p1.x, self.p1.y
@@ -33,8 +34,8 @@ class RectZone:
         width = self.p2.x - self.p1.x
         height = self.p2.y - self.p1.y
 
-        pad_x = int(width * self.padding)
-        pad_y = int(height * self.padding)
+        pad_x = int(width * self.padding_ratio)
+        pad_y = int(height * self.padding_ratio)
 
         x = random.randint(self.p1.x + pad_x, self.p2.x - pad_x)
         y = random.randint(self.p1.y + pad_y, self.p2.y - pad_y)
@@ -69,9 +70,10 @@ class RectZone:
         return f"{self.name}: [{self.p1} - {self.p2}]"
 
     def to_tuple(self):
-        return (self.p1.x, self.p1.y, self.p2.x, self.p2.y)
+        return (*self.p1.xy, *self.p2.xy)
 
 
+@dataclass(frozen=True)
 class Button(RectZone):
     """
     Represents an interactive button in the game UI, defined by a rectangular zone.
@@ -114,6 +116,7 @@ class Button(RectZone):
         p.hold(duration)
 
 
+@dataclass(frozen=True)
 class TextButton(Button):
     """
     This is still button, but with text inside
