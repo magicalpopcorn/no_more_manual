@@ -134,7 +134,7 @@ class Gather:
 
             next_rss_index = rss_index - 1
             next_rss_type = MenuSearch.RSS_TYPES[next_rss_index]
-            logger.info(f"FALLBACK !!! SEARCH FOR NEXT RSS")
+            logger.info("FALLBACK !!! search for next rss type")
             Gather.search_rss(next_rss_type, rss_level)
 
     @staticmethod

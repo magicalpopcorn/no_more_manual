@@ -74,7 +74,7 @@ class ADBInstance:
         logger.debug(f"Init ADBInstance with LDPInstance {instance_name}")
         logger.debug(f"_pre_running_devices: {cls._pre_running_devices}")
 
-        if instance_name in ldp._pre_running_instances:
+        if instance_name in ldp.get_pre_running_instances():
             # In case instance already started, but just get the instance
             logger.debug("Instance already initiated")
             with open(MAPPING_FILE, "r", encoding="utf-8") as f:

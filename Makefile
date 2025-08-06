@@ -14,3 +14,6 @@ test:
 
 screenshot:
 	adb exec-out screencap -p > tmp/ldp/screen.png
+
+pylint:
+	python3 -m pylint --disable=all --enable=E,W src

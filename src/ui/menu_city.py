@@ -1,6 +1,3 @@
-import re
-import time
-
 from src import logger
 from src.element import Button, Distance, P, RectZone
 from src.vision import cv, image
@@ -15,8 +12,8 @@ class MenuCity(_Menu):
     BTN_STONE_DEPOSITE = Button("STONE_DEPOSITE", P(1415, 640), P(1500, 690))
     BTN_GOLD_DEPOSITE = Button("GOLD_DEPOSITE", P(1515, 555), P(1600, 600))
 
-    BTN_COURIER_STATION = Button("Courier_Station", P(1060, 276), P(1260, 402))  # d
-    BTN_COURIER_MERCHANT = Button("Courier_Merchant", P(1296, 482), P(1429, 570))  # d
+    BTN_COURIER_STATION = Button("Courier_Station", P(1060, 276), P(1260, 402))
+    BTN_COURIER_MERCHANT = Button("Courier_Merchant", P(1296, 482), P(1429, 570))
 
     @classmethod
     def open(cls):
@@ -52,7 +49,7 @@ class MenuMerchant(_Menu):
     MENU_WINDOW = RectZone("Mechant Menu", P(555, 220), P(1470, 860))
     RECT_TITLE = RectZone("BOUTIQUE", P(1136, 100), P(1376, 154))
 
-    BTN_REFRESH = Button("Refresh", P(1380, 207), P(1650, 285))  # d
+    BTN_REFRESH = Button("Refresh", P(1380, 207), P(1650, 285))
 
     RECT_ITEM_TYPE = RectZone("Item_type", P(975, 307), P(1188, 360))
     # captured in row 1 Resources
@@ -84,7 +81,9 @@ class MenuMerchant(_Menu):
         offset_y=(-315,) -> drag to upper 315 pixel
         80 88
         """
-        cls.RECT_DRAG_ZONE.swipe(offset_x=(25, 50), offset_y=(-350 + extra,), duration=1500)
+        cls.RECT_DRAG_ZONE.swipe(
+            offset_x=(Distance(25), Distance(50)), offset_y=(Distance(-350) + extra,), duration=1500
+        )
 
     @classmethod
     def is_open_for_sell(cls):

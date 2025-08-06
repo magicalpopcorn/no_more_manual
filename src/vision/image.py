@@ -33,8 +33,8 @@ def crop_image_to_rect(rect: RectZone | Button, crop_rate: int = 100) -> Image:
     assert 0 < crop_rate <= 100
 
     fullscreen = Image.open(adb.screencap())
-    left, top = rect.p1._xy
-    right, bottom = rect.p2._xy
+    left, top = rect.p1.xy
+    right, bottom = rect.p2.xy
 
     # Rectangle crop dimensions
     width = right - left

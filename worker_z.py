@@ -24,7 +24,7 @@ def init_ldp(instance_name):
 
 
 def init_adb(instance_name):
-    @utils.retry(max_attempts=2, info="Verify adb connection")
+    @utils.retry(max_attempts=3, info="Verify adb connection")
     def init_and_verify_connection():
         try:
             adb.init_instance(instance_name)

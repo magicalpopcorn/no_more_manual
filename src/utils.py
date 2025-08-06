@@ -4,12 +4,11 @@ import functools
 import random
 import time
 from time import sleep
-from typing import Callable, Union
+from typing import Callable
 
 import pygetwindow as gw
 
 from src import logger
-from src.api import adb
 
 
 def sleep_random(a: int, b=0):
@@ -183,8 +182,7 @@ def retry(max_attempts=3, delay=1.0, info="", action_if_fail: Callable = None):
                     action_if_fail()
                 logger.warning(f"[retry] Attempt {attempt} failed, retrying in {delay}s...")
                 time.sleep(delay)
-            else:
-                raise TimeoutError(f"Failed to proceed action with {max_attempts} retries")
+            raise TimeoutError(f"Failed to proceed action with {max_attempts} retries")
 
         return wrapper
 

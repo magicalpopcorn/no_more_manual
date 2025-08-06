@@ -199,7 +199,7 @@ class MenuItems(_Menu):
             case cls.BTN_BOOSTS.name:
                 img = image.RokImages.BTN_ITEMS_BOOSTS
             case _:
-                raise NotImplemented(f"Item type: {item_type.name} not yet captured")
+                raise NotImplementedError(f"Item type: {item_type.name} not yet captured")
         return cv.match_region_with_template(item_type, img)
 
 

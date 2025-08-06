@@ -2,7 +2,7 @@ import re
 import time
 
 from src import const, logger
-from src.ui import MenuCity, MenuMerchant, MenuVip
+from src.ui import MenuCity, MenuMerchant
 from src.utils import only_during_periods
 from src.vision import ocr
 
@@ -52,7 +52,7 @@ class Collect:
                                         logger.debug(f"Found item, price: {obj.group()}")
                                         price.click()
                                 except Exception as err:
-                                    logger.exception("Something is WRONG with purchasing")
+                                    logger.error(f"Something is WRONG with purchasing: {err}")
                             else:
                                 time.sleep(0.1)
                         logger.debug("After buying items")

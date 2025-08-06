@@ -3,12 +3,11 @@ import re
 import time
 from typing import Callable, List
 
-from src import const, logger
-from src.api import adb, ldp
+from src import logger
+from src.api import ldp
 from src.element import BTN_ISSUE_CONFIRM
 from src.rok_profile import Character, RokProfile
 from src.ui import MenuAccounts, MenuCharacters, MenuMain, MenuProfile, MenuSettings
-from src.ui.menu_chatbox import confirm_done
 from src.utils import sleep_random
 from src.vision import image, ocr
 

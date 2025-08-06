@@ -1,11 +1,10 @@
 import re
-import time
 from functools import cache
 from math import ceil, floor
 
-from src import logger, utils
+from src import logger
 from src.element import BTN_SEARCH_NODE, Button, Distance, Gap, Length, P, RectZone, Width
-from src.vision import cv, image, ocr
+from src.vision import cv, image
 
 
 class MenuSearch:

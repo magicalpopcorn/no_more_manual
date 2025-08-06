@@ -10,19 +10,25 @@ class P:
     def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
-        self._xy = (x, y)
+
+    @property
+    def xy(self) -> tuple[int, int]:
+        return (self.x, self.y)
 
     def click(self, delay=1200):
-        adb.tap(self.x, self.y)
+        adb.tap(*self.xy)
         sleep_random(delay, delay + 200)
 
     def hold(self, duration=1000):
-        ldp.long_press(self.x, self.y, duration)
+        ldp.long_press(*self.xy, duration)
         time.sleep(duration / 1000)
 
     def swipe(self, other: "P", duration=300):
-        adb.swipe(self.x, self.y, other.x, other.y, duration)
+        adb.swipe(*self.xy, *other.xy, duration)
         self.hold(1500)
 
     def __str__(self):
         return f"({self.x},{self.y})"
+
+    def __repr__(self):
+        return f"P(x={self.x}, y={self.y})"

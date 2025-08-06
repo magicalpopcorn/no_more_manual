@@ -1,16 +1,16 @@
 import logging
 import shutil
 from datetime import datetime
+from functools import partial
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 from src.const import PROJECT_ROOT
 
 # === Dynamically build today's timestamped log folder ===
+_TMP_DIR = PROJECT_ROOT / "tmp" / "logs"
 _date_str = datetime.now().strftime("%Y-%m-%d")
 _time_str = datetime.now().strftime("%H-%M-%S")
-
-_TMP_DIR = PROJECT_ROOT / "tmp" / "logs"
 LOG_FOLDER = _TMP_DIR / _date_str / _time_str
 
 
@@ -27,49 +27,21 @@ def controller(msg, *args, **kwargs):
     _logger.info(f"[CONTROLLER] {msg}", *args, **kwargs)
 
 
-def debug(msg, *args, **kwargs):
-    _tooltip(msg)
-    _logger.debug(msg, *args, **kwargs)
-
-
-def info(msg, *args, **kwargs):
-    _tooltip(msg)
-    _logger.info(msg, *args, **kwargs)
-
-
-def warning(msg, *args, **kwargs):
-    _tooltip(msg)
-    _logger.warning(msg, *args, **kwargs)
-
-
-def error(msg, *args, **kwargs):
-    _tooltip(msg)
-    _logger.error(msg, *args, **kwargs)
-
-
-def critical(msg, *args, **kwargs):
-    _tooltip(msg)
-    _logger.critical(msg, *args, **kwargs)
-
-
-def exception(msg, *args, **kwargs):
-    _tooltip(msg)
-    _logger.exception(msg, *args, **kwargs)
-
-
-# TODO: remove or replace
-def _tooltip(msg, x=900, y=-25):
-    pass
-    # AHK_API.show_tooltip(str(msg), x, y)
-
-
 # === Create and configure logger ===
 _logger = logging.getLogger("rok_macro")
 _logger.setLevel(logging.DEBUG)
 _logger.propagate = False
 
+debug = partial(_logger.debug)
+info = partial(_logger.info)
+warning = partial(_logger.warning)
+error = partial(_logger.error)
+critical = partial(_logger.critical)
+exception = partial(_logger.exception)
+
 
 def setup_logger(max_log_folders=4):
+
     # Cleanup old logs
     def _cleanup_old_logs(root_dir: Path, max_folders: int):
         if not root_dir.exists():

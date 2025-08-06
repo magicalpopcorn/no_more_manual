@@ -18,8 +18,7 @@ TIME_NIGHT = (datetime.time(20, 0), datetime.time(23, 59))
 class ActionMode(IntFlag):
     CHARACTER = 1
     ACCOUNT = 2
-    ALL_ACCOUNTS = 3
-
+    ALL_ACCOUNTS = ACCOUNT | CHARACTER
     DEFAULT = CHARACTER
 
 

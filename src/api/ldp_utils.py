@@ -8,12 +8,16 @@ ldc = LDConsole(_app_attr)
 
 class LDInstance:
     _instance_name: str = None
-    _pre_running_instances = None
+    _pre_running_instances: set = set()
 
     @classmethod
     def collect_pre_running_instances(cls):
         """Collect the pre-running instances for the LDPlayer."""
         cls._pre_running_instances = set(ldc.runninglist().splitlines())
+
+    @classmethod
+    def get_pre_running_instances(cls) -> set:
+        return cls._pre_running_instances
 
     @classmethod
     def init_instance(cls, name: str):
