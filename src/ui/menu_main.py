@@ -5,8 +5,8 @@ from src.vision import cv, image, ocr
 
 class MenuMain:
     BTN_HOME = Button("Home", P(45, 942), P(140, 1022))
+    BTN_HOME_RESOURCES = Button("Resources", P(352, 809), P(416, 870))
     BTN_HOME_BUILDINGS = Button("Buildings", P(375, 1000), P(440, 1055))
-    BTN_HOME_RESOURCES = Button("Resources", P(500, 1000), P(565, 1055))
 
     BTN_USER_PROFILE = Button("User_Profile", P(25, 10), P(105, 95))
 
@@ -36,6 +36,12 @@ class MenuMain:
         cls.BTN_SUB_MENU.click(verify=cls.is_sub_menu_expanded)
 
     @classmethod
+    def open_home_resources(cls):
+        cls.BTN_HOME.hold(1500, verify=cls.is_home_dropdown_visible)
+        logger.info("Open Home Resources")
+        cls.BTN_HOME_RESOURCES.click(verify=lambda: not cls.is_home_dropdown_visible())
+
+    @classmethod
     @utils.timed_polling(timeout=60, interval=5, info="Wait for loading ingame")
     def wait_for_ingame_ready(cls):
         """
@@ -60,3 +66,12 @@ class MenuMain:
     @classmethod
     def is_sub_menu_expanded(cls):
         return cv.match_region_with_template(cls.BTN_ITEMS, image.RokImages.BTN_ITEMS)
+
+    @classmethod
+    def is_home_dropdown_visible(cls):
+        """
+        Check if the home dropdown menu is visible by looking for the resources button.
+        """
+        return cv.match_region_with_template(
+            cls.BTN_HOME_RESOURCES, image.RokImages.BTN_HOME_RESOURCES, verbose=True, save=True
+        )

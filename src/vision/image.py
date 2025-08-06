@@ -14,16 +14,19 @@ from src.element import Button, RectZone
 IMAGES_FOLDER = logger.LOG_FOLDER / "images"
 
 
-def save_image(img_obj: Image, name):
+def save_image(img_obj: Image.Image, name):
     os.makedirs(IMAGES_FOLDER, exist_ok=True)
 
     timestamp = time.strftime("%H%M%S")
     filename = os.path.join(IMAGES_FOLDER, f"{name}_{timestamp}.png")
     logger.debug(f"Saved screenshot: {filename} ")
-    img_obj.save(filename)
+    if isinstance(img_obj, Image.Image):
+        img_obj.save(filename)
+    else:
+        cv2.imwrite(filename, img_obj)
 
 
-def crop_image_to_rect(rect: RectZone | Button, crop_rate: int = 100) -> Image:
+def crop_image_to_rect(rect: RectZone | Button, crop_rate: int = 100) -> Image.Image:
     """
     Crop image at image_path to the RectZone,
     and further crop by crop_rate% (centered).
@@ -62,7 +65,7 @@ def screenshot(name="screen"):
     save_image(fullscreen, name)
 
 
-def get_image_from_rect(rect: RectZone | Button, crop_rate=100, save=False) -> Image:
+def get_image_from_rect(rect: RectZone | Button, crop_rate=100, save=False) -> Image.Image:
     img = crop_image_to_rect(rect, crop_rate)
     if save:
         save_image(img, rect.name)
@@ -105,9 +108,11 @@ class RokImages:
 
     # Menu Search
     CROPLAND = TemplateImage("cropland.png")
+    BTN_GATHER = TemplateImage("btn_gather.png")
 
     # Menu Main - Expanded
     BTN_ITEMS = TemplateImage("btn_items.png")
+    BTN_HOME_RESOURCES = TemplateImage("btn_home_resources.png")
 
     # Menu Items
     BTN_ITEMS_RESOURCES = TemplateImage("btn_items_resources.png")

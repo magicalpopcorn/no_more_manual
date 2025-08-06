@@ -32,7 +32,7 @@ def refresh_adb_server(brutal: bool = False):
 class ADBInstance:
     _client = AdbClient(host="127.0.0.1", port=5037)
     _device: Device = None
-    _pre_running_devices: set = None
+    _pre_running_devices: set = set()
 
     @classmethod
     def collect_pre_running_devices(cls):

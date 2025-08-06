@@ -110,10 +110,19 @@ class Button(RectZone):
             return verify()
         return True
 
-    def hold(self, duration=1200):
+    @utils.retry(max_attempts=3)
+    def hold(self, duration=1200, verify=None):
+        """
+        Hold a random P inside Button with defined padding
+        If verify is provided, use verify to check if the button is held successfully
+        """
         p = self.get_random_P()
         logger.debug(f"Hold {self.name}{p} - {duration} ms")
         p.hold(duration)
+
+        if verify is not None:
+            return verify()
+        return True
 
 
 @dataclass(frozen=True)

@@ -5,6 +5,7 @@ from typing import Callable, List
 
 from src import logger
 from src.api import ldp
+from src.const import ActionMode
 from src.element import BTN_ISSUE_CONFIRM
 from src.rok_profile import Character, RokProfile
 from src.ui import MenuAccounts, MenuCharacters, MenuMain, MenuProfile, MenuSettings
@@ -13,46 +14,58 @@ from src.vision import image, ocr
 
 
 class Walker:
-    def __init__(self):
+    def __init__(self, mode: ActionMode = ActionMode.DEFAULT):
         self.profile = RokProfile()
-        self._actions: List[Callable[[Character], None]] = []
+        self._tasks: List[Callable[[str], None]] = []
         self.confirm_after_done = self.profile.data["gather"]["confirm_after_done"]
         self.fallback = True
+        self.mode = mode
 
-    def register_action(self, action: Callable[[Character], None]):
-        if callable(action):
-            self._actions.append(action)
+    def execute(self):
+        match self.mode:
+            case ActionMode.CHARACTER:
+                self.walk_character()
+            case ActionMode.ACCOUNT:
+                self.walk_account()
+            case ActionMode.ALL_ACCOUNTS:
+                self.walk_all()
+            case _:
+                raise RuntimeError(f"Weird action mode {self.mode}")
+
+    def register_task(self, task: Callable[[str], None]):
+        if callable(task):
+            self._tasks.append(task)
         else:
-            raise TypeError(f"Expected a callable, got {type(action).__name__}")
+            raise TypeError(f"Expected a callable, got {type(task).__name__}")
 
-    def walk_character(self, char_id: str = None):
-        # if not set, run action with current character profile
+    def walk_character(self, char_id: str = ""):
+        # if not set, run task with current character profile
         # if current character not in RokProfile, return
-        if char_id is None:
+        if not char_id:
             char_id = self.profile.get_char_id_by_name(self._get_current_char_name())
             if char_id is None:
                 return
         logger.info(f"walk_character {char_id}")
         char = self.profile.chars[char_id]
-        if self._actions:
-            logger.info(f"Proceed actions on character '{char.name}'")
-            for action in self._actions:
+        if self._tasks:
+            logger.info(f"Proceed tasks on character '{char.name}'")
+            for task in self._tasks:
                 try:
-                    action(char_id)
+                    task(char_id)
                 except Exception:
                     logger.exception(
-                        f"Error occurred while processing action {action.__name__} on character '{char.name}'"
+                        f"Error occurred while processing task {task.__name__} on character '{char.name}'"
                     )
-                    logger.info("Reload app and continue with next action...")
+                    logger.info("Reload app and continue with next task...")
                     ldp.reload_app()
                     MenuMain.wait_for_ingame_ready()
         else:
-            logger.warning(f"No actions registered on character '{char.name}', ignore")
-        # TODO: this should be one of registered actions
+            logger.warning(f"No tasks registered on character '{char.name}', ignore")
+        # TODO: this should be one of registered tasks
         if self.confirm_after_done:
             self.confirm_done()
 
-    def walk_account(self, acc_id: str = None):
+    def walk_account(self, acc_id: str = ""):
         """
         Walk through characters in the given account.
         If no account is passed, it will detect the current account.
@@ -60,7 +73,7 @@ class Walker:
         This method reorders characters so that the currently active one
         is walked first, avoiding redundant character switching.
         """
-        if acc_id is None:
+        if not acc_id:
             acc_id = self._get_current_acc_id()
         logger.info(f"walk_account {acc_id}")
         account = self.profile.accounts[acc_id]
@@ -84,7 +97,7 @@ class Walker:
 
     def walk_all(self):
         """
-        Walk through all configured accounts, performing the registered action for each character.
+        Walk through all configured accounts, performing the registered task for each character.
 
         This method detects the currently active character and prioritizes their account first
         in the traversal order. This avoids unnecessary account switching, which improves macro

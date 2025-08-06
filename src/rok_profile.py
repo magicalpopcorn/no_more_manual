@@ -68,7 +68,7 @@ class RokProfile(metaclass=SingletonMeta):
     def __str__(self):
         return self.data
 
-    def get_account(self, acc_id: int) -> Account:
+    def get_account(self, acc_id: str) -> Account:
         return self.accounts[acc_id]
 
     def get_char(self, char_id: str) -> Character:
@@ -79,10 +79,11 @@ class RokProfile(metaclass=SingletonMeta):
             if char.name == char_name:
                 return char
 
-    def get_char_id_by_name(self, char_name: str) -> str | None:
+    def get_char_id_by_name(self, char_name: str) -> str:
         for char_id, char in self.chars.items():
             if char.name == char_name:
                 return char_id
+        return ""
 
     def all_accounts(self) -> List[str]:
         """Return list of accounts id"""

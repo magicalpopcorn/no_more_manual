@@ -7,7 +7,7 @@ ldc = LDConsole(_app_attr)
 
 
 class LDInstance:
-    _instance_name: str = None
+    _instance_name: str = ""
     _pre_running_instances: set = set()
 
     @classmethod
@@ -21,7 +21,7 @@ class LDInstance:
 
     @classmethod
     def init_instance(cls, name: str):
-        if cls._instance_name is None:
+        if not cls._instance_name:
             logger.debug("Init LDInstance")
             cls._instance_name = name
         else:

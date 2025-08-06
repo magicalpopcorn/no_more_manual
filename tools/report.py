@@ -1,10 +1,13 @@
-import io
-import subprocess
+#!python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
 from pprint import pprint
 
-from PIL import Image
+sys.path.insert(0, os.getcwd())
 
-from src.action.report import Report
+from src.task import Report
 
 report = Report()
 result = report.report()

@@ -41,7 +41,7 @@ def init_rok(instance_name):
     ui.MenuMain.wait_for_ingame_ready()
 
 
-def init_instance(instance_name):
+def init_instance(instance_name, rok_ready: bool = False):
     sys.stdout.reconfigure(encoding="utf-8")
     logger.setup_logger()
     logger.action("Init start", f"Instance name: '{instance_name}'")
@@ -55,6 +55,7 @@ def init_instance(instance_name):
 
     init_ldp(instance_name)
     init_adb(instance_name)
-    init_rok(instance_name)
+    if not rok_ready:
+        init_rok(instance_name)
 
     logger.info("-----------------INIT DONE-----------------\n")

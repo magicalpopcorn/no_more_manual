@@ -21,6 +21,6 @@ actions at certain time of the day. Could be:
 
 from .collect import Collect
 from .gather import Gather
+from .gather_gem import GatherGem
 from .report import Report
 from .use_items import UseItems
-from .walker import Walker

@@ -1,12 +1,24 @@
 # ROK Macro Automation
 
-**ROK Macro Automation** is a robust, state-aware automation system designed for the game *Rise of Kingdoms (RoK)*. Built with Python and leveraging pixel-based UI logic, it streamlines repetitive in-game tasks with high precision and human-like behavior. The system is modular, extensible, and engineered for reliability, making it ideal for both casual players and power users seeking efficiency and consistency.
-
 ---
 
 ## 🚀 Overview
 
-ROK Macro Automation automates resource management and gathering in RoK by simulating intelligent user interactions. It avoids redundant actions, adapts to UI state changes, and maintains persistent state across sessions. The architecture is cleanly separated into logical modules, supporting easy maintenance and future feature expansion.
+**ROK Macro Automation** is a robust, state-aware automation system designed for the game *Rise of Kingdoms (RoK)*. Built with Python and leveraging computer vision, it streamlines repetitive in-game tasks with high precision and human-like behavior. The system is modular, extensible, and engineered for reliability, making it ideal for both casual players and power users seeking efficiency and consistency.
+
+- **Stealth Automation:** Reducing the risk of detection by the game’s anti-cheat systems.
+- **Persistent State:** Remembers previous actions and UI states to minimize unnecessary operations.
+- **Robust Logging:** Action-level, debug, and error logs with timestamps for easy troubleshooting.
+- **Android Emulator Integration:** Works with LDPlayer instances via ADB & LDConsole for reliable automation.
+- **Extensible Task System:** Easily register new tasks or modify existing ones via the modular agent system.
+---
+
+## ✨ Features
+
+- **Resource Assistance:** (WIP) Automates the transfer of food, wood, stone, and gold between accounts, intelligently avoiding redundant clicks and selections.
+- **Smart Gathering:** Sends up to 5 marches for resource farming, with customizable resource order and adaptive UI state tracking. Features an advanced fallback mechanism to ensure all 5 marches are always sent to resource nodes.
+- **Gem Farming:** (WIP) Automated gem gathering with dedicated script for efficient resource collection.
+- **Multi-Account Support:** Supports multiple user profiles and action modes (character, account, all accounts).
 
 ---
 
@@ -14,46 +26,44 @@ ROK Macro Automation automates resource management and gathering in RoK by simul
 
 | Component         | Description                                      |
 |-------------------|--------------------------------------------------|
-| Python 3          | Core automation logic and orchestration          |
-| AutoHotkey v2     | (Planned/Optional) Low-level scripting support   |
+| Python3           | Core automation logic and orchestration          |
+| ADB               | Communication with Android emulator instances    |
+| LDPlayer API      | Android emulator management and control          |
 | Tesseract OCR     | Smart text detection for in-game UI elements     |
-| YOLO              | Object detection for robust UI state recognition |
-| Win32 API         | Low-level Windows API calls for stealthy input   |
-| PyAutoGUI         | Pixel-based UI interaction and automation        |
-| OOP Architecture  | Modular classes for actions, UI, and elements    |
+| YOLO (Ultralytics)| Object detection for robust UI state recognition |
+| OpenCV            | Computer vision and image processing             |
+| OOP Architecture  | Modular classes for tasks, agents, and UI elements |
 | Logging System    | Structured, timestamped logs for all actions     |
 
----
-
-## ✨ Features
-
-- **Resource Assistance:** Automates the transfer of food, wood, stone, and gold between accounts, intelligently avoiding redundant clicks and selections.
-- **Smart Gathering:** Sends up to 5 marches for resource farming, with customizable resource order and adaptive UI state tracking.
-- **Persistent State:** Remembers previous actions and UI states to minimize unnecessary operations.
-- **Configurable Profiles:** Supports multiple user profiles and action modes (character, account, all accounts).
-- **Robust Logging:** Action-level, debug, and error logs with tooltips and timestamps for easy troubleshooting.
-- **Resolution & DPI Awareness:** Automatically detects and adapts to client resolution and DPI scaling.
-- **Extensible Actions:** Easily register new actions or modify existing ones via the modular walker system.
-- **Stealth Automation:** Utilizes low-level Win32 API calls to simulate input, reducing the risk of detection by the game’s anti-cheat systems.
 ---
 
 ## 🏗️ Project Structure
 
 ```
-├── main.py                # Entry point, orchestrates automation flow
-├── controller.py          # (Planned) High-level control logic
+├── worker_z.py            # Main worker script for general automation tasks
+├── gem_z.py               # Dedicated gem farming automation script
+├── profile.yml            # User configuration and account settings
 ├── src/                   # Core modules
-│   ├── action/            # Action classes (Gather, Collect, UseItems, etc.)
+│   ├── task/              # Task implementations (Gather, Collect, UseItems, etc.)
+│   ├── agent/             # Agent system (Walker, Looper)
+│   ├── ui/                # UI menu classes and interactions
+│   ├── vision/            # Computer vision (YOLO, OCR, OpenCV)
+│   ├── api/               # External API integrations (ADB, LDPlayer)
 │   ├── element/           # UI element definitions and helpers
-│   ├── logger.py          # Logging and tooltip utilities
-│   ├── privilege.py       # Privilege escalation and checks
+│   ├── logger.py          # Logging and debugging utilities
 │   ├── rok_profile.py     # User profile and configuration management
-│   ├── window.py          # Window and resolution handling
-│   └── ...                # Additional utilities and modules
-├── assests/               # Datasets, images, and model files
-├── runs/                  # Output and logs from automation runs
+│   ├── boot.py            # System initialization and setup
+│   └── const.py           # Constants and configuration values
+├── assets/                # Datasets, images, and YOLO model files
+│   ├── dataset/           # Training datasets for YOLO models
+│   ├── yolo_models/       # Trained YOLO model files (.pt)
+│   ├── images/            # Reference images and screenshots
+│   └── ico/               # Application icons
+├── runs/                  # YOLO training outputs and automation logs
+├── tmp/                   # Temporary files and screenshots
+├── tools/                 # Utility scripts and development tools
 ├── requirements.txt       # Python dependencies
-├── pyproject.toml         # Project metadata and build config
+├── pyproject.toml         # Project configuration for code formatting
 └── README.md              # Project documentation
 ```
 
@@ -61,10 +71,11 @@ ROK Macro Automation automates resource management and gathering in RoK by simul
 
 ## ⚙️ How It Works
 
-1. **Initialization:** Elevates privileges, verifies client resolution, and loads user profile.
-2. **Action Registration:** Instantiates and registers desired actions (e.g., gathering, using items, collecting resources).
-3. **Execution:** Executes actions based on the selected mode (character, account, all accounts), using pixel-based detection and input simulation.
-4. **Logging:** All actions and errors are logged with timestamps and tooltips for transparency and debugging.
+1. **Initialization:** Starts LDPlayer instance, establishes ADB connection, and loads user profile configuration.
+2. **Task Registration:** Instantiates and registers desired tasks (e.g., gathering, gem farming, using items, collecting resources).
+3. **Agent Execution:** The Walker agent executes tasks based on the selected mode (character, account, all accounts), using computer vision for UI detection.
+4. **State Management:** Tracks UI states and adapts to changes, ensuring efficient automation flow.
+5. **Logging:** All actions and errors are logged with timestamps for transparency and debugging.
 
 ---
 
@@ -90,16 +101,30 @@ ROK Macro Automation automates resource management and gathering in RoK by simul
 - For running automation, only Windows is supported.
 ---
 
-## 📝 Planned Features
+## 📝 Current Features & Roadmap
 
-- Auto farm gem (Highest priority)
-- Integrate into VM managed by OperatorD (Discord bot service - coming soon)
-- Command via OperatorD in discord chat
+### ✅ Implemented
+- **Multi-Account Resource Gathering:** Automated resource collection across multiple accounts and characters
+- **Smart Item Usage:** Automated use of boost items and shields
+- **Resource Collection:** Automated collection of resources from various in-game sources
+- **Profile Management:** Support for multiple account configurations via YAML
+- **Computer Vision:** YOLO-based UI element detection and OCR text recognition
+- **Android Emulator Integration:** Full LDPlayer and ADB support
+
+### 🚧 In Development
+- **Auto Gem Farming:** Enhanced gem collection automation (High Priority)
+
+### 📋 Planned Features
+- **CommanderY Integration:** Flask server to serve commands via RestAPI and WindowGUI
+- **OperatorX Integration:** Discord bot service for remote command and control
+- **Discord Commands:** Control automation via Discord chat interface
+- **Advanced Scheduling:** Time-based task scheduling and automation
+- **Web Dashboard:** Browser-based monitoring and control interface
 ---
 
 ## 📄 License
 
-This project is licensed under the terms of the `LICENSE`.
+This project is licensed under the terms of the `docs/LICENSE` file.
 
 ---
 
@@ -113,9 +138,23 @@ Contributions, suggestions, and bug reports are welcome! Please open an issue or
 
 For questions or support, please open an issue on GitHub.
 
-## TIP
-Resize VM to 1920x1080x32
-& "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" controlvm "rok1" "setvideomodehint" 1920 1080 32
+---
+
+## 💡 Development Notes
+
+### YOLO Model Training
+- YOLO model training is performed in WSL (Windows Subsystem for Linux)
+- Custom models are trained for ROK-specific UI elements
+- Models are stored in `assets/yolo_models/` directory
+
+### LDPlayer Configuration
+**Recommended Settings:**
+```1920x1080x32```
+
+### Code Quality
+- Code formatting with Black (line length: 100)
+- Import sorting with isort
+- Type hints and docstrings for better maintainability
 
 ---
 

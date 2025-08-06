@@ -11,7 +11,7 @@ instance = MAIN_INSTANCE
 if __name__ == "__main__":
     try:
         boot.init_instance(instance)
-        gather_gem = action.gather.GatherGem()
+        gg = action.GatherGem()
     except KeyboardInterrupt:
         logger.error("KeyboardInterrupt")
         sys.exit(1)

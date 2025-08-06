@@ -70,5 +70,3 @@ def setup_logger(max_log_folders=3):
         console_handler.setLevel(logging.DEBUG)
         console_handler.setFormatter(formatter)
         _logger.addHandler(console_handler)
-
-    info(f"Log saved at: {log_file}")
