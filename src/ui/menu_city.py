@@ -81,7 +81,7 @@ class MenuMerchant(_Menu):
         offset_y=(-315,) -> drag to upper 315 pixel
         80 88
         """
-        cls.RECT_DRAG_ZONE.swipe(
+        cls.RECT_DRAG_ZONE.drag(
             offset_x=(Distance(25), Distance(50)), offset_y=(Distance(-350) + extra,), duration=1500
         )
 

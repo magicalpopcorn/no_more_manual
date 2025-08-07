@@ -26,7 +26,6 @@ class P:
 
     def swipe(self, other: "P", duration=300):
         adb.swipe(*self.xy, *other.xy, duration)
-        self.hold(1500)
 
     def __str__(self):
         return f"({self.x},{self.y})"

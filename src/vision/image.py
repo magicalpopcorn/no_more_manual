@@ -14,7 +14,7 @@ from src.element import Button, RectZone
 IMAGES_FOLDER = logger.LOG_FOLDER / "images"
 
 
-def save_image(img_obj: Image.Image, name):
+def save_image(img_obj: Image.Image | np.ndarray, name):
     os.makedirs(IMAGES_FOLDER, exist_ok=True)
 
     timestamp = time.strftime("%H%M%S")
@@ -60,8 +60,12 @@ def crop_image_to_rect(rect: RectZone | Button, crop_rate: int = 100) -> Image.I
     return img_obj
 
 
+def fullscreen_cap() -> Image.Image:
+    return Image.open(adb.screencap())
+
+
 def screenshot(name="screen"):
-    fullscreen = Image.open(adb.screencap())
+    fullscreen = fullscreen_cap()
     save_image(fullscreen, name)
 
 
@@ -113,6 +117,7 @@ class RokImages:
     # Menu Main - Expanded
     BTN_ITEMS = TemplateImage("btn_items.png")
     BTN_HOME_RESOURCES = TemplateImage("btn_home_resources.png")
+    BTN_HOME_RESOURCES_FILTER = TemplateImage("btn_home_resources_filter.png")
 
     # Menu Items
     BTN_ITEMS_RESOURCES = TemplateImage("btn_items_resources.png")

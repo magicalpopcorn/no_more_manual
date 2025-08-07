@@ -1,1 +1,1 @@
-from . import cv, image, ocr
+from . import cv, image, ocr, yolo

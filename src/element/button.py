@@ -41,7 +41,13 @@ class RectZone:
         y = random.randint(self.p1.y + pad_y, self.p2.y - pad_y)
         return P(x, y)
 
-    def swipe(self, offset_x=(0,), offset_y=(0,), duration=1000):
+    def get_center_P(self):
+        """Return the center P of the rectangle"""
+        center_x = (self.p1.x + self.p2.x) // 2
+        center_y = (self.p1.y + self.p2.y) // 2
+        return P(center_x, center_y)
+
+    def drag(self, offset_x=(0,), offset_y=(0,), duration=1000):
         """
         Fixed vertical drag	 |  offset_y=(-200,)
         Random scroll right	 |  offset_x=(100, 150)
@@ -65,6 +71,25 @@ class RectZone:
         target = P(start.x + dx, start.y + dy)
         # Duration can also be randomized or fixed
         start.swipe(target, duration)
+        start.hold(1500)
+
+    def swipe(self, other: "RectZone", duration=1000):
+        """
+        Swipe from one rectangle to another.
+        This is useful for navigating between UI elements.
+        """
+        start = self.get_center_P()
+        target = other.get_center_P()
+        start.swipe(target, duration)
+
+    def shift(self, offset_x=0, offset_y=0):
+        """
+        Shift the rectangle by the given offsets.
+        This is useful for adjusting the rectangle position dynamically.
+        """
+        new_p1 = P(self.p1.x + offset_x, self.p1.y + offset_y)
+        new_p2 = P(self.p2.x + offset_x, self.p2.y + offset_y)
+        return self.__class__(self.name, new_p1, new_p2, self.padding_ratio)
 
     def __str__(self):
         return f"{self.name}: [{self.p1} - {self.p2}]"

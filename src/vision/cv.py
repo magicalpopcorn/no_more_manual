@@ -1,8 +1,11 @@
+import os
+
 import cv2
 import numpy as np
+from PIL import Image
 
 from src import logger
-from src.element import RectZone
+from src.element import Button, P, RectZone
 
 from .image import TemplateImage, get_image_from_rect
 
@@ -40,3 +43,52 @@ def match_region_with_template(
         logger.debug(f"[match] Match score: {max_val:.4f}")
 
     return max_val >= threshold
+
+
+def find_template_in_image(
+    large_image: Image.Image,
+    template_img: TemplateImage,
+    threshold: float = 0.8,
+    use_edges: bool = True,
+    method: int = cv2.TM_CCOEFF_NORMED,
+) -> Button | None:
+    """
+    Search for template in large image using matchTemplate.
+
+    Returns:
+        Button if match is found above threshold.
+        None if no good match found.
+    """
+    # Load images
+    large_img = np.array(large_image)
+
+    # Convert to grayscale
+    gray_large = cv2.cvtColor(large_img, cv2.COLOR_BGR2GRAY)
+    gray_template = template_img.as_array()
+
+    # Optionally apply edge detection
+    if use_edges:
+        gray_large = cv2.Canny(gray_large, 50, 150)
+        gray_template = cv2.Canny(gray_template, 50, 150)
+
+    # Perform template matching
+    result = cv2.matchTemplate(gray_large, gray_template, method)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+
+    # Choose correct match value based on method
+    if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+        match_val = min_val
+        match_loc = min_loc
+        passed = match_val <= (1.0 - threshold)  # lower is better
+    else:
+        match_val = max_val
+        match_loc = max_loc
+        passed = match_val >= threshold  # higher is better
+
+    if passed:
+        x1, y1 = match_loc
+        h, w = template_img.as_array().shape[:2]
+        x2, y2 = x1 + w, y1 + h
+        return Button(f"{os.path.basename(template_img.path)}", P(x1, y1), P(x2, y2))
+
+    return None

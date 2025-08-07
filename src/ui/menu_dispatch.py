@@ -1,4 +1,4 @@
-from src import logger
+from src import logger, utils
 from src.api import adb
 from src.element import Button, Gap, P, RectZone
 from src.vision import cv, image
@@ -50,22 +50,21 @@ class MenuDispatch:
         )
 
     @classmethod
+    def click_multi_select(cls):
+        if not cls.is_multi_select_checked():
+            cls.BTN_MULTI_SELECT.click(verify=cls.is_multi_select_checked)
+
+    @classmethod
     def get_march_button(cls, march_number: int) -> Button:
         if march_number < 1 or march_number > 7:
             raise ValueError(f"Invalid march number: {march_number}")
-        x_offset = cls.SHIFT if cls.is_multi_select_checked() else 0
-        y_offset = (march_number - 1) * cls.MARCH_NUMBER_GAP
-        p1 = P(
-            cls._BTN_BASE_MARCH_NUMBER.p1.x + x_offset, cls._BTN_BASE_MARCH_NUMBER.p1.y + y_offset
-        )
-        p2 = P(
-            cls._BTN_BASE_MARCH_NUMBER.p2.x + x_offset, cls._BTN_BASE_MARCH_NUMBER.p2.y + y_offset
-        )
+        offset_x = cls.SHIFT if cls.is_multi_select_checked() else 0
+        offset_y = (march_number - 1) * cls.MARCH_NUMBER_GAP
 
-        return Button(f"March_{march_number}", p1, p2)
+        return cls._BTN_BASE_MARCH_NUMBER.shift(offset_x, offset_y)
 
     @staticmethod
-    def dispatch(march_number: int):
+    def dispatch_march(march_number: int):
         """
         Dispatch troops using the specified march number (1-7).
         Preconditions:
@@ -79,3 +78,10 @@ class MenuDispatch:
         MenuQueue.BTN_NEW_TROOP.click(verify=MenuDispatch.is_open)
         MenuDispatch.get_march_button(march_number).click()
         MenuDispatch.BTN_MARCH.click(verify=MenuDispatch.is_close)
+
+    @classmethod
+    def dispatch_all(cls):
+        cls.click_multi_select()
+        shifted_btn_march = cls.BTN_MARCH.shift(offset_x=cls.SHIFT)
+        shifted_btn_march.click(verify=cls.is_close)
+        utils.sleep_random(1500, 2500)

@@ -10,15 +10,18 @@ from src.task import gather_gem
 
 FARM_INSTANCE = "farm1"
 MAIN_INSTANCE = "main"
-# instance = FARM_INSTANCE
-instance = MAIN_INSTANCE
+instance = FARM_INSTANCE
+# instance = MAIN_INSTANCE
 
 
 def test():
-
+    """Test anything"""
     # vision.image.RokImages.BTN_MULTI_CHECKED.as_array()
-    gatherer = gather_gem.GatherGem()
-    gatherer.gather()
+    # gatherer = gather_gem.GatherGem()
+    # gatherer.gather()
+    mhr = ui.MenuHomeResources()
+    mhr.open()
+    mhr.swipe_right()
 
 
 if __name__ == "__main__":

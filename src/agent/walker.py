@@ -1,13 +1,12 @@
 import copy
 import re
-import time
 from typing import Callable, List
 
 from src import logger
 from src.api import ldp
 from src.const import ActionMode
 from src.element import BTN_ISSUE_CONFIRM
-from src.rok_profile import Character, RokProfile
+from src.rok_profile import RokProfile
 from src.ui import MenuAccounts, MenuCharacters, MenuMain, MenuProfile, MenuSettings
 from src.utils import sleep_random
 from src.vision import image, ocr
@@ -83,14 +82,15 @@ class Walker:
         starting_char_id = self.profile.get_char_id_by_name(char_name)
 
         # Re-order, current character should be prioritized to walk to reduce redundant moves
-        if starting_char_id is not None:
+        if starting_char_id:
             current_account.characters.remove(starting_char_id)
             current_account.characters.insert(0, starting_char_id)
+        else:
+            logger.warning(f"Starting character '{char_name}' not found in Profile")
 
         for char_id in current_account.characters:
             if starting_char_id == char_id:
                 logger.info("Walk current character")
-                time.sleep(0.5)
             else:
                 self.switch_character(char_id)
             self.walk_character(char_id)
@@ -123,7 +123,6 @@ class Walker:
         for i, acc_id in enumerate(all_accounts):
             if i == 0:
                 logger.info("Walk current account")
-                time.sleep(0.5)
             else:
                 self.switch_account(acc_id)
             self.walk_account(acc_id)

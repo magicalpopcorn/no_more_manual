@@ -29,7 +29,7 @@ def init_adb(instance_name):
             logger.warning(f"adb error: {err}. Try rebooting ADB server...")
             # ldc.reboot(instance_name)
             adb._device = None
-            api.adb_utils.refresh_adb_server(brutal=True)
+            api.adb_api.refresh_adb_server(brutal=True)
             return False
 
     init_and_verify_connection()
@@ -49,7 +49,7 @@ def init_instance(instance_name, rok_ready: bool = False):
     if instance_name not in (instances := ldc.list()):
         raise RuntimeError(f"Instance {instance_name} not exists\nInstances: {instances}")
 
-    api.adb_utils.refresh_adb_server()
+    api.adb_api.refresh_adb_server()
     adb.collect_pre_running_devices()
     ldp.collect_pre_running_instances()
 

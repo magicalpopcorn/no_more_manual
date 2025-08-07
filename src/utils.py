@@ -160,7 +160,7 @@ def timed_polling(timeout=30, interval=1.0, info=""):
     return decorator
 
 
-def retry(max_attempts=3, delay=1.0, info="", action_if_fail: Callable = None):
+def retry(max_attempts=3, delay=1.0, info="", action_if_fail: Callable = lambda: None):
     """
     Retry decorator.
 
@@ -169,7 +169,7 @@ def retry(max_attempts=3, delay=1.0, info="", action_if_fail: Callable = None):
         delay (float): Delay (seconds) between attempts.
     """
 
-    def decorator(func: Callable[[], bool]):
+    def decorator(func: Callable[..., bool]):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if info:
@@ -178,8 +178,7 @@ def retry(max_attempts=3, delay=1.0, info="", action_if_fail: Callable = None):
                 result = func(*args, **kwargs)
                 if result:
                     return result
-                if action_if_fail:
-                    action_if_fail()
+                action_if_fail()
                 logger.warning(f"[retry] Attempt {attempt} failed, retrying in {delay}s...")
                 time.sleep(delay)
             raise TimeoutError(f"Failed to proceed action with {max_attempts} retries")

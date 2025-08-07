@@ -91,9 +91,9 @@
 3. **Configure your profile:** Edit `profile.yml` as needed.
 4. **Run the automation:**
    ```sh
-   python3 controller.py
+   python3 worker_z.py
    ```
-    Note: Ctrl+Q to stop the script
+    Note: Ctrl+C to stop the script
 
 **Note:**
 - The entire repository is developed and tested in a Windows environment.

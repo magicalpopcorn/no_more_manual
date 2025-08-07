@@ -9,8 +9,8 @@ from src import boot, ui, vision
 
 FARM_INSTANCE = "farm1"
 MAIN_INSTANCE = "main"
-# instance = FARM_INSTANCE
-instance = MAIN_INSTANCE
+instance = FARM_INSTANCE
+# instance = MAIN_INSTANCE
 
 
 def capture():
@@ -21,7 +21,7 @@ def capture():
             return
 
     # capture button
-    btn = ui.MenuMain.BTN_HOME_RESOURCES
+    btn = ui.MenuMain.BTN_HOME_RESOURCES_FILTER
     vision.image.get_image_from_rect(btn, save=True)
 
     # for i in range(1, 6):

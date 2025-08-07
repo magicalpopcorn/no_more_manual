@@ -1,6 +1,10 @@
+import re
+
 from src import logger, utils
-from src.element import Button, P, RectZone
+from src.element import Button, P, RectZone, SwipeDirection, SwipeStrategyType
 from src.vision import cv, image, ocr
+
+from .swipeable_mixin import SwipeMixin
 
 
 class MenuMain:
@@ -16,6 +20,9 @@ class MenuMain:
 
     RECT_SWORD = RectZone("Sword_of_Power", P(144, 16), P(180, 54))
     RECT_MARCH = RectZone("Rect_March_Status", P(1815, 207), P(1860, 232))
+
+    # Troop focus
+    BTN_TROOP_STOP = Button("Stop_Troop", P(920, 670), P(1005, 747))
 
     @classmethod
     def open_map_screen(cls):
@@ -36,12 +43,6 @@ class MenuMain:
         cls.BTN_SUB_MENU.click(verify=cls.is_sub_menu_expanded)
 
     @classmethod
-    def open_home_resources(cls):
-        cls.BTN_HOME.hold(1500, verify=cls.is_home_dropdown_visible)
-        logger.info("Open Home Resources")
-        cls.BTN_HOME_RESOURCES.click(verify=lambda: not cls.is_home_dropdown_visible())
-
-    @classmethod
     @utils.timed_polling(timeout=60, interval=5, info="Wait for loading ingame")
     def wait_for_ingame_ready(cls):
         """
@@ -55,7 +56,12 @@ class MenuMain:
 
     @classmethod
     def get_avail_march_on_screen(cls):
-        return ocr.extract_text_from_rect(cls.RECT_MARCH)
+        avail_m = 5  # Default to 5 marches
+        obj = ocr.extract_text_from_rect(cls.RECT_MARCH)
+        if match_obj := re.search(r"(\d)/(\d)", obj):
+            used_m, all_m = map(int, match_obj.groups())
+            avail_m = all_m - used_m
+        return avail_m
 
     @classmethod
     def is_in_map_screen(cls):
@@ -75,3 +81,33 @@ class MenuMain:
         return cv.match_region_with_template(
             cls.BTN_HOME_RESOURCES, image.RokImages.BTN_HOME_RESOURCES, verbose=True, save=True
         )
+
+
+class MenuHomeResources(SwipeMixin):
+    BTN_HOME_RESOURCES_FILTER = Button("Home_Resources_Filter", P(30, 10), P(70, 50))
+
+    # Define the swipeable area for the home resources screen
+    SWIPE_AREA = RectZone("Home_Resources_Swipe_Area", P(25, 150), P(1580, 855))
+
+    @classmethod
+    def open(cls):
+        if MenuHomeResources.is_open():
+            logger.debug("Home Resources already opened")
+            return True
+        logger.info("Open Home Resources")
+        MenuMain.BTN_HOME.hold(1500, verify=MenuMain.is_home_dropdown_visible)
+        MenuMain.BTN_HOME_RESOURCES.click(verify=cls.is_open)
+
+    @classmethod
+    def is_open(cls):
+        return cv.match_region_with_template(
+            cls.BTN_HOME_RESOURCES_FILTER,
+            image.RokImages.BTN_HOME_RESOURCES_FILTER,
+            verbose=True,
+            save=True,
+        )
+
+    @classmethod
+    def setup_swipe_strategy(cls):
+        """Setup the swipe strategy for home resources screen"""
+        cls.set_swipe_strategy(SwipeStrategyType.EDGE, margin_ratio=0.15)

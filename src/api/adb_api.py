@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 import time
+from typing import Optional
 
 from ppadb.client import Client as AdbClient
 from ppadb.device import Device
@@ -10,7 +11,7 @@ from ppadb.device import Device
 from src import logger
 from src.const import PROJECT_ROOT
 
-from .ldp_utils import LDInstance as ldp
+from .ldp_api import LDInstance
 
 MAPPING_FILE = PROJECT_ROOT / "tmp" / ".data" / "adb_ldp_mapping.json"
 
@@ -31,7 +32,7 @@ def refresh_adb_server(brutal: bool = False):
 
 class ADBInstance:
     _client = AdbClient(host="127.0.0.1", port=5037)
-    _device: Device = None
+    _device: Optional[Device] = None
     _pre_running_devices: set = set()
 
     @classmethod
@@ -46,7 +47,7 @@ class ADBInstance:
 
     @classmethod
     def init_instance(cls, instance_name):
-        """FIXME: Spagetti code, pls refactor
+        """Initialize the ADBInstance with the given instance name.
 
         Raise: ConnectionError
         """
@@ -56,10 +57,12 @@ class ADBInstance:
             for device in cls._client.devices():
                 if device.serial == device_serial:
                     return device
-            raise ConnectionError(f"Device with serial {device_serial} not found")
 
         def save_mapping(instance_name):
             """Save the mapping of instance name to device serial."""
+            if cls._device is None:
+                logger.error("ADB device is not initialized")
+                return
             with open(MAPPING_FILE, "r+", encoding="utf-8") as f:
                 data = json.load(f)
                 data[instance_name] = cls._device.serial
@@ -74,7 +77,7 @@ class ADBInstance:
         logger.debug(f"Init ADBInstance with LDPInstance {instance_name}")
         logger.debug(f"_pre_running_devices: {cls._pre_running_devices}")
 
-        if instance_name in ldp.get_pre_running_instances():
+        if instance_name in LDInstance.get_pre_running_instances():
             # In case instance already started, but just get the instance
             logger.debug("Instance already initiated")
             with open(MAPPING_FILE, "r", encoding="utf-8") as f:
@@ -100,24 +103,27 @@ class ADBInstance:
             device_serial = devices - cls._pre_running_devices
             if len(device_serial) != 1:
                 raise ConnectionError(
-                    f"How TF device_serial more than 2: {device_serial}. Recheck pls"
+                    f"There should be exactly one device: {device_serial}. Recheck pls"
                 )
 
             device_serial = device_serial.pop()
             logger.info(f"Desired device to connect {device_serial}")
             cls._device = get_device(device_serial)
-
             save_mapping(instance_name)
+
+        if cls._device is None:
+            raise ConnectionError(f"Device with serial {device_serial} not found")
         logger.info(f"Connected adb {cls._device.serial} with instance {instance_name}")
 
     @classmethod
     def screenshot(cls, image_path=""):
+        assert cls._device is not None
+
         image_dir = os.path.join(logger.LOG_FOLDER, "adb")
         os.makedirs(image_dir, exist_ok=True)
 
-        timestamp = time.strftime("%H%M%S")
         if not image_path:
-            image_path = os.path.join(image_dir, f"screen_{timestamp}.png")
+            image_path = os.path.join(image_dir, f"screen_{time.strftime('%H%M%S')}.png")
         image_bytes = cls._device.screencap()
         with open(image_path, "wb") as f:
             f.write(image_bytes)
@@ -126,22 +132,27 @@ class ADBInstance:
 
     @classmethod
     def screencap(cls):
+        assert cls._device is not None
         return io.BytesIO(cls._device.screencap())
 
     @classmethod
     def send_escape(cls):
         """Send Esc"""
+        assert cls._device is not None
         cls._device.shell("input keyevent 4")
         time.sleep(1.5)
 
     @classmethod
     def shell(cls, cmd):
+        assert cls._device is not None
         cls._device.shell(cmd)
 
     @classmethod
     def tap(cls, x, y):
+        assert cls._device is not None
         cls.shell(f"input tap {x} {y}")
 
     @classmethod
     def swipe(cls, x1, y1, x2, y2, duration):
+        assert cls._device is not None
         cls._device.input_swipe(x1, y1, x2, y2, duration)

@@ -19,19 +19,15 @@ class Gather:
         rss_level = char.rss_level
         rss_order = list(char.rss_order)
 
-        avail_m = Gather.MAX_MARCHES
-        if marches := MenuMain.get_avail_march_on_screen():
-            if obj := re.search(r"(\d)/(\d)", marches):
-                used_m, all_m = map(int, obj.groups())
-                avail_m = all_m - used_m
+        avail_m = MenuMain.get_avail_march_on_screen()
+        if avail_m == 0:
+            logger.info("There is no marches available, skip farming")
+            return
 
         MenuMain.open_map_screen()
         MenuSearch.reset()
 
-        if avail_m == 0:
-            logger.info("There is no marches available, skip farming")
-            return
-        elif avail_m < 5:
+        if avail_m != Gather.MAX_MARCHES:
             marches = Gather.get_avail_marches()
             rss_order = [rss_type if marches[i] > 0 else "" for i, rss_type in enumerate(rss_order)]
 
@@ -57,18 +53,15 @@ class Gather:
                     verify=lambda: ocr.extract_text_from_rect(MenuQueue.BTN_NEW_TROOP)
                     == "New Troop",
                 )
-                MenuDispatch.dispatch(march_number)
+                MenuDispatch.dispatch_march(march_number)
 
     @staticmethod
     def get_avail_marches():
         logger.info("Try to get which marches are available")
         Gather.search_rss("wood", 7)  # No need to choose rss level
-        BTN_GATHER.click(
-            1000,
-            verify=lambda: ocr.extract_text_from_rect(MenuQueue.BTN_NEW_TROOP) == "New Troop",
-        )
+        BTN_GATHER.click(1000, verify=MenuQueue.is_new_troop_btn_visible)
         MenuQueue.BTN_NEW_TROOP.click(verify=MenuDispatch.is_open)
-        MenuDispatch.BTN_MULTI_SELECT.click(verify=MenuDispatch.is_multi_select_checked)
+        MenuDispatch.click_multi_select()
         marches = []
         for i in range(1, Gather.MAX_MARCHES + 1):
             btn = MenuDispatch.get_march_button(i)

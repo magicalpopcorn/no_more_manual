@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import final
+from typing import Optional, final
 
 from src import logger
 from src.api import adb
@@ -14,8 +14,8 @@ class _Menu(ABC):
     Closing Menu is default by pressing Esc shortcut
     """
 
-    RECT_TITLE: RectZone = None
-    MENU_WINDOW: RectZone = None
+    RECT_TITLE: Optional[RectZone] = None
+    MENU_WINDOW: Optional[RectZone] = None
 
     def __enter__(self):
         self.open()
@@ -32,10 +32,10 @@ class _Menu(ABC):
 
     @classmethod
     def is_open(cls):
-        if cls.RECT_TITLE:
-            return ocr.extract_text_from_rect(cls.RECT_TITLE) == cls.RECT_TITLE.name
-        logger.warning(f"RECT_TITLE is not defined in {cls.__name__}")
-        return True
+        if not cls.RECT_TITLE:
+            logger.warning(f"RECT_TITLE is not defined in {cls.__name__}")
+            return True
+        return ocr.extract_text_from_rect(cls.RECT_TITLE) == cls.RECT_TITLE.name
 
     @classmethod
     def close(cls):
@@ -45,7 +45,7 @@ class _Menu(ABC):
     @classmethod
     @final
     def capture(cls):
-        if cls.MENU_WINDOW:
-            image.get_image_from_rect(cls.MENU_WINDOW, save=True)
-        else:
+        if not cls.MENU_WINDOW:
             logger.warning(f"RectZone not defined for {cls.__name__}")
+            return
+        image.get_image_from_rect(cls.MENU_WINDOW, save=True)
