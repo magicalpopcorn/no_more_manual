@@ -14,16 +14,14 @@ from src import logger
 from .button import RectZone
 from .pixel import P
 
-SWIPE_DURATION = 800
 
+class Direction(Enum):
+    """Enumeration of movement directions"""
 
-class SwipeDirection(Enum):
-    """Enumeration of swipe directions"""
-
-    LEFT = "left"
-    RIGHT = "right"
-    UP = "up"
-    DOWN = "down"
+    LEFT = "L"
+    RIGHT = "R"
+    UP = "U"
+    DOWN = "D"
 
 
 class SwipeStrategyType(Enum):
@@ -37,16 +35,13 @@ class SwipeStrategy(ABC):
     """Abstract base class for swipe strategies"""
 
     @abstractmethod
-    def swipe(
-        self, screen_area: RectZone, direction: SwipeDirection, duration: int = SWIPE_DURATION
-    ) -> None:
+    def swipe(self, screen_area: RectZone, direction: Direction) -> None:
         """
         Perform a swipe gesture within the given screen area.
 
         Args:
             screen_area: The rectangular area where the swipe should occur
             direction: The direction to swipe
-            duration: Duration of the swipe in milliseconds
         """
         pass
 
@@ -66,17 +61,15 @@ class EdgeSwipeStrategy(SwipeStrategy):
         """
         self.margin_ratio = max(0.0, min(0.5, margin_ratio))
 
-    def swipe(
-        self, screen_area: RectZone, direction: SwipeDirection, duration: int = SWIPE_DURATION
-    ) -> None:
+    def swipe(self, screen_area: RectZone, direction: Direction) -> None:
         """Perform edge-to-edge swipe within the screen area"""
         start_point, end_point = self._calculate_swipe_points(screen_area, direction)
 
         logger.debug(f"Edge swipe {direction.value}: {start_point} -> {end_point}")
-        start_point.swipe(end_point, duration)
+        start_point.swipe(end_point)
 
     def _calculate_swipe_points(
-        self, screen_area: RectZone, direction: SwipeDirection
+        self, screen_area: RectZone, direction: Direction
     ) -> Tuple[P, P]:
         """Calculate start and end points for the swipe based on direction"""
         x1, y1 = screen_area.p1.x, screen_area.p1.y
@@ -92,19 +85,19 @@ class EdgeSwipeStrategy(SwipeStrategy):
         center_x = (x1 + x2) // 2
         center_y = (y1 + y2) // 2
 
-        if direction == SwipeDirection.LEFT:
+        if direction == Direction.LEFT:
             # Swipe from right to left
             start = P(x2 - x_margin, center_y)
             end = P(x1 + x_margin, center_y)
-        elif direction == SwipeDirection.RIGHT:
+        elif direction == Direction.RIGHT:
             # Swipe from left to right
             start = P(x1 + x_margin, center_y)
             end = P(x2 - x_margin, center_y)
-        elif direction == SwipeDirection.UP:
+        elif direction == Direction.UP:
             # Swipe from bottom to top
             start = P(center_x, y2 - y_margin)
             end = P(center_x, y1 + y_margin)
-        elif direction == SwipeDirection.DOWN:
+        elif direction == Direction.DOWN:
             # Swipe from top to bottom
             start = P(center_x, y1 + y_margin)
             end = P(center_x, y2 - y_margin)
@@ -129,17 +122,15 @@ class CenterSwipeStrategy(SwipeStrategy):
         """
         self.swipe_distance_ratio = max(0.1, min(0.8, swipe_distance_ratio))
 
-    def swipe(
-        self, screen_area: RectZone, direction: SwipeDirection, duration: int = SWIPE_DURATION
-    ) -> None:
+    def swipe(self, screen_area: RectZone, direction: Direction) -> None:
         """Perform center-based swipe within the screen area"""
         start_point, end_point = self._calculate_swipe_points(screen_area, direction)
 
         logger.debug(f"Center swipe {direction.value}: {start_point} -> {end_point}")
-        start_point.swipe(end_point, duration)
+        start_point.swipe(end_point)
 
     def _calculate_swipe_points(
-        self, screen_area: RectZone, direction: SwipeDirection
+        self, screen_area: RectZone, direction: Direction
     ) -> Tuple[P, P]:
         """Calculate start and end points for the swipe based on direction"""
         center = screen_area.get_center_P()
@@ -148,9 +139,9 @@ class CenterSwipeStrategy(SwipeStrategy):
         width = screen_area.p2.x - screen_area.p1.x
         height = screen_area.p2.y - screen_area.p1.y
 
-        if direction in (SwipeDirection.LEFT, SwipeDirection.RIGHT):
+        if direction in (Direction.LEFT, Direction.RIGHT):
             distance = int(width * self.swipe_distance_ratio / 2)
-            if direction == SwipeDirection.LEFT:
+            if direction == Direction.LEFT:
                 start = P(center.x + distance, center.y)
                 end = P(center.x - distance, center.y)
             else:  # RIGHT
@@ -158,7 +149,7 @@ class CenterSwipeStrategy(SwipeStrategy):
                 end = P(center.x + distance, center.y)
         else:  # UP or DOWN
             distance = int(height * self.swipe_distance_ratio / 2)
-            if direction == SwipeDirection.UP:
+            if direction == Direction.UP:
                 start = P(center.x, center.y + distance)
                 end = P(center.x, center.y - distance)
             else:  # DOWN
@@ -187,24 +178,22 @@ class SwipeController:
         """Change the swipe strategy"""
         self.strategy = strategy
 
-    def swipe(
-        self, screen_area: RectZone, direction: SwipeDirection, duration: int = SWIPE_DURATION
-    ) -> None:
+    def swipe(self, screen_area: RectZone, direction: Direction) -> None:
         """Perform swipe using the current strategy"""
-        self.strategy.swipe(screen_area, direction, duration)
+        self.strategy.swipe(screen_area, direction)
 
-    def swipe_left(self, screen_area: RectZone, duration: int = SWIPE_DURATION) -> None:
+    def swipe_left(self, screen_area: RectZone) -> None:
         """Convenience method for swiping left"""
-        self.swipe(screen_area, SwipeDirection.LEFT, duration)
+        self.swipe(screen_area, Direction.LEFT)
 
-    def swipe_right(self, screen_area: RectZone, duration: int = SWIPE_DURATION) -> None:
+    def swipe_right(self, screen_area: RectZone) -> None:
         """Convenience method for swiping right"""
-        self.swipe(screen_area, SwipeDirection.RIGHT, duration)
+        self.swipe(screen_area, Direction.RIGHT)
 
-    def swipe_up(self, screen_area: RectZone, duration: int = SWIPE_DURATION) -> None:
+    def swipe_up(self, screen_area: RectZone) -> None:
         """Convenience method for swiping up"""
-        self.swipe(screen_area, SwipeDirection.UP, duration)
+        self.swipe(screen_area, Direction.UP)
 
-    def swipe_down(self, screen_area: RectZone, duration: int = SWIPE_DURATION) -> None:
+    def swipe_down(self, screen_area: RectZone) -> None:
         """Convenience method for swiping down"""
-        self.swipe(screen_area, SwipeDirection.DOWN, duration)
+        self.swipe(screen_area, Direction.DOWN)

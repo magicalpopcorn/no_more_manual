@@ -119,6 +119,9 @@ class RokImages:
     BTN_HOME_RESOURCES = TemplateImage("btn_home_resources.png")
     BTN_HOME_RESOURCES_FILTER = TemplateImage("btn_home_resources_filter.png")
 
+    # Menu Main - Home Resources
+    GATHER_ICON = TemplateImage("gather_icon.png")
+
     # Menu Items
     BTN_ITEMS_RESOURCES = TemplateImage("btn_items_resources.png")
     BTN_ITEMS_BOOSTS = TemplateImage("btn_items_boosts.png")
@@ -150,4 +153,6 @@ class RokImages:
             4: RokImages.BTN_M4_CHECKED,
             5: RokImages.BTN_M5_CHECKED,
         }
-        return march_images.get(march_number)
+        if march_number not in march_images:
+            raise ValueError(f"Invalid march number: {march_number}")
+        return march_images[march_number]

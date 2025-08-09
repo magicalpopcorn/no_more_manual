@@ -4,8 +4,8 @@ from .pixel import P
 from .resource import ResourceAmount, ResourceSet
 from .swipe_strategy import (
     CenterSwipeStrategy,
+    Direction,
     EdgeSwipeStrategy,
     SwipeController,
-    SwipeDirection,
     SwipeStrategyType,
 )

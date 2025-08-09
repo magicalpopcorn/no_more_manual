@@ -9,8 +9,8 @@ from src import boot, ui, vision
 
 FARM_INSTANCE = "farm1"
 MAIN_INSTANCE = "main"
-instance = FARM_INSTANCE
-# instance = MAIN_INSTANCE
+# instance = FARM_INSTANCE
+instance = MAIN_INSTANCE
 
 
 def capture():

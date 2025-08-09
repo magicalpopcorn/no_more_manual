@@ -46,12 +46,12 @@ def match_region_with_template(
 
 
 def find_template_in_image(
-    large_image: Image.Image,
+    large_image: Image.Image | TemplateImage | np.ndarray,
     template_img: TemplateImage,
     threshold: float = 0.8,
     use_edges: bool = True,
     method: int = cv2.TM_CCOEFF_NORMED,
-) -> Button | None:
+) -> tuple[Button, float] | tuple[None, float]:
     """
     Search for template in large image using matchTemplate.
 
@@ -60,10 +60,15 @@ def find_template_in_image(
         None if no good match found.
     """
     # Load images
-    large_img = np.array(large_image)
+    if isinstance(large_image, TemplateImage):
+        gray_large = large_image.as_array()
+    elif isinstance(large_image, Image.Image):
+        large_img = np.array(large_image)
+        gray_large = cv2.cvtColor(large_img, cv2.COLOR_BGR2GRAY)
+    elif isinstance(large_image, np.ndarray):
+        gray_large = cv2.cvtColor(large_image, cv2.COLOR_BGR2GRAY)
 
     # Convert to grayscale
-    gray_large = cv2.cvtColor(large_img, cv2.COLOR_BGR2GRAY)
     gray_template = template_img.as_array()
 
     # Optionally apply edge detection
@@ -89,6 +94,6 @@ def find_template_in_image(
         x1, y1 = match_loc
         h, w = template_img.as_array().shape[:2]
         x2, y2 = x1 + w, y1 + h
-        return Button(f"{os.path.basename(template_img.path)}", P(x1, y1), P(x2, y2))
+        return Button(f"{os.path.basename(template_img.path)}", P(x1, y1), P(x2, y2)), match_val
 
-    return None
+    return None, match_val

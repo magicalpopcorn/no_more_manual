@@ -1,6 +1,7 @@
 from src import logger
 from src.element import Button, P, RectZone
 from src.ui import MenuMain
+from src.vision import cv, image, ocr
 
 from .base_menu import _Menu
 
@@ -18,3 +19,7 @@ class MenuProfile(_Menu):
             logger.warning("Menu Profile already opened")
             return
         MenuMain.BTN_USER_PROFILE.click(verify=cls.is_open)
+
+    @classmethod
+    def get_char_name(cls):
+        return ocr.extract_text_from_rect(cls.RECT_GOVERNOR_NAME, save=True)

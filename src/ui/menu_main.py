@@ -1,7 +1,7 @@
 import re
 
 from src import logger, utils
-from src.element import Button, P, RectZone, SwipeDirection, SwipeStrategyType
+from src.element import Button, Direction, P, RectZone, SwipeStrategyType
 from src.vision import cv, image, ocr
 
 from .swipeable_mixin import SwipeMixin
@@ -55,13 +55,13 @@ class MenuMain:
         return False
 
     @classmethod
-    def get_avail_march_on_screen(cls):
-        avail_m = 5  # Default to 5 marches
+    def get_unused_march_on_screen(cls):
+        unused_m = 5  # Default to 5 marches
         obj = ocr.extract_text_from_rect(cls.RECT_MARCH)
         if match_obj := re.search(r"(\d)/(\d)", obj):
             used_m, all_m = map(int, match_obj.groups())
-            avail_m = all_m - used_m
-        return avail_m
+            unused_m = all_m - used_m
+        return unused_m
 
     @classmethod
     def is_in_map_screen(cls):

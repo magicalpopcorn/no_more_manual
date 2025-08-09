@@ -19,12 +19,14 @@ def test():
     # vision.image.RokImages.BTN_MULTI_CHECKED.as_array()
     # gatherer = gather_gem.GatherGem()
     # gatherer.gather()
-    mhr = ui.MenuHomeResources()
-    mhr.open()
-    mhr.swipe_right()
+    btn = vision.cv.find_template_in_image(
+        vision.image.TemplateImage("sample/sample_4.png"),
+        vision.image.TemplateImage("mining_icon.png"),
+    )
+    print(btn)
 
 
 if __name__ == "__main__":
-    boot.init_instance(instance, rok_ready=True)
+    # boot.init_instance(instance, rok_ready=True)
     test()
     sys.exit(0)

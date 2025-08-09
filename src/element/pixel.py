@@ -24,7 +24,13 @@ class P:
         ldp.long_press(*self.xy, duration)
         time.sleep(duration / 1000)
 
-    def swipe(self, other: "P", duration=300):
+    def swipe(self, other: "P", base_duration=350):
+        # Calculate distance between points
+        distance = ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
+        # Scale duration based on distance (adjust multiplier as needed)
+        duration = int(base_duration * (distance / 500) + base_duration)
+        # Ensure minimum duration
+        duration = max(base_duration, duration)
         adb.swipe(*self.xy, *other.xy, duration)
 
     def __str__(self):

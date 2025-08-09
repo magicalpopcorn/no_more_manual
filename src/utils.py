@@ -4,7 +4,7 @@ import functools
 import random
 import time
 from time import sleep
-from typing import Callable
+from typing import Any, Callable
 
 import pygetwindow as gw
 
@@ -181,6 +181,34 @@ def retry(max_attempts=3, delay=1.0, info="", action_if_fail: Callable = lambda:
                 action_if_fail()
                 logger.warning(f"[retry] Attempt {attempt} failed, retrying in {delay}s...")
                 time.sleep(delay)
+            raise TimeoutError(f"Failed to proceed action with {max_attempts} retries")
+
+        return wrapper
+
+    return decorator
+
+
+def retry_on_exception(max_attempts=3, info="", action_if_fail: Callable[..., Any] = lambda: None):
+    """
+    Retry decorator that catches exceptions.
+
+    Args:
+        max_attempts (int): Max number of attempts before giving up.
+        delay (float): Delay (seconds) between attempts.
+    """
+
+    def decorator(func: Callable[..., Any]):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if info:
+                logger.info(info)
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    logger.error(f"[retry] Attempt {attempt} failed: {e}, reload app and retry...")
+                    if action_if_fail:
+                        action_if_fail()
             raise TimeoutError(f"Failed to proceed action with {max_attempts} retries")
 
         return wrapper

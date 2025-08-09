@@ -27,7 +27,7 @@ def init_adb(instance_name):
             return True
         except (RuntimeError, TimeoutError) as err:
             logger.warning(f"adb error: {err}. Try rebooting ADB server...")
-            # ldc.reboot(instance_name)
+            ldc.reboot(instance_name)
             adb._device = None
             api.adb_api.refresh_adb_server(brutal=True)
             return False

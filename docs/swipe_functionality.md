@@ -16,15 +16,15 @@ The swipe functionality in ROK Macro Automation is implemented using the Strateg
 
 ### Key Classes
 
-#### SwipeDirection Enum
+#### Direction Enum
 ```python
-from src.element import SwipeDirection
+from src.element import Direction
 
 # Available directions
-SwipeDirection.LEFT    # Swipe from right to left
-SwipeDirection.RIGHT   # Swipe from left to right
-SwipeDirection.UP      # Swipe from bottom to top
-SwipeDirection.DOWN    # Swipe from top to bottom
+Direction.LEFT    # Swipe from right to left
+Direction.RIGHT   # Swipe from left to right
+Direction.UP      # Swipe from bottom to top
+Direction.DOWN    # Swipe from top to bottom
 ```
 
 #### SwipeStrategyType Enum
@@ -46,13 +46,32 @@ Best for: Fine-grained scrolling, precise navigation
 - Performs shorter swipes starting from the center
 - Configurable swipe distance ratio (default: 0.3 = 30% of screen area)
 
+## Automatic Duration Calculation
+
+The swipe system automatically calculates the optimal duration for each swipe gesture based on the distance between start and end points. This happens transparently at the `P` (pixel) level, so you don't need to worry about duration parameters in the high-level swipe methods.
+
+**Benefits:**
+- **Longer swipes** get proportionally longer durations for smooth movement
+- **Shorter swipes** complete quickly for responsive UI interactions
+- **Consistent speed** across different swipe distances
+- **Simplified API** - no duration parameters needed at the strategy level
+
+The calculation uses the formula implemented in `P.swipe()`:
+```python
+distance = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+actual_duration = base_duration * (distance / 500) + base_duration
+final_duration = max(base_duration, actual_duration)  # Ensure minimum duration
+```
+
+Where `base_duration` defaults to 500ms and is handled internally.
+
 ## Usage
 
 ### Basic Usage with Existing Menu Classes
 
 ```python
 from src.ui.menu_main import MenuHomeResources
-from src.element import SwipeDirection, SwipeStrategyType
+from src.element import Direction, SwipeStrategyType
 
 # Open the home resources screen first
 MenuMain.open_home_resources()
@@ -69,8 +88,9 @@ MenuHomeResources.swipe_right()
 MenuHomeResources.swipe_up()
 MenuHomeResources.swipe_down()
 
-# Or use the general swipe method with custom duration
-MenuHomeResources.swipe_screen(SwipeDirection.LEFT, duration=600)
+# Or use the general swipe method
+# Duration is automatically calculated based on swipe distance
+MenuHomeResources.swipe_screen(Direction.LEFT)
 ```
 
 ### Creating a New Swipeable Menu Class

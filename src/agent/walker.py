@@ -2,7 +2,7 @@ import copy
 import re
 from typing import Callable, List
 
-from src import logger
+from src import logger, utils
 from src.api import ldp
 from src.const import ActionMode
 from src.element import BTN_ISSUE_CONFIRM
@@ -10,6 +10,12 @@ from src.rok_profile import RokProfile
 from src.ui import MenuAccounts, MenuCharacters, MenuMain, MenuProfile, MenuSettings
 from src.utils import sleep_random
 from src.vision import image, ocr
+
+
+def reload_game():
+    """Reload the game and wait for it to be ready."""
+    ldp.reload_app()
+    MenuMain.wait_for_ingame_ready()
 
 
 class Walker:
@@ -50,14 +56,17 @@ class Walker:
             logger.info(f"Proceed tasks on character '{char.name}'")
             for task in self._tasks:
                 try:
-                    task(char_id)
-                except Exception:
-                    logger.exception(
-                        f"Error occurred while processing task {task.__name__} on character '{char.name}'"
+                    # task(char_id)
+                    utils.retry_on_exception(max_attempts=2, action_if_fail=reload_game)(task)(
+                        char_id
+                    )
+                except (RuntimeError, TimeoutError) as e:
+                    logger.error(
+                        f"Error occurred while processing task {task.__name__} on character '{char.name}':\n{e}",
+                        exc_info=True,
                     )
                     logger.info("Reload app and continue with next task...")
-                    ldp.reload_app()
-                    MenuMain.wait_for_ingame_ready()
+                    reload_game()
         else:
             logger.warning(f"No tasks registered on character '{char.name}', ignore")
         # TODO: this should be one of registered tasks
@@ -128,7 +137,7 @@ class Walker:
             self.walk_account(acc_id)
 
     # --- UI hooks / placeholders ---
-
+    @utils.retry_on_exception(action_if_fail=reload_game)
     def switch_account(self, acc_id: str):
         """
         Switches to the given account via the settings and account center menus.
@@ -148,6 +157,7 @@ class Walker:
 
         MenuMain.wait_for_ingame_ready()
 
+    @utils.retry_on_exception(action_if_fail=reload_game)
     def switch_character(self, char_id: str):
         """
         Switches to a character by slot number using the Account/Characters menu.
@@ -161,6 +171,9 @@ class Walker:
         )
 
         MenuProfile.open()
+        char_name = MenuProfile.get_char_name()
+        if self.profile.get_char_id_by_name(char_name) == char_id:
+            return
         MenuSettings.open()
         MenuCharacters.open()
 
@@ -187,7 +200,7 @@ class Walker:
         """Open profile menu to capture character name, retrieve char_id from RokProfile"""
         with MenuProfile() as mp:
             sleep_random(300, 500)
-            char_name = ocr.extract_text_from_rect(mp.RECT_GOVERNOR_NAME, save=True)
+            char_name = mp.get_char_name()
         return char_name
 
     def _get_current_acc_id(self) -> str:

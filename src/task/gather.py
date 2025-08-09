@@ -19,22 +19,22 @@ class Gather:
         rss_level = char.rss_level
         rss_order = list(char.rss_order)
 
-        avail_m = MenuMain.get_avail_march_on_screen()
-        if avail_m == 0:
+        unused = MenuMain.get_unused_march_on_screen()
+        if unused == 0:
             logger.info("There is no marches available, skip farming")
             return
 
         MenuMain.open_map_screen()
         MenuSearch.reset()
 
-        if avail_m != Gather.MAX_MARCHES:
+        if unused != Gather.MAX_MARCHES:
             marches = Gather.get_avail_marches()
             rss_order = [rss_type if marches[i] > 0 else "" for i, rss_type in enumerate(rss_order)]
 
         logger.action(
             "Gather Resources",
             f"Name: {char.name}, Level: {rss_level}, Order: {rss_order}"
-            f", Marches available: {avail_m}",
+            f", Unused marches available: {unused}",
         )
 
         for march_number, rss_type in enumerate(rss_order, start=1):
@@ -123,7 +123,7 @@ class Gather:
             # Fallback to farm next rss
             rss_index = MenuSearch.RSS_TYPES.index(rss_type)
             if rss_index == 0:
-                raise RuntimeWarning("No node found for any rss types. Skip this march")
+                raise RuntimeError("No node found for any rss types. Skip this march")
 
             next_rss_index = rss_index - 1
             next_rss_type = MenuSearch.RSS_TYPES[next_rss_index]

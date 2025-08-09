@@ -42,3 +42,4 @@ tmp
 assests/dataset/**
 yolo11n.pt
 runs
+sample

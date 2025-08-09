@@ -11,10 +11,10 @@ from typing import Optional
 from src import logger
 from src.element import (
     CenterSwipeStrategy,
+    Direction,
     EdgeSwipeStrategy,
     RectZone,
     SwipeController,
-    SwipeDirection,
     SwipeStrategyType,
 )
 
@@ -70,47 +70,45 @@ class SwipeMixin(ABC):
         logger.debug(f"{cls.__name__} swipe strategy set to {strategy_type.value}")
 
     @classmethod
-    def swipe_screen(cls, direction: SwipeDirection, duration: int = 400):
+    def swipe_screen(cls, direction: Direction):
         """
         Swipe the screen in the specified direction.
 
         Args:
-            direction: SwipeDirection enum (LEFT, RIGHT, UP, DOWN)
-            duration: Duration of the swipe gesture in milliseconds
+            direction: Direction enum (LEFT, RIGHT, UP, DOWN)
         """
         swipe_area = cls._get_swipe_area()
         swipe_controller = cls._get_swipe_controller()
 
         logger.info(f"{cls.__name__}: Swiping {direction.value}")
-        swipe_controller.swipe(swipe_area, direction, duration)
+        swipe_controller.swipe(swipe_area, direction)
 
     @classmethod
-    def swipe_left(cls, duration: int = 400):
+    def swipe_left(cls):
         """Convenience method to swipe left"""
-        cls.swipe_screen(SwipeDirection.LEFT, duration)
+        cls.swipe_screen(Direction.LEFT)
 
     @classmethod
-    def swipe_right(cls, duration: int = 400):
+    def swipe_right(cls):
         """Convenience method to swipe right"""
-        cls.swipe_screen(SwipeDirection.RIGHT, duration)
+        cls.swipe_screen(Direction.RIGHT)
 
     @classmethod
-    def swipe_up(cls, duration: int = 400):
+    def swipe_up(cls):
         """Convenience method to swipe up"""
-        cls.swipe_screen(SwipeDirection.UP, duration)
+        cls.swipe_screen(Direction.UP)
 
     @classmethod
-    def swipe_down(cls, duration: int = 400):
+    def swipe_down(cls):
         """Convenience method to swipe down"""
-        cls.swipe_screen(SwipeDirection.DOWN, duration)
+        cls.swipe_screen(Direction.DOWN)
 
     @classmethod
     def scroll_to_find_element(
         cls,
         target_check_func,
-        direction: SwipeDirection,
+        direction: Direction,
         max_attempts: int = 5,
-        duration: int = 400,
     ) -> bool:
         """
         Scroll in the specified direction until the target element is found.
@@ -119,7 +117,6 @@ class SwipeMixin(ABC):
             target_check_func: Function that returns True when target element is found
             direction: Direction to scroll
             max_attempts: Maximum number of scroll attempts
-            duration: Duration of each swipe
 
         Returns:
             True if element was found, False otherwise
@@ -130,7 +127,7 @@ class SwipeMixin(ABC):
                 return True
 
             logger.debug(f"{cls.__name__}: Attempt {attempt + 1}: Swiping {direction.value}")
-            cls.swipe_screen(direction, duration)
+            cls.swipe_screen(direction)
 
         logger.warning(f"{cls.__name__}: Target element not found after {max_attempts} attempts")
         return False

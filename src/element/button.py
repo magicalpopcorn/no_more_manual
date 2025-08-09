@@ -73,14 +73,14 @@ class RectZone:
         start.swipe(target, duration)
         start.hold(1500)
 
-    def swipe(self, other: "RectZone", duration=1000):
+    def swipe(self, other: "RectZone"):
         """
         Swipe from one rectangle to another.
         This is useful for navigating between UI elements.
         """
-        start = self.get_center_P()
+        start = self.get_random_P()
         target = other.get_center_P()
-        start.swipe(target, duration)
+        start.swipe(target)
 
     def shift(self, offset_x=0, offset_y=0):
         """

@@ -3,7 +3,7 @@
 Example showing how to use the SwipeStrategyType enum with the swipeable mixin.
 """
 
-from src.element import SwipeDirection, SwipeStrategyType
+from src.element import Direction, SwipeStrategyType
 from src.ui.menu_main import MenuHomeResources
 
 
@@ -20,7 +20,7 @@ def demonstrate_enum_usage():
 
     # Demonstrate swipe directions
     print("\nAvailable swipe directions:")
-    for direction in SwipeDirection:
+    for direction in Direction:
         print(f"  - {direction.value}")
 
     # Demonstrate strategy types
@@ -41,9 +41,10 @@ def demonstrate_swipe_usage():
     # Example swipe operations (commented out to avoid actual execution)
     # MenuHomeResources.swipe_right()  # Swipe to the right
     # MenuHomeResources.swipe_left()   # Swipe to the left
-    # MenuHomeResources.swipe_screen(SwipeDirection.UP, duration=500)  # Custom swipe
+    # MenuHomeResources.swipe_screen(Direction.UP)  # Custom swipe direction
 
     print("Swipe operations would be executed here in actual automation")
+    print("Note: Swipe duration is calculated automatically based on distance at the P level")
 
 
 if __name__ == "__main__":
