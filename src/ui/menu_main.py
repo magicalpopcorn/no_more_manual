@@ -79,7 +79,7 @@ class MenuMain:
         Check if the home dropdown menu is visible by looking for the resources button.
         """
         return cv.match_region_with_template(
-            cls.BTN_HOME_RESOURCES, image.RokImages.BTN_HOME_RESOURCES, verbose=True, save=True
+            cls.BTN_HOME_RESOURCES, image.RokImages.BTN_HOME_RESOURCES, verbose=True, save=False
         )
 
 
@@ -104,7 +104,7 @@ class MenuHomeResources(SwipeMixin):
             cls.BTN_HOME_RESOURCES_FILTER,
             image.RokImages.BTN_HOME_RESOURCES_FILTER,
             verbose=True,
-            save=True,
+            save=False,
         )
 
     @classmethod

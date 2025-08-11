@@ -12,8 +12,8 @@ from .menu_profile import MenuProfile
 class MenuSettings(_Menu):
     RECT_TITLE = RectZone("SETTINGS", P(847, 41), P(1076, 91))
 
-    BTN_CHARACTERS_MENU = Button("Characters", P(753, 509), P(868, 605))  # d
-    BTN_ACCOUNT_MENU = Button("Account", P(1050, 510), P(1165, 605))  # d
+    BTN_CHARACTERS_MENU = Button("Characters", P(463, 510), P(573, 605))  # d
+    BTN_ACCOUNT_MENU = Button("Account", P(754, 510), P(873, 605))  # d
 
     @classmethod
     def open(cls):

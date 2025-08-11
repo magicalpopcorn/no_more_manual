@@ -8,6 +8,8 @@ import numpy as np
 from PIL import Image
 
 from src import const, logger
+from src.action import Switch
+from src.action.reload import reload_game
 from src.api import adb
 from src.element import CENTER_POINT, Button, Direction, P, RectZone
 from src.ui import MenuCity, MenuDispatch, MenuHomeResources, MenuMain, MenuQueue
@@ -29,13 +31,19 @@ class GatherGem:
     def __init__(self):
         self.avail_marches = []
 
-    def execute(self):
+    def execute(self, char_id: str):
+        Switch().switch_character(char_id)
+
         while True:
-            self.prepare()
-            self.get_avail_marches()
-            self.gather()
-            logger.debug("Wait for next 60s ...")
-            time.sleep(60)
+            try:
+                self.prepare()
+                self.get_avail_marches()
+                self.gather()
+                logger.debug("Wait for next 60s ...")
+                time.sleep(60)
+            except Exception as e:
+                logger.error(f"Error occurred: {e}")
+                reload_game()
 
     def prepare(self):
         MenuCity.open()
@@ -70,15 +78,18 @@ class GatherGem:
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)  # YOLO and OpenCV expect BGR
 
         self.avail_marches = self.get_object_locations(
-            img, (YoloClass.MARCH_IDLE, YoloClass.MARCH_RETURNING)
+            img, (YoloClass.MARCH_IDLE, YoloClass.MARCH_RETURNING), draw_box=False
         )
         logger.debug(
             f"Found {len(self.avail_marches)} available marches\n{pformat(self.avail_marches)}"
         )
+        if not self.avail_marches:
+            return
         for march in self.avail_marches:
             if march.label == YoloClass.MARCH_RETURNING:
                 march.btn.shift(-15, -15).click()
                 MenuMain.BTN_TROOP_STOP.click()
+        self.avail_marches[-1].btn.shift(-15, -15).click()
 
     def gather(self):
         # step 1: check avail marches in menu main - DONE
@@ -166,8 +177,8 @@ class GatherGem:
                         (0, 255, 0),
                         2,
                     )
-        if draw_box:
-            image.save_image(img, f"detect_{target_label}.png")
+        if draw_box and locations:
+            image.save_image(img, f"detect_{"_".join(map(str, target_label))}.png")
         return locations
 
     @staticmethod

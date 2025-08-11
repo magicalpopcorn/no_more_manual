@@ -21,11 +21,15 @@ class SingletonMeta(type):
 @dataclass
 class Character:
     name: str
-    ch: int
-    assist_interval: int
-    rss_order: List[str]
-    rss_level: int
     slot_number: int
+    ch: int = 25
+    assist_interval: int = 600  # Default 10 minutes
+    rss_order: List[str] = None
+    rss_level: int = 8
+
+    def __post_init__(self):
+        if self.rss_order is None:
+            self.rss_order = []
 
 
 @dataclass

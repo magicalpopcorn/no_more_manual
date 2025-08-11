@@ -43,7 +43,6 @@ class SwipeStrategy(ABC):
             screen_area: The rectangular area where the swipe should occur
             direction: The direction to swipe
         """
-        pass
 
 
 class EdgeSwipeStrategy(SwipeStrategy):
@@ -68,9 +67,7 @@ class EdgeSwipeStrategy(SwipeStrategy):
         logger.debug(f"Edge swipe {direction.value}: {start_point} -> {end_point}")
         start_point.swipe(end_point)
 
-    def _calculate_swipe_points(
-        self, screen_area: RectZone, direction: Direction
-    ) -> Tuple[P, P]:
+    def _calculate_swipe_points(self, screen_area: RectZone, direction: Direction) -> Tuple[P, P]:
         """Calculate start and end points for the swipe based on direction"""
         x1, y1 = screen_area.p1.x, screen_area.p1.y
         x2, y2 = screen_area.p2.x, screen_area.p2.y
@@ -129,9 +126,7 @@ class CenterSwipeStrategy(SwipeStrategy):
         logger.debug(f"Center swipe {direction.value}: {start_point} -> {end_point}")
         start_point.swipe(end_point)
 
-    def _calculate_swipe_points(
-        self, screen_area: RectZone, direction: Direction
-    ) -> Tuple[P, P]:
+    def _calculate_swipe_points(self, screen_area: RectZone, direction: Direction) -> Tuple[P, P]:
         """Calculate start and end points for the swipe based on direction"""
         center = screen_area.get_center_P()
 

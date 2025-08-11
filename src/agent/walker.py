@@ -3,19 +3,13 @@ import re
 from typing import Callable, List
 
 from src import logger, utils
-from src.api import ldp
+from src.action import Switch
+from src.action.reload import reload_game
 from src.const import ActionMode
-from src.element import BTN_ISSUE_CONFIRM
 from src.rok_profile import RokProfile
-from src.ui import MenuAccounts, MenuCharacters, MenuMain, MenuProfile, MenuSettings
+from src.ui import MenuAccounts, MenuProfile, MenuSettings
 from src.utils import sleep_random
 from src.vision import image, ocr
-
-
-def reload_game():
-    """Reload the game and wait for it to be ready."""
-    ldp.reload_app()
-    MenuMain.wait_for_ingame_ready()
 
 
 class Walker:
@@ -25,6 +19,7 @@ class Walker:
         self.confirm_after_done = self.profile.data["gather"]["confirm_after_done"]
         self.fallback = True
         self.mode = mode
+        self.switcher = Switch()
 
     def execute(self):
         match self.mode:
@@ -91,17 +86,17 @@ class Walker:
         starting_char_id = self.profile.get_char_id_by_name(char_name)
 
         # Re-order, current character should be prioritized to walk to reduce redundant moves
-        if starting_char_id:
+        if starting_char_id and starting_char_id in current_account.characters:
             current_account.characters.remove(starting_char_id)
             current_account.characters.insert(0, starting_char_id)
         else:
-            logger.warning(f"Starting character '{char_name}' not found in Profile")
+            logger.warning(f"Starting character '{char_name}' neither not found or in any accounts")
 
         for char_id in current_account.characters:
             if starting_char_id == char_id:
                 logger.info("Walk current character")
             else:
-                self.switch_character(char_id)
+                self.switcher.switch_character(char_id)
             self.walk_character(char_id)
 
     def walk_all(self):
@@ -133,64 +128,8 @@ class Walker:
             if i == 0:
                 logger.info("Walk current account")
             else:
-                self.switch_account(acc_id)
+                self.switcher.switch_account(acc_id)
             self.walk_account(acc_id)
-
-    # --- UI hooks / placeholders ---
-    @utils.retry_on_exception(action_if_fail=reload_game)
-    def switch_account(self, acc_id: str):
-        """
-        Switches to the given account via the settings and account center menus.
-        Assumes only two accounts are managed and switches directly to the other.
-        """
-        account = self.profile.accounts[acc_id]
-        logger.action("Switching account", f"Account {account.name}")
-        MenuProfile.open()
-        MenuSettings.open()
-        MenuAccounts.open()
-
-        # At this point, we are only managing 2 accounts
-        # That means when open the account center, we just proceed the switching
-        # TODO: Implement to choose account from Menu "Switch Accounts"
-        MenuAccounts.BTN_SWITCH_ACCOUNT.click(2000, verify=MenuAccounts.is_switch_menu_open)
-        MenuAccounts.BTN_LOGIN.click(verify=MenuAccounts.is_switch_menu_close)
-
-        MenuMain.wait_for_ingame_ready()
-
-    @utils.retry_on_exception(action_if_fail=reload_game)
-    def switch_character(self, char_id: str):
-        """
-        Switches to a character by slot number using the Account/Characters menu.
-
-        Args:
-            slot_number (int): The character slot number (1-8).
-        """
-        character = self.profile.get_char(char_id)
-        logger.action(
-            "Switching character", f"Character {character.name} - slot {character.slot_number}"
-        )
-
-        MenuProfile.open()
-        char_name = MenuProfile.get_char_name()
-        if self.profile.get_char_id_by_name(char_name) == char_id:
-            return
-        MenuSettings.open()
-        MenuCharacters.open()
-
-        btn = MenuCharacters.get_character_button(character.slot_number)
-        btn.click(verify=MenuCharacters.is_login_menu_open)
-        sleep_random(500, 800)
-
-        # Check for network error confirmation
-        # TODO: Should be handled more properly - a Error Checking Class ???
-        if ocr.extract_text_from_rect(BTN_ISSUE_CONFIRM) == "CONFIRM":
-            image.screenshot("network_issue")
-            BTN_ISSUE_CONFIRM.click()
-        image.screenshot(f"Confirm_switch_{char_id}")
-        MenuCharacters.BTN_SWITCH_YES.click(verify=MenuCharacters.is_login_menu_close)
-
-        logger.info(f"Switching to character slot {character.slot_number}")
-        MenuMain.wait_for_ingame_ready()
 
     def confirm_done(self):
         """UI logic to confirm farming completion"""

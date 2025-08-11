@@ -13,7 +13,7 @@ if __name__ == "__main__":
     try:
         boot.init_instance(instance, rok_ready=True)  # TODO: remove rok_ready
         gg = task.GatherGem()
-        gg.execute()
+        gg.execute("main")
     except KeyboardInterrupt:
         logger.error("KeyboardInterrupt")
         sys.exit(1)
