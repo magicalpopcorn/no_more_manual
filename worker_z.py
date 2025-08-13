@@ -31,10 +31,10 @@ if __name__ == "__main__":
         reporter = task.Report()
 
         for task in [
-            # collector.collect_all,
-            use_item.use_24h_gather_boost,
-            reporter.collect_info,
-            gatherer.gather,
+            collector.collect_all,
+            # use_item.use_24h_gather_boost,
+            # reporter.collect_info,
+            # gatherer.gather,
         ]:
             walker.register_task(task)
 

@@ -41,27 +41,18 @@ class Collect:
                     return
                 logger.action("Purchase Item", "Merchant opens, let's buy some")
                 for _ in range(2):
-                    # 2 times scroll + 3 times buy
-                    for i in range(3):
-                        for price in mm.ITEM_PRICES:
-                            raw_price = ocr.extract_number_from_rect(price, save=True)
-                            logger.debug(f"{price.name} Raw price: {raw_price}")
-                            if obj := re.search(r"\d+,\d+", raw_price):
-                                try:
-                                    if int(obj.group().replace(",", "")) > 100000:
-                                        logger.debug(f"Found item, price: {obj.group()}")
-                                        price.click()
-                                except Exception as err:
-                                    logger.error(f"Something is WRONG with purchasing: {err}")
-                            else:
-                                time.sleep(0.1)
-                        logger.debug("After buying items")
-                        mm.capture()
-
-                        if i != 2:
-                            logger.debug("Scroll up for next item type")
-                            mm.scrollup(extra=10 * (i - 1))
-                            mm.capture()
+                    mm.swipe_up()
+                    time.sleep(1.5)
+                    btn_price = mm.search_boost_24_gather()
+                    if btn_price:
+                        logger.info(f"Found 24h gather boost at {btn_price}")
+                        btn_price.click()
+                        if ocr.extract_text_from_rect(mm.BTN_NOTICE_NO) == mm.BTN_NOTICE_NO.name:
+                            mm.BTN_NOTICE_NO.click(
+                                verify=lambda: ocr.extract_text_from_rect(mm.BTN_NOTICE_NO) != "NO"
+                            )
+                    else:
+                        logger.info("No 24h gather boost found")
                     # Free refresh
                     if mm.is_free_refresh_available():
                         mm.BTN_REFRESH.click(verify=lambda: not mm.is_free_refresh_available())

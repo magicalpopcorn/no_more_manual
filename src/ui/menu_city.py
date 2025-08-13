@@ -1,9 +1,10 @@
 from src import logger
-from src.element import Button, Distance, P, RectZone
+from src.element import Button, Distance, P, RectZone, TextButton
 from src.vision import cv, image
 
 from .base_menu import _Menu
 from .menu_main import MenuMain
+from .swipeable_mixin import SwipeMixin
 
 
 class MenuCity(_Menu):
@@ -45,9 +46,11 @@ class MenuCity(_Menu):
         )
 
 
-class MenuMerchant(_Menu):
+class MenuMerchant(_Menu, SwipeMixin):
     MENU_WINDOW = RectZone("Mechant Menu", P(555, 220), P(1470, 860))
     RECT_TITLE = RectZone("BOUTIQUE", P(1136, 100), P(1376, 154))
+
+    SWIPE_AREA = RectZone("Swipe_Area", P(555, 315), P(1635, 955))
 
     BTN_REFRESH = Button("Refresh", P(1380, 207), P(1650, 285))
 
@@ -62,6 +65,8 @@ class MenuMerchant(_Menu):
 
     ITEM_PRICES = (ITEM_PRICE_1, ITEM_PRICE_2, ITEM_PRICE_3, ITEM_PRICE_4)
 
+    BTN_NOTICE_NO = TextButton("NO", P(1050, 730), P(1395, 807))
+
     @classmethod
     def open(cls):
         if not MenuCity.is_open():
@@ -69,21 +74,23 @@ class MenuMerchant(_Menu):
 
         if not cls.is_courier_located_right():
             image.get_image_from_rect(MenuCity.BTN_COURIER_STATION, save=True)
-            raise RuntimeError("Courier station is not setup at right location")
+            logger.error("Courier station is not setup at right location")
+            # raise RuntimeError("Courier station is not setup at right location")
         super().open()
         MenuCity.BTN_COURIER_STATION.click(verify=cls.is_station_menu_dropdown)
         MenuCity.BTN_COURIER_MERCHANT.click(verify=lambda: not cls.is_station_menu_dropdown())
 
+    #  + 70, x45
+
     @classmethod
-    def scrollup(cls, extra=0):
-        """I set up some magic number here
-        offset_x=(25, 50) -> drag to right direction
-        offset_y=(-315,) -> drag to upper 315 pixel
-        80 88
-        """
-        cls.RECT_DRAG_ZONE.drag(
-            offset_x=(Distance(25), Distance(50)), offset_y=(Distance(-350) + extra,), duration=1500
-        )
+    def search_boost_24_gather(cls):
+        img = image.TemplateImage("boost_24h_gather.png")
+        btn, score = cv.find_template_in_image(image.fullscreen_cap(), img, threshold=0.4)
+        logger.debug(f"24h gather boost score: {score}")
+        if btn:
+            btn_price = Button("btn_price", P(btn.p1.x, btn.p2.y + 70), P(btn.p2.x, btn.p2.y + 115))
+            return btn_price
+        return None
 
     @classmethod
     def is_open_for_sell(cls):
@@ -95,7 +102,7 @@ class MenuMerchant(_Menu):
         return cv.match_region_with_template(
             MenuCity.BTN_COURIER_STATION,
             image.RokImages.BTN_COURIER_STATION,
-            threshold=0.8,
+            threshold=0.6,
             verbose=True,
         )
 
