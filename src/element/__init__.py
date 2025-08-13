@@ -8,4 +8,5 @@ from .swipe_strategy import (
     EdgeSwipeStrategy,
     SwipeController,
     SwipeStrategyType,
+    ZoneSwipeStrategy,
 )

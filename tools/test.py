@@ -31,8 +31,7 @@ def test():
     # img = vision.image.TemplateImage("boost_24h_gather.png")
     # print(vision.cv.find_template_in_image(vision.image.fullscreen_cap(), img, threshold=0.6))
     btn_price = ui.MenuMerchant.search_boost_24_gather()
-    if btn_price:
-        btn_price.click()
+    print(btn_price)
 
 
 if __name__ == "__main__":

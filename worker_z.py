@@ -32,9 +32,9 @@ if __name__ == "__main__":
 
         for task in [
             collector.collect_all,
-            # use_item.use_24h_gather_boost,
-            # reporter.collect_info,
-            # gatherer.gather,
+            use_item.use_24h_gather_boost,
+            reporter.collect_info,
+            gatherer.gather,
         ]:
             walker.register_task(task)
 

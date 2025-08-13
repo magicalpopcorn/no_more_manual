@@ -16,6 +16,7 @@ from src.element import (
     RectZone,
     SwipeController,
     SwipeStrategyType,
+    ZoneSwipeStrategy,
 )
 
 
@@ -31,12 +32,35 @@ class SwipeMixin(ABC):
     # These should be defined by the inheriting class
     SWIPE_AREA: Optional[RectZone] = None
     _swipe_controller: Optional[SwipeController] = None
+    SWIPE_STRATEGY: Optional[SwipeStrategyType] = None
+    _swipe_options: dict = {}
 
     @classmethod
     def _get_swipe_controller(cls) -> SwipeController:
-        """Get the swipe controller, creating a default one if not defined"""
+        """Get the swipe controller, creating one based on SWIPE_STRATEGY if defined"""
         if cls._swipe_controller is None:
-            cls._swipe_controller = SwipeController(EdgeSwipeStrategy())
+            # Check if class defines SWIPE_STRATEGY
+            if cls.SWIPE_STRATEGY:
+                strategy_type = cls.SWIPE_STRATEGY
+
+                # Create strategy based on type
+                if strategy_type == SwipeStrategyType.EDGE:
+                    strategy = EdgeSwipeStrategy(**cls._swipe_options)
+                elif strategy_type == SwipeStrategyType.CENTER:
+                    strategy = CenterSwipeStrategy(**cls._swipe_options)
+                elif strategy_type == SwipeStrategyType.ZONE:
+                    strategy = ZoneSwipeStrategy(**cls._swipe_options)
+                else:
+                    raise ValueError(f"Unknown strategy type: {strategy_type}")
+
+                cls._swipe_controller = SwipeController(strategy)
+                logger.debug(
+                    f"{cls.__name__} auto-configured swipe strategy: {strategy_type.value}"
+                )
+            else:
+                # Default to EdgeSwipeStrategy
+                cls._swipe_controller = SwipeController(EdgeSwipeStrategy(**cls._swipe_options))
+
         return cls._swipe_controller
 
     @classmethod
@@ -56,13 +80,15 @@ class SwipeMixin(ABC):
         Set the swipe strategy for this menu.
 
         Args:
-            strategy_type: Type of strategy (SwipeStrategyType enum or string "edge"/"center")
+            strategy_type: Type of strategy (SwipeStrategyType enum or string "edge"/"center"/"zone")
             **kwargs: Additional arguments for the strategy constructor
         """
         if strategy_type == SwipeStrategyType.EDGE:
             strategy = EdgeSwipeStrategy(**kwargs)
         elif strategy_type == SwipeStrategyType.CENTER:
             strategy = CenterSwipeStrategy(**kwargs)
+        elif strategy_type == SwipeStrategyType.ZONE:
+            strategy = ZoneSwipeStrategy(**kwargs)
         else:
             raise ValueError(f"Unknown strategy type: {strategy_type}")
 

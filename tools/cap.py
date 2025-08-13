@@ -9,16 +9,17 @@ from src import boot, ui, vision
 
 FARM_INSTANCE = "farm1"
 MAIN_INSTANCE = "main"
-instance = FARM_INSTANCE
-# instance = MAIN_INSTANCE
+# instance = FARM_INSTANCE
+instance = MAIN_INSTANCE
 
 
 def capture():
     if len(sys.argv) > 1:
         if sys.argv[1] == "full":
             # capture full screen
-            vision.image.screenshot()
-            return
+            while True:
+                vision.image.screenshot()
+                input()
 
     # capture button
     btn = ui.MenuMain.BTN_HOME_RESOURCES_FILTER

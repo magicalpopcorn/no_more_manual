@@ -21,7 +21,18 @@ def sleep_random(a: float, b: float = 0):
         sleep_random(0.8, 2.3) # Sleeps between 0.8 and 2.3 seconds
     """
     a, b = (a, b) if b > a else (b, a)
-    sleep(a + random.random() * (b - a))
+    sleep_time = a + random.random() * (b - a)
+    logger.debug(f"Sleeping for {sleep_time:.2f} seconds")
+
+    # Display ticking countdown
+    start_time = time.time()
+    end_time = start_time + sleep_time
+    while time.time() < end_time:
+        remaining = end_time - time.time()
+        print(f"Time remaining: {remaining:.1f}s", end="\r")
+        time.sleep(0.1)
+
+    print(" " * 30, end="\r")  # Clear the line after countdown
 
 
 def only_during_periods(periods):

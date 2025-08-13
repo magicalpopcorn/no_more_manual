@@ -21,7 +21,8 @@ class P:
         sleep_random(delay, delay + 0.2)
 
     def hold(self, duration: float = 1):
-        ldp.long_press(*self.xy, duration)
+        """Hold the pixel for a duration (s)"""
+        ldp.long_press(*self.xy, int(duration * 1000))
         time.sleep(duration)
 
     def swipe(self, other: "P", base_duration: float = 0.35):

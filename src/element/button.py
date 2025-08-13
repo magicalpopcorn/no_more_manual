@@ -48,7 +48,7 @@ class RectZone:
         center_y = (self.p1.y + self.p2.y) // 2
         return P(center_x, center_y)
 
-    def drag(self, offset_x=(0,), offset_y=(0,), duration=1000):
+    def drag(self, offset_x=(0,), offset_y=(0,), duration: float = 1.0):
         """
         Fixed vertical drag	 |  offset_y=(-200,)
         Random scroll right	 |  offset_x=(100, 150)
@@ -72,7 +72,7 @@ class RectZone:
         target = P(start.x + dx, start.y + dy)
         # Duration can also be randomized or fixed
         start.swipe(target, duration)
-        start.hold(1500)
+        start.hold(1.5)
 
     def swipe(self, other: "RectZone"):
         """

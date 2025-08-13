@@ -61,5 +61,5 @@ class LDInstance:
         ldc.runapp(name=LDInstance._instance_name, packagename=const.ROK_PACKAGE)
 
     @staticmethod
-    def long_press(x, y, ms):
-        LDInstance.adb(f"shell input swipe {x} {y} {x} {y} {ms}")
+    def long_press(x, y, ms: int):
+        LDInstance.adb(f"shell input swipe {x} {y} {x} {y} {int(ms)}")

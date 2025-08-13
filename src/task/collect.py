@@ -42,7 +42,7 @@ class Collect:
                 logger.action("Purchase Item", "Merchant opens, let's buy some")
                 for _ in range(2):
                     mm.swipe_up()
-                    time.sleep(1.5)
+                    time.sleep(2.5)
                     btn_price = mm.search_boost_24_gather()
                     if btn_price:
                         logger.info(f"Found 24h gather boost at {btn_price}")
@@ -58,6 +58,6 @@ class Collect:
                         mm.BTN_REFRESH.click(verify=lambda: not mm.is_free_refresh_available())
                     else:
                         break
-        except RuntimeError as err:
+        except (RuntimeError, TimeoutError) as err:
             logger.error(err)
             return

@@ -87,7 +87,11 @@ class MenuHomeResources(SwipeMixin):
     BTN_HOME_RESOURCES_FILTER = Button("Home_Resources_Filter", P(30, 10), P(70, 50))
 
     # Define the swipeable area for the home resources screen
-    SWIPE_AREA = RectZone("Home_Resources_Swipe_Area", P(25, 150), P(1580, 855))
+    SWIPE_AREA = RectZone("Home_Resources_Swipe_Area", P(100, 150), P(1500, 855))
+
+    # Define the swipe strategy for this screen
+    SWIPE_STRATEGY = SwipeStrategyType.ZONE
+    _swipe_options = {"zone_width": 15, "variation_range": 10}
 
     @classmethod
     def open(cls):
@@ -95,7 +99,7 @@ class MenuHomeResources(SwipeMixin):
             logger.debug("Home Resources already opened")
             return True
         logger.info("Open Home Resources")
-        MenuMain.BTN_HOME.hold(1500, verify=MenuMain.is_home_dropdown_visible)
+        MenuMain.BTN_HOME.hold(duration=1.5, verify=MenuMain.is_home_dropdown_visible)
         MenuMain.BTN_HOME_RESOURCES.click(verify=cls.is_open)
 
     @classmethod
@@ -106,8 +110,3 @@ class MenuHomeResources(SwipeMixin):
             verbose=True,
             save=False,
         )
-
-    @classmethod
-    def setup_swipe_strategy(cls):
-        """Setup the swipe strategy for home resources screen"""
-        cls.set_swipe_strategy(SwipeStrategyType.EDGE, margin_ratio=0.15)

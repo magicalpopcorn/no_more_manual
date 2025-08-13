@@ -5,6 +5,7 @@ This module provides different swipe strategies that can be used across various 
 The Strategy pattern allows for flexible swipe behavior that can be easily extended.
 """
 
+import random
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Optional, Tuple
@@ -29,6 +30,7 @@ class SwipeStrategyType(Enum):
 
     EDGE = "edge"
     CENTER = "center"
+    ZONE = "zone"
 
 
 class SwipeStrategy(ABC):
@@ -43,6 +45,7 @@ class SwipeStrategy(ABC):
             screen_area: The rectangular area where the swipe should occur
             direction: The direction to swipe
         """
+        pass
 
 
 class EdgeSwipeStrategy(SwipeStrategy):
@@ -152,6 +155,124 @@ class CenterSwipeStrategy(SwipeStrategy):
                 end = P(center.x, center.y + distance)
 
         return start, end
+
+
+class ZoneSwipeStrategy(SwipeStrategy):
+    """
+    Swipe strategy that creates zones at edges and swipes from random points
+    in one zone to random points in another zone for more human-like behavior.
+    """
+
+    def __init__(self, zone_width: int = 40, variation_range: int = 15):
+        """
+        Initialize zone swipe strategy.
+
+        Args:
+            zone_width: Width of the zones in pixels (10-50 recommended)
+            variation_range: Pixel variation range for natural movement (5-25 recommended)
+        """
+        self.zone_width = max(10, min(50, zone_width))
+        self.variation_range = max(5, min(25, variation_range))
+
+    def swipe(self, screen_area: RectZone, direction: Direction) -> None:
+        """Perform zone-to-zone swipe within the screen area"""
+        start_point, end_point = self._calculate_swipe_points(screen_area, direction)
+
+        logger.debug(f"Zone swipe {direction.value}: {start_point} -> {end_point}")
+        start_point.swipe(end_point)
+
+    def _calculate_swipe_points(self, screen_area: RectZone, direction: Direction) -> Tuple[P, P]:
+        """Calculate start and end points with target based on start position for natural swipe"""
+        x1, y1 = screen_area.p1.x, screen_area.p1.y
+        x2, y2 = screen_area.p2.x, screen_area.p2.y
+
+        if direction == Direction.LEFT:
+            # Start from right zone, end in left zone
+            start_zone = self._create_right_zone(x1, y1, x2, y2)
+            start_point = self._get_random_point_in_zone(start_zone)
+
+            # End point: x in left zone, y based on start with variation
+            end_x = random.randint(x1, x1 + self.zone_width)
+            end_y = max(
+                y1,
+                min(
+                    y2, start_point.y + random.randint(-self.variation_range, self.variation_range)
+                ),
+            )
+            end_point = P(end_x, end_y)
+
+        elif direction == Direction.RIGHT:
+            # Start from left zone, end in right zone
+            start_zone = self._create_left_zone(x1, y1, x2, y2)
+            start_point = self._get_random_point_in_zone(start_zone)
+
+            # End point: x in right zone, y based on start with variation
+            end_x = random.randint(x2 - self.zone_width, x2)
+            end_y = max(
+                y1,
+                min(
+                    y2, start_point.y + random.randint(-self.variation_range, self.variation_range)
+                ),
+            )
+            end_point = P(end_x, end_y)
+
+        elif direction == Direction.UP:
+            # Start from bottom zone, end in top zone
+            start_zone = self._create_bottom_zone(x1, y1, x2, y2)
+            start_point = self._get_random_point_in_zone(start_zone)
+
+            # End point: y in top zone, x based on start with variation
+            end_y = random.randint(y1, y1 + self.zone_width)
+            end_x = max(
+                x1,
+                min(
+                    x2, start_point.x + random.randint(-self.variation_range, self.variation_range)
+                ),
+            )
+            end_point = P(end_x, end_y)
+
+        elif direction == Direction.DOWN:
+            # Start from top zone, end in bottom zone
+            start_zone = self._create_top_zone(x1, y1, x2, y2)
+            start_point = self._get_random_point_in_zone(start_zone)
+
+            # End point: y in bottom zone, x based on start with variation
+            end_y = random.randint(y2 - self.zone_width, y2)
+            end_x = max(
+                x1,
+                min(
+                    x2, start_point.x + random.randint(-self.variation_range, self.variation_range)
+                ),
+            )
+            end_point = P(end_x, end_y)
+
+        else:
+            raise ValueError(f"Unsupported swipe direction: {direction}")
+
+        return start_point, end_point
+
+    def _create_left_zone(self, x1: int, y1: int, x2: int, y2: int) -> Tuple[int, int, int, int]:
+        """Create left edge zone"""
+        return (x1, y1, x1 + self.zone_width, y2)
+
+    def _create_right_zone(self, x1: int, y1: int, x2: int, y2: int) -> Tuple[int, int, int, int]:
+        """Create right edge zone"""
+        return (x2 - self.zone_width, y1, x2, y2)
+
+    def _create_top_zone(self, x1: int, y1: int, x2: int, y2: int) -> Tuple[int, int, int, int]:
+        """Create top edge zone"""
+        return (x1, y1, x2, y1 + self.zone_width)
+
+    def _create_bottom_zone(self, x1: int, y1: int, x2: int, y2: int) -> Tuple[int, int, int, int]:
+        """Create bottom edge zone"""
+        return (x1, y2 - self.zone_width, x2, y2)
+
+    def _get_random_point_in_zone(self, zone: Tuple[int, int, int, int]) -> P:
+        """Get a random point within the specified zone"""
+        x1, y1, x2, y2 = zone
+        random_x = random.randint(x1, x2)
+        random_y = random.randint(y1, y2)
+        return P(random_x, random_y)
 
 
 class SwipeController:

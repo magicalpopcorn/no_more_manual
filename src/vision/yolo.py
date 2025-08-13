@@ -2,7 +2,7 @@ from ultralytics import YOLO
 
 from src import const
 
-YOLO_MODEL = YOLO(const.PROJECT_ROOT / "assests" / "yolo_models" / "2000_25.pt")
+YOLO_MODEL = YOLO(const.PROJECT_ROOT / "assests" / "yolo_models" / "2000_37_plus.pt")
 
 
 class YoloClass:
