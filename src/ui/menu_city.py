@@ -67,6 +67,8 @@ class MenuMerchant(_Menu, SwipeMixin):
 
     BTN_NOTICE_NO = TextButton("NO", P(1050, 730), P(1395, 807))
 
+    IS_AVAILABLE: bool = True
+
     @classmethod
     def open(cls):
         if not MenuCity.is_open():

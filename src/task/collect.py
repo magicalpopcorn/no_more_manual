@@ -35,9 +35,13 @@ class Collect:
 
     def purchase_items(self):
         try:
+            if not MenuMerchant.IS_AVAILABLE:
+                logger.info("Merchant is not available")
+                return
             with MenuMerchant() as mm:
                 if not mm.is_open_for_sell():
                     logger.info("Merchant closes, not today")
+                    MenuMerchant.IS_AVAILABLE = False
                     return
                 logger.action("Purchase Item", "Merchant opens, let's buy some")
                 for _ in range(2):

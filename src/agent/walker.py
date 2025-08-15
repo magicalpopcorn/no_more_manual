@@ -1,6 +1,6 @@
 import copy
 import re
-from typing import Callable, List
+from typing import Callable, List, Tuple
 
 from src import logger, utils
 from src.action import Switch
@@ -68,7 +68,7 @@ class Walker:
         if self.confirm_after_done:
             self.confirm_done()
 
-    def walk_account(self, acc_id: str = ""):
+    def walk_account(self, acc_id: str = "", starting_char: str = ""):
         """
         Walk through characters in the given account.
         If no account is passed, it will detect the current account.
@@ -77,22 +77,27 @@ class Walker:
         is walked first, avoiding redundant character switching.
         """
         if not acc_id:
-            acc_id = self._get_current_acc_id()
+            acc_id, starting_char = self._get_current_acc_id()
         logger.info(f"walk_account {acc_id}")
         account = self.profile.accounts[acc_id]
 
         current_account = copy.deepcopy(account)
-        char_name = self._get_current_char_name()
-        starting_char_id = self.profile.get_char_id_by_name(char_name)
+        if not starting_char:
+            starting_char = self._get_current_char_name()
+        starting_char_id = self.profile.get_char_id_by_name(starting_char)
 
         # Re-order, current character should be prioritized to walk to reduce redundant moves
         if starting_char_id and starting_char_id in current_account.characters:
             current_account.characters.remove(starting_char_id)
             current_account.characters.insert(0, starting_char_id)
         else:
-            logger.warning(f"Starting character '{char_name}' neither not found or in any accounts")
+            logger.warning(
+                f"Starting character '{starting_char}' neither not found or in any accounts"
+            )
 
         for char_id in current_account.characters:
+            if char_id == "main":  # skip this shit
+                continue
             if starting_char_id == char_id:
                 logger.info("Walk current character")
             else:
@@ -118,7 +123,7 @@ class Walker:
         """
         logger.action("WALK ALL", "start with current account & user")
         all_accounts = self.profile.all_accounts()
-        uid = self._get_current_acc_id()
+        uid, starting_char = self._get_current_acc_id()
         # if account is configured, it should be prioritized
         if uid in self.profile.accounts:
             all_accounts.remove(uid)
@@ -129,7 +134,7 @@ class Walker:
                 logger.info("Walk current account")
             else:
                 self.switcher.switch_account(acc_id)
-            self.walk_account(acc_id)
+            self.walk_account(acc_id, starting_char)
 
     def confirm_done(self):
         """UI logic to confirm farming completion"""
@@ -142,14 +147,19 @@ class Walker:
             char_name = mp.get_char_name()
         return char_name
 
-    def _get_current_acc_id(self) -> str:
+    def _get_current_acc_id(self) -> Tuple[str, str]:
         """Open sub menu Accounts in Settings to capture account ID"""
-        with MenuProfile():
-            with MenuSettings():
-                with MenuAccounts() as ma:
-                    uid_text = ocr.extract_text_from_rect(ma.RECT_UID, save=True)
-                    if not (match_obj := re.match(r"UID (\d+)", uid_text)):
-                        image.screenshot("uid_not_found")
-                        raise RuntimeError("Failed to get account UID")
-                    uid = match_obj.group(1)
-        return uid
+        # with MenuProfile():
+        #     with MenuSettings():
+        #         with MenuAccounts() as ma:
+        #             uid_text = ocr.extract_text_from_rect(ma.RECT_UID, save=True)
+        #             if not (match_obj := re.match(r"UID (\d+)", uid_text)):
+        #                 image.screenshot("uid_not_found")
+        #                 raise RuntimeError("Failed to get account UID")
+        #             uid = match_obj.group(1)
+        char_name = self._get_current_char_name()
+        char_id = self.profile.get_char_id_by_name(char_name)
+        for account in self.profile.accounts:
+            if char_id in self.profile.accounts[account].characters:
+                return account, char_name
+        raise RuntimeError("Failed to get current account ID, no character found in any accounts")

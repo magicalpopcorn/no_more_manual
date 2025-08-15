@@ -1,7 +1,7 @@
 import time
 
-from src import logger
-from src.element import BTN_GATHER
+from src import logger, utils
+from src.element import BTN_GATHER, Button, P
 from src.rok_profile import RokProfile
 from src.ui import MenuDispatch, MenuMain, MenuQueue, MenuSearch
 from src.vision import cv, image, ocr
@@ -15,8 +15,8 @@ class Gather:
 
     def gather(self, char_id: str):
         char = self.profile.chars[char_id]
-        rss_level = char.rss_level
         rss_order = list(char.rss_order)
+        rss_level = char.rss_level
 
         unused = MenuMain.get_unused_march_on_screen()
         if unused == 0:
@@ -57,8 +57,39 @@ class Gather:
     @staticmethod
     def get_avail_marches():
         logger.info("Try to get which marches are available")
-        Gather.search_rss("wood", 7)  # No need to choose rss level
-        BTN_GATHER.click(delay=1, verify=MenuQueue.is_new_troop_btn_visible)
+        click_zones = [
+            Button(
+                "left_empty_area",
+                P(255, 240),
+                P(767, 850),
+            ),
+            Button(
+                "right_empty_area",
+                P(1145, 240),
+                P(1700, 850),
+            ),
+        ]
+        btn_march = None
+        max_attempts = 3
+        attempts = 0
+
+        while not btn_march and attempts < max_attempts:
+            for btn in click_zones:
+                btn.click()
+                btn_march, _ = cv.find_template_in_image(
+                    image.fullscreen_cap(), image.RokImages.BTN_MARCH, threshold=0.6
+                )
+                if btn_march:
+                    btn_march.click(verify=MenuQueue.is_new_troop_btn_visible)
+                    break
+            if not btn_march:
+                attempts += 1
+            utils.sleep_random(1, 1.5)
+        else:
+            # Fallback
+            Gather.search_rss("wood", 7)  # No need to choose rss level
+            BTN_GATHER.click(delay=1, verify=MenuQueue.is_new_troop_btn_visible)
+
         MenuQueue.BTN_NEW_TROOP.click(verify=MenuDispatch.is_open)
         MenuDispatch.click_multi_select()
         marches = []

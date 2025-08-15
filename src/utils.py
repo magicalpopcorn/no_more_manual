@@ -224,8 +224,11 @@ def retry_on_exception(max_attempts=3, info="", action_if_fail: Callable[..., An
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
-                    logger.error(f"[retry] Attempt {attempt} failed: {e}, reload app and retry...")
-                    if action_if_fail:
+                    logger.error(
+                        f"[retry] Attempt {attempt} failed on {func.__name__}: {e}, reload app and retry...",
+                        exc_info=True,
+                    )
+                    if action_if_fail and attempt < max_attempts:
                         action_if_fail()
             raise TimeoutError(f"Failed to proceed action with {max_attempts} retries")
 
