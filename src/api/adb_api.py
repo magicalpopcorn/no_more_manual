@@ -8,12 +8,12 @@ from typing import Optional
 from ppadb.client import Client as AdbClient
 from ppadb.device import Device
 
-from src import logger
-from src.const import PROJECT_ROOT
+from src import logger, utils
+from src.const import DATA_DIR
 
 from .ldp_api import LDInstance
 
-MAPPING_FILE = PROJECT_ROOT / "tmp" / ".data" / "adb_ldp_mapping.json"
+MAPPING_FILE = DATA_DIR / "adb_ldp_mapping.json"
 
 
 def refresh_adb_server(brutal: bool = False):
@@ -25,7 +25,7 @@ def refresh_adb_server(brutal: bool = False):
     else:
         logger.info("Normal mode: restarting ADB server")
     subprocess.check_call("adb start-server")
-    subprocess.check_call("adb disconnect")
+    # subprocess.check_call("adb disconnect")
     time.sleep(5)
     logger.info("ADB server refreshed.")
 
@@ -156,3 +156,18 @@ class ADBInstance:
     def swipe(cls, x1, y1, x2, y2, duration):
         assert cls._device is not None
         cls._device.input_swipe(x1, y1, x2, y2, duration)
+
+    @classmethod
+    def input_text(cls, text: str):
+        assert cls._device is not None
+        for c in text:
+            cls._device.shell(f"input text '{c}'")
+            utils.sleep_random(0.15, 0.3)
+        time.sleep(0.5)  # Wait for input to complete
+
+    @classmethod
+    def send_enter(cls, delay=2):
+        # adb shell input keyevent 66
+        assert cls._device is not None
+        cls._device.shell("input keyevent 66")
+        utils.sleep_random(delay, delay + 0.2)

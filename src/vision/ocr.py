@@ -27,11 +27,14 @@ def extract_text(img, lang="eng", psm=6, whitelist="") -> str:
     return text
 
 
-def extract_text_from_rect(rect: RectZone | Button, lang="eng", whitelist="", save=False) -> str:
+def extract_text_from_rect(
+    rect: RectZone | Button, lang="eng", whitelist="", verbose=True, save=False
+) -> str:
     """Extract single line of text from RectZone object"""
     img_obj = get_image_from_rect(rect, save=save)
     text = extract_text(img_obj, lang, psm=7, whitelist=whitelist)
-    logger.debug(f"Text extracted from {rect.name}: {repr(text)}")
+    if verbose:
+        logger.debug(f"Text extracted from {rect.name}: {repr(text)}")
     return text.strip()
 
 

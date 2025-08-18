@@ -2,6 +2,9 @@ gather:
   # 1|0 -> true|false
   confirm_after_done: false
 
+assist:
+  target: [391, 721]
+
 # action mode 1 | 2 | 3
 # 1: only current character
 # 2: all characters of current account
@@ -12,6 +15,7 @@ rss_orders:
   V1: ["gold", "gold", "stone", "wood", "food"]
   V2: ["gold", "gold", "stone", "food", "food"]
   V3: ["gold", "gold", "gold", "gold", "gold"]
+  V4: ["gold", "gold", "gold", "stone", "food"]
 
 # example
 accounts:

@@ -22,7 +22,7 @@ def sleep_random(a: float, b: float = 0):
     """
     a, b = (a, b) if b > a else (b, a)
     sleep_time = a + random.random() * (b - a)
-    logger.debug(f"Sleeping for {sleep_time:.2f} seconds")
+    # logger.debug(f"Sleeping for {sleep_time:.2f} seconds")
 
     # Display ticking countdown
     start_time = time.time()

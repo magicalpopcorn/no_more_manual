@@ -23,7 +23,11 @@ class ActionMode(IntFlag):
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = Path(PROJECT_ROOT, "tmp", ".data")
+RSS_PATH = DATA_DIR / "rss.json"
+
 ROK_PACKAGE = "com.rok.gp.vn"
 
 FARM_INSTANCE = "farm1"
+FARM2_INSTANCE = "farm2"
 MAIN_INSTANCE = "main"

@@ -8,7 +8,7 @@ from src import logger, utils
 from .pixel import P
 
 
-@dataclass
+@dataclass(frozen=True)
 class RectZone:
     name: str
     p1: P
@@ -48,7 +48,7 @@ class RectZone:
         center_y = (self.p1.y + self.p2.y) // 2
         return P(center_x, center_y)
 
-    def drag(self, offset_x=(0,), offset_y=(0,), duration: float = 1.0):
+    def drag(self, offset_x=(0,), offset_y=(0,)):
         """
         Fixed vertical drag	 |  offset_y=(-200,)
         Random scroll right	 |  offset_x=(100, 150)
@@ -70,9 +70,7 @@ class RectZone:
             dy = random.randint(*offset_y)
 
         target = P(start.x + dx, start.y + dy)
-        # Duration can also be randomized or fixed
-        start.swipe(target, duration)
-        start.hold(1.5)
+        start.swipe(target)
 
     def swipe(self, other: "RectZone"):
         """
@@ -99,7 +97,7 @@ class RectZone:
         return (*self.p1.xy, *self.p2.xy)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Button(RectZone):
     """
     Represents an interactive button in the game UI, defined by a rectangular zone.
@@ -122,18 +120,13 @@ class Button(RectZone):
     region in the RoK UI, such as a confirm button, VIP icon, or chat bubble.
     """
 
-    def __init__(self, name: str, p1: P, p2: P, padding_ratio: float = 0.2):
-        super().__init__(name, p1, p2, padding_ratio)
-        self.last_clicked_p: P = None
-
-    @utils.retry(max_attempts=3)
+    @utils.retry(max_attempts=5, delay=1.5)
     def click(self, delay=1.2, verify=None):
         """
         Click a random P inside Button with defined padding
         If verify is provided, use verify to check if the button is clicked successfully
         """
         p = self.get_random_P()
-        self.last_clicked_p = p
         logger.debug(f"Click {self.name}{p}")
         p.click(delay)
 
@@ -156,7 +149,7 @@ class Button(RectZone):
         return True
 
 
-@dataclass
+@dataclass(frozen=True)
 class TextButton(Button):
     """
     This is still button, but with text inside
@@ -169,16 +162,7 @@ class TextButton(Button):
 # Captured with 1920x1080, LDPlayer
 
 # USER INTERFACE
-CENTER_POINT = Button("Central_Point", P(920, 486), P(1035, 559))  # d
-BTN_ASSIST = Button("Assist", P(1121, 637), P(1216, 662))
-
-# ASSIST INTERFACE
-FOOD_SLIDER = P(911, 397)
-WOOD_SLIDER = P(911, 487)
-STONE_SLIDER = P(911, 577)
-GOLD_SLIDER = P(911, 667)
-
-BTN_TRANSPORT = TextButton("Transport", P(1051, 762), P(1166, 797))
+CENTER_POINT = Button("Central_Point", P(920, 486), P(1035, 559), padding_ratio=0.4)  # d
 
 # BOOKMARK BUTTONS
 BTN_BM = Button("Bookmark", P(493, 16), P(502, 23))

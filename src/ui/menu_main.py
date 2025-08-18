@@ -1,9 +1,11 @@
 import re
 
 from src import logger, utils
-from src.element import Button, Direction, P, RectZone, SwipeStrategyType
+from src.api import adb
+from src.element import Button, P, RectZone, SwipeStrategyType, TextButton
 from src.vision import cv, image, ocr
 
+from .base_menu import _Menu
 from .swipeable_mixin import SwipeMixin
 
 
@@ -23,6 +25,13 @@ class MenuMain:
 
     # Troop focus
     BTN_TROOP_STOP = Button("Stop_Troop", P(920, 670), P(1005, 747))
+
+    BTN_LOCATION = Button("Btn_Location", P(482, 13), P(646, 46))
+
+    BTN_ASSIST = TextButton("ASSIST", P(1047, 705), P(1300, 780))
+
+    RECT_CITY_LOC = RectZone("City_Location", P(1360, 280), P(1508, 315))
+    CITY_INFO_ICON = RectZone("City_Info_Symbol", P(1089, 277), P(1108, 302))
 
     @classmethod
     def open_map_screen(cls):
@@ -82,6 +91,18 @@ class MenuMain:
             cls.BTN_HOME_RESOURCES, image.RokImages.BTN_HOME_RESOURCES, verbose=True, save=False
         )
 
+    @classmethod
+    def is_btn_assist_visible(cls):
+        return cv.match_region_with_template(
+            cls.BTN_ASSIST, image.RokImages.BTN_ASSIST, verbose=False
+        )
+
+    @classmethod
+    def is_city_info_visible(cls):
+        return cv.match_region_with_template(
+            cls.CITY_INFO_ICON, image.RokImages.CITY_INFO_ICON, verbose=False
+        )
+
 
 class MenuHomeResources(SwipeMixin):
     BTN_HOME_RESOURCES_FILTER = Button("Home_Resources_Filter", P(30, 10), P(70, 50))
@@ -110,3 +131,45 @@ class MenuHomeResources(SwipeMixin):
             verbose=True,
             save=False,
         )
+
+
+class MenuSearchLocation:
+    BTN_SEARCH_LOCATION = Button("Search_Location", P(1300, 185), P(1358, 240))
+    INPUT_X = Button("Input_X", P(887, 200), P(1025, 230))
+    INPUT_Y = Button("Input_Y", P(1120, 200), P(1255, 230))
+    BTN_OK = TextButton("OK", P(1792, 996), P(1864, 1053))
+
+    # Once clicked, "ASSIST" will visible
+    # BTN_ASSIST = Button("Assist", P(100, 100), P(200, 200))
+
+    @classmethod
+    def open(cls):
+        if cls.is_open():
+            logger.debug("Location menu already opened")
+            return
+
+        logger.info("Open Location menu")
+        MenuMain.BTN_LOCATION.click(verify=cls.is_open)
+
+    @classmethod
+    def is_open(cls):
+        """Check if the location menu is open by looking for the location button."""
+        return cv.match_region_with_template(
+            cls.BTN_SEARCH_LOCATION, image.RokImages.BTN_SEARCH_LOCATION, verbose=False
+        )
+
+    @classmethod
+    def is_input_open(cls):
+        return ocr.extract_text_from_rect(cls.BTN_OK) == cls.BTN_OK.name
+
+    @classmethod
+    def locate(cls, x, y):
+        print(f"Locating to ({x}, {y})")
+        cls.open()
+        cls.INPUT_X.click(verify=cls.is_input_open)
+        adb.input_text(str(x))
+        adb.send_enter()
+        cls.INPUT_Y.click(verify=cls.is_input_open)
+        adb.input_text(str(y))
+        adb.send_enter()
+        cls.BTN_SEARCH_LOCATION.click(verify=lambda: not cls.is_open(), delay=1.5)

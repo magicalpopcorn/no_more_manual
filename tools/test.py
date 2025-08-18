@@ -6,7 +6,7 @@ import sys
 import time
 
 sys.path.insert(0, os.getcwd())
-from src import boot, ui, vision
+from src import boot, element, task, ui, vision
 from src.task import gather_gem
 
 FARM_INSTANCE = "farm1"
@@ -17,24 +17,12 @@ instance = FARM_INSTANCE
 
 def test():
     """Test anything"""
-    # vision.image.RokImages.BTN_MULTI_CHECKED.as_array()
-    # gatherer = gather_gem.GatherGem()
-    # gatherer.gather()
-    # btn = vision.cv.find_template_in_image(
-    #     vision.image.TemplateImage("sample/sample_4.png"),
-    #     vision.image.TemplateImage("mining_icon.png"),
-    # )
-    # print(btn)
-    # with ui.MenuMerchant() as mm:
-    # ui.MenuMerchant.swipe_up()
-    # time.sleep(2)
-    # img = vision.image.TemplateImage("boost_24h_gather.png")
-    # print(vision.cv.find_template_in_image(vision.image.fullscreen_cap(), img, threshold=0.6))
-    btn_price = ui.MenuMerchant.search_boost_24_gather()
-    print(btn_price)
+    a = task.Assist()
+    # a.execute("2f4")
+    element.CENTER_POINT.click(verify=ui.MenuMain.is_btn_assist_visible)
 
 
 if __name__ == "__main__":
-    boot.init_instance(instance, rok_ready=True)
+    boot.init_instance(sys.argv[1], rok_ready=True)
     test()
     sys.exit(0)

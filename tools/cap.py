@@ -14,15 +14,15 @@ instance = MAIN_INSTANCE
 
 
 def capture():
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "full":
+    if len(sys.argv) > 2:
+        if sys.argv[2] == "full":
             # capture full screen
             while True:
                 vision.image.screenshot()
                 input()
 
     # capture button
-    btn = ui.MenuMain.BTN_HOME_RESOURCES_FILTER
+    btn = ui.MenuMain.CITY_INFO_SYMBOL
     vision.image.get_image_from_rect(btn, save=True)
 
     # for i in range(1, 6):
@@ -33,6 +33,6 @@ def capture():
 
 
 if __name__ == "__main__":
-    boot.init_instance(instance, rok_ready=True)
+    boot.init_instance(sys.argv[1], rok_ready=True)
     capture()
     sys.exit(0)

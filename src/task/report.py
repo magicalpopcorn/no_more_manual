@@ -24,7 +24,7 @@ class Report:
 
     def report(self):
         # rss.json is a general file for all char_id
-        rss_file = MenuStatistics.RSS_PATH
+        rss_file = const.RSS_PATH
         if not os.path.exists(rss_file):
             logger.error("rss.json not found")
             return

@@ -123,6 +123,13 @@ class RokImages:
     # Menu Main - Home Resources
     GATHER_ICON = TemplateImage("gather_icon.png")
 
+    # Menu Main - Search Location
+    BTN_SEARCH_LOCATION = TemplateImage("btn_search_location.png")
+
+    BTN_ASSIST = TemplateImage("btn_assist.png")
+
+    CITY_INFO_ICON = TemplateImage("city_info_icon.png")
+
     # Menu Items
     BTN_ITEMS_RESOURCES = TemplateImage("btn_items_resources.png")
     BTN_ITEMS_BOOSTS = TemplateImage("btn_items_boosts.png")

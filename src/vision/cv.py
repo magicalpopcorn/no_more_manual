@@ -18,7 +18,7 @@ def match_region_with_template(
     save: bool = False,
 ) -> bool:
     """
-    Match a region of the screen with a preloaded template image (np.array).
+    Check if rect matches a region of the screen with a preloaded template image (np.array).
 
     Args:
         rect: (x, y, w, h) region.

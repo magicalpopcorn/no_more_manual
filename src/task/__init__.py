@@ -19,6 +19,7 @@ actions at certain time of the day. Could be:
 + Buy items from Courier Station DONE
 """
 
+from .assist import Assist
 from .collect import Collect
 from .gather import Gather
 from .gather_gem import GatherGem

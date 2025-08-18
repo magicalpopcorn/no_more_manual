@@ -35,7 +35,11 @@ class _Menu(ABC):
         if not cls.RECT_TITLE:
             logger.warning(f"RECT_TITLE is not defined in {cls.__name__}")
             return True
-        return ocr.extract_text_from_rect(cls.RECT_TITLE) == cls.RECT_TITLE.name
+        return ocr.extract_text_from_rect(cls.RECT_TITLE, verbose=False) == cls.RECT_TITLE.name
+
+    @classmethod
+    def is_closed(cls):
+        return not cls.is_open()
 
     @classmethod
     def close(cls):

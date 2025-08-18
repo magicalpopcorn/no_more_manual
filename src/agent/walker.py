@@ -113,7 +113,7 @@ class Walker:
         efficiency and user experience.
 
         Behavior:
-            - Detects the ID of the currently active account via character ID.
+            - Detects the name of the currently active account via Gorvernor name.
             - Reorders the account list so that the current account is processed first.
             - Skips redundant account switching.
             - Delegates character processing to `walk_account()`.
@@ -149,14 +149,6 @@ class Walker:
 
     def _get_current_acc_id(self) -> Tuple[str, str]:
         """Open sub menu Accounts in Settings to capture account ID"""
-        # with MenuProfile():
-        #     with MenuSettings():
-        #         with MenuAccounts() as ma:
-        #             uid_text = ocr.extract_text_from_rect(ma.RECT_UID, save=True)
-        #             if not (match_obj := re.match(r"UID (\d+)", uid_text)):
-        #                 image.screenshot("uid_not_found")
-        #                 raise RuntimeError("Failed to get account UID")
-        #             uid = match_obj.group(1)
         char_name = self._get_current_char_name()
         char_id = self.profile.get_char_id_by_name(char_name)
         for account in self.profile.accounts:

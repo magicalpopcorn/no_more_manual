@@ -10,8 +10,6 @@ from src.vision import cv, image, ocr
 from .base_menu import _Menu
 from .menu_main import MenuMain
 
-DATA_DIR = os.path.join(const.PROJECT_ROOT, "tmp", ".data")
-
 
 class MenuItems(_Menu):
     """
@@ -53,7 +51,7 @@ class MenuItems(_Menu):
     BOOST_GATHER_8 = "8-Hour Enhanced Gathering"
     BOOST_SHIELD_8 = "8-Hour Peace Shield"
 
-    ITEM_PATH = os.path.join(DATA_DIR, "items.json")
+    ITEM_PATH = const.DATA_DIR / "items.json"
 
     def __init__(self, char_id: str):
         """Each character has their own item inventory"""
@@ -208,8 +206,6 @@ class MenuStatistics(_Menu):
     RECT_FROM_ITEMS = RectZone("From_Items", P(920, 350), P(1045, 750))
     RECT_TOTAL_RSS = RectZone("Total_Resources", P(1425, 350), P(1550, 750))
 
-    RSS_PATH = os.path.join(DATA_DIR, "rss.json")
-
     def __init__(self, char_id: str):
         """Each character has their own item inventory"""
         self.char_id = char_id
@@ -231,14 +227,14 @@ class MenuStatistics(_Menu):
 
     def get_available_rss(self) -> ResourceSet:
         from_item_rss = ResourceSet.from_list(self.get_rss_values(self.RECT_FROM_ITEMS))
-        self.avail_rss = self.get_total_rss() - from_item_rss
+        self.avail_rss = self.get_total_rss().__sub__(from_item_rss, double_check=True)
         logger.info(f"Available Resources: {self.avail_rss}")
         return self.avail_rss
 
     def save_rss_stats(self):
         # Load existing data
-        if os.path.exists(self.RSS_PATH):
-            with open(self.RSS_PATH, "r", encoding="utf-8") as f:
+        if os.path.exists(const.RSS_PATH):
+            with open(const.RSS_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
         else:
             data = {}
@@ -248,8 +244,8 @@ class MenuStatistics(_Menu):
             "avail_rss": self.avail_rss.to_dict(),
         }
 
-        os.makedirs(os.path.dirname(self.RSS_PATH), exist_ok=True)
-        with open(self.RSS_PATH, "w", encoding="utf-8") as f:
+        os.makedirs(os.path.dirname(const.RSS_PATH), exist_ok=True)
+        with open(const.RSS_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False, sort_keys=True)
 
     @staticmethod
