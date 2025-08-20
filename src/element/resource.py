@@ -115,6 +115,30 @@ class ResourceAmount(float):
 
         return ResourceAmount(result)
 
+    def __add__(self, other):
+        """Addition that returns ResourceAmount"""
+        if isinstance(other, ResourceAmount):
+            return ResourceAmount(float(self) + float(other))
+        return ResourceAmount(float(self) + other)
+
+    def __radd__(self, other):
+        """Reverse addition that returns ResourceAmount"""
+        if isinstance(other, ResourceAmount):
+            return ResourceAmount(float(other) + float(self))
+        return ResourceAmount(other + float(self))
+
+    def __mul__(self, other):
+        """Multiplication that returns ResourceAmount"""
+        return ResourceAmount(float(self) * other)
+
+    def __rmul__(self, other):
+        """Reverse multiplication that returns ResourceAmount"""
+        return ResourceAmount(other * float(self))
+
+    def __truediv__(self, other):
+        """Division that returns ResourceAmount"""
+        return ResourceAmount(float(self) / other)
+
     def after_tax(self, tax: TaxRate) -> "ResourceAmount":
         """Returns a new ResourceAmount after tax reduction."""
         return ResourceAmount(float(self) * (1 - tax.value))
