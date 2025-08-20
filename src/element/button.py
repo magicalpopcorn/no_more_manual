@@ -1,13 +1,14 @@
 import random
 import time
 from dataclasses import dataclass
+from typing import Optional
 
 from src import logger, utils
 
 from .pixel import P
 
 
-@dataclass(frozen=True)
+@dataclass
 class RectZone:
     name: str
     p1: P
@@ -87,8 +88,8 @@ class RectZone:
         Shift the rectangle by the given offsets.
         This is useful for adjusting the rectangle position dynamically.
         """
-        new_p1 = P(self.p1.x + offset_x, self.p1.y + offset_y)
-        new_p2 = P(self.p2.x + offset_x, self.p2.y + offset_y)
+        new_p1 = self.p1.shift(offset_x, offset_y)
+        new_p2 = self.p2.shift(offset_x, offset_y)
         return self.__class__(self.name, new_p1, new_p2, self.padding_ratio)
 
     def __str__(self):
@@ -98,7 +99,7 @@ class RectZone:
         return (*self.p1.xy, *self.p2.xy)
 
 
-@dataclass(frozen=True)
+@dataclass
 class Button(RectZone):
     """
     Represents an interactive button in the game UI, defined by a rectangular zone.
@@ -121,13 +122,18 @@ class Button(RectZone):
     region in the RoK UI, such as a confirm button, VIP icon, or chat bubble.
     """
 
+    def __init__(self, name: str, p1: P, p2: P, padding_ratio: float = 0.2):
+        super().__init__(name, p1, p2, padding_ratio)
+        self.last_clicked_p: P = None
+
     @utils.retry(max_attempts=3)
-    def click(self, delay=1200, verify=None):
+    def click(self, delay=1.2, verify=None):
         """
         Click a random P inside Button with defined padding
         If verify is provided, use verify to check if the button is clicked successfully
         """
         p = self.get_random_P()
+        self.last_clicked_p = p
         logger.debug(f"Click {self.name}{p}")
         p.click(delay)
 
@@ -136,13 +142,13 @@ class Button(RectZone):
         return True
 
     @utils.retry(max_attempts=3)
-    def hold(self, duration=1200, verify=None):
+    def hold(self, duration=1.2, verify=None):
         """
         Hold a random P inside Button with defined padding
         If verify is provided, use verify to check if the button is held successfully
         """
         p = self.get_random_P()
-        logger.debug(f"Hold {self.name}{p} - {duration} ms")
+        logger.debug(f"Hold {self.name}{p} - {duration}s")
         p.hold(duration)
 
         if verify is not None:
@@ -150,7 +156,7 @@ class Button(RectZone):
         return True
 
 
-@dataclass(frozen=True)
+@dataclass
 class TextButton(Button):
     """
     This is still button, but with text inside

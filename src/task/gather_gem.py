@@ -7,13 +7,13 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from src import const, logger
+from src import const, logger, utils
 from src.action import Switch
 from src.action.reload import reload_game
 from src.api import adb
 from src.element import CENTER_POINT, Button, Direction, P, RectZone
 from src.ui import MenuCity, MenuDispatch, MenuHomeResources, MenuMain, MenuQueue
-from src.vision import cv, image, yolo
+from src.vision import cv, image, ocr, yolo
 from src.vision.yolo import YoloClass
 
 
@@ -32,15 +32,15 @@ class GatherGem:
         self.avail_marches = []
 
     def execute(self, char_id: str):
-        Switch().switch_character(char_id)
+        # Switch().switch_character(char_id)
 
         while True:
             try:
                 self.prepare()
                 self.get_avail_marches()
-                self.gather()
+                self.scout_n_gather()
                 logger.debug("Wait for next 60s ...")
-                time.sleep(60)
+                utils.sleep_random(60, 120)
             except Exception as e:
                 logger.error(f"Error occurred: {e}")
                 reload_game()
@@ -53,13 +53,24 @@ class GatherGem:
             MenuMain.open_map_screen()
             # FIXME: known issue, if the right point is not a empty point (no marches, resources, barbs, etc ...)
             # it would be a mess
-            right_point = P(CENTER_POINT.p2.x + 100, CENTER_POINT.p1.y + 200)
-            right_point.click()
-            btn_march = Button(
-                "March",
-                P(right_point.x - 460, right_point.y + 35),
-                P(right_point.x - 170, right_point.y + 130),
+            click_zone = Button(
+                "right_empty_area",
+                P(CENTER_POINT.p2.x + 25, CENTER_POINT.p1.y - 25),  # Upper right starting point
+                P(CENTER_POINT.p2.x + 175, CENTER_POINT.p1.y + 125),  # 150x150 size from that point
             )
+            btn_march = None
+            while not btn_march:
+                click_zone.click()
+                btn_march, score = cv.find_template_in_image(
+                    image.fullscreen_cap(), image.RokImages.BTN_MARCH, threshold=0.6
+                )
+            # right_point = P(CENTER_POINT.p2.x + 100, CENTER_POINT.p1.y + 200)
+            # right_point.click()
+            # btn_march = Button(
+            #     "March",
+            #     P(right_point.x - 460, right_point.y + 35),
+            #     P(right_point.x - 170, right_point.y + 130),
+            # )
             btn_march.click(verify=MenuQueue.is_new_troop_btn_visible)
             MenuQueue.BTN_NEW_TROOP.click(verify=MenuDispatch.is_open)
             MenuDispatch.dispatch_all()
@@ -88,10 +99,10 @@ class GatherGem:
         for march in self.avail_marches:
             if march.label == YoloClass.MARCH_RETURNING:
                 march.btn.shift(-15, -15).click()
-                MenuMain.BTN_TROOP_STOP.click()
-        self.avail_marches[-1].btn.shift(-15, -15).click()
+                MenuMain.BTN_TROOP_STOP.click(delay=1)
+        self.avail_marches[-1].btn.shift(-15, -15).click(delay=1.5)
 
-    def gather(self):
+    def scout_n_gather(self):
         # step 1: check avail marches in menu main - DONE
         # step 2: if not 5/5, march all - DONE
         # step 3: march is 5/5, detect idle & returning marches
@@ -120,13 +131,15 @@ class GatherGem:
                     march = self.avail_marches.pop()
                     print(f"Marching {march.btn.name} to gem at {gem.btn.name}")
                     march.btn.shift(-15, -15).swipe(gem.btn)
-                    time.sleep(2)
+                    utils.sleep_random(2, 4)
                 else:
                     return
             if not self.avail_marches:
                 return
             MenuHomeResources.swipe_screen(Direction(next(directions)))
-            time.sleep(1.5)
+            if not MenuHomeResources.is_open():
+                MenuHomeResources.open()
+            utils.sleep_random(1.5, 2.5)
 
     def get_object_locations(
         self, img, target_label: str | tuple, draw_box=True
@@ -140,6 +153,7 @@ class GatherGem:
                 cls_id = int(box.cls[0])  # Class index
                 label = GatherGem.model.names[cls_id]  # Class label (e.g., 'gem')
                 conf = float(box.conf[0])  # Confidence score
+                logger.debug(f"Detected {label} with confidence {conf:.2f}")
                 if label not in target_label or conf < 0.4:
                     continue
 

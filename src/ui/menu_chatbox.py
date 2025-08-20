@@ -56,16 +56,16 @@ class ChatBox:
     #     logger.debug(f"Sending: {text}")
     #     cls.BTN_CHAT_ZONE.click()
     #     keyboard.SendText(text)
-    #     sleep_random(100, 200)
+    #     sleep_random(0.1, 0.2)
 
     #     SC_ENTER.press()
-    #     sleep_random(100, 200)
+    #     sleep_random(0.1, 0.2)
 
 
 # def confirm_done(text="Done"):
 #     ChatBox.open()
-#     sleep_random(500, 700)
+#     sleep_random(0.5, 0.7)
 #     ChatBox.choose_thread_chat(FARM_THREAD_POSITION)
 #     ChatBox.send_text(text)
-#     sleep_random(500, 700)
+#     sleep_random(0.5, 0.7)
 #     ChatBox.close()

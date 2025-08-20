@@ -84,4 +84,4 @@ class MenuDispatch:
         cls.click_multi_select()
         shifted_btn_march = cls.BTN_MARCH.shift(offset_x=cls.SHIFT)
         shifted_btn_march.click(verify=cls.is_close)
-        utils.sleep_random(1500, 2500)
+        utils.sleep_random(1.5, 2.5)

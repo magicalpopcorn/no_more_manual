@@ -26,7 +26,7 @@ class Switch:
         # At this point, we are only managing 2 accounts
         # That means when open the account center, we just proceed the switching
         # TODO: Implement to choose account from Menu "Switch Accounts"
-        MenuAccounts.BTN_SWITCH_ACCOUNT.click(2000, verify=MenuAccounts.is_switch_menu_open)
+        MenuAccounts.BTN_SWITCH_ACCOUNT.click(delay=2, verify=MenuAccounts.is_switch_menu_open)
         MenuAccounts.BTN_LOGIN.click(verify=MenuAccounts.is_switch_menu_close)
 
         MenuMain.wait_for_ingame_ready()
@@ -54,7 +54,7 @@ class Switch:
 
         btn = MenuCharacters.get_character_button(character.slot_number)
         btn.click(verify=MenuCharacters.is_login_menu_open)
-        utils.sleep_random(500, 800)
+        utils.sleep_random(0.5, 0.8)
 
         # Check for network error confirmation
         # TODO: Should be handled more properly - a Error Checking Class ???

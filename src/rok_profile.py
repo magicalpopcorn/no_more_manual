@@ -23,7 +23,6 @@ class Character:
     name: str
     slot_number: int
     ch: int = 25
-    assist_interval: int = 600  # Default 10 minutes
     rss_order: List[str] = None
     rss_level: int = 8
 

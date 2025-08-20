@@ -11,10 +11,17 @@ import pygetwindow as gw
 from . import logger
 
 
-def sleep_random(a: int, b=0):
-    """Sleep random (a,b) ms"""
+def sleep_random(a: float, b: float = 0):
+    """
+    Sleep for a random duration between a and b seconds.
+    If only a is provided, sleeps between 0 and a seconds.
+
+    Examples:
+        sleep_random(1.5)      # Sleeps between 0 and 1.5 seconds
+        sleep_random(0.8, 2.3) # Sleeps between 0.8 and 2.3 seconds
+    """
     a, b = (a, b) if b > a else (b, a)
-    sleep((random.randint(a, b)) / 1000)
+    sleep(a + random.random() * (b - a))
 
 
 def only_during_periods(periods):

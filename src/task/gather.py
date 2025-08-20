@@ -48,7 +48,7 @@ class Gather:
                 break
             else:
                 BTN_GATHER.click(
-                    1000,
+                    delay=1,
                     verify=lambda: ocr.extract_text_from_rect(MenuQueue.BTN_NEW_TROOP)
                     == "New Troop",
                 )
@@ -58,7 +58,7 @@ class Gather:
     def get_avail_marches():
         logger.info("Try to get which marches are available")
         Gather.search_rss("wood", 7)  # No need to choose rss level
-        BTN_GATHER.click(1000, verify=MenuQueue.is_new_troop_btn_visible)
+        BTN_GATHER.click(delay=1, verify=MenuQueue.is_new_troop_btn_visible)
         MenuQueue.BTN_NEW_TROOP.click(verify=MenuDispatch.is_open)
         MenuDispatch.click_multi_select()
         marches = []
@@ -86,7 +86,7 @@ class Gather:
         is_valid_node_level = lambda n: 6 <= n <= 8
         while is_valid_node_level(node_level):
             Gather.find_and_click_level_button(rss_type, node_level)
-            MenuSearch.get_search_button(rss_type).click(1200)
+            MenuSearch.get_search_button(rss_type).click(delay=1.2)
 
             # Apply for all resource types
             if Gather.is_gather_popup_shown():

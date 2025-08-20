@@ -16,15 +16,16 @@ class P:
     def xy(self) -> tuple[int, int]:
         return (self.x, self.y)
 
-    def click(self, delay=1200):
+    def click(self, delay: float = 1.2):
         ldp.tap(*self.xy)
-        sleep_random(delay, delay + 200)
+        sleep_random(delay, delay + 0.2)
 
-    def hold(self, duration=1000):
+    def hold(self, duration: float = 1):
         ldp.long_press(*self.xy, duration)
-        time.sleep(duration / 1000)
+        time.sleep(duration)
 
-    def swipe(self, other: "P", base_duration=350):
+    def swipe(self, other: "P", base_duration: float = 0.35):
+        base_duration *= 1000
         # Calculate distance between points
         distance = ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
         # Scale duration based on distance (adjust multiplier as needed)
@@ -32,6 +33,9 @@ class P:
         # Ensure minimum duration
         duration = max(base_duration, duration)
         adb.swipe(*self.xy, *other.xy, duration)
+
+    def shift(self, offset_x, offset_y):
+        return self.__class__(self.x + offset_x, self.y + offset_y)
 
     def __str__(self):
         return f"({self.x},{self.y})"

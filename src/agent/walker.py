@@ -138,7 +138,7 @@ class Walker:
     def _get_current_char_name(self) -> str:
         """Open profile menu to capture character name, retrieve char_id from RokProfile"""
         with MenuProfile() as mp:
-            sleep_random(300, 500)
+            sleep_random(0.3, 0.5)
             char_name = mp.get_char_name()
         return char_name
 

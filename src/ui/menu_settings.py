@@ -21,7 +21,7 @@ class MenuSettings(_Menu):
         if cls.is_open():
             logger.warning("Menu Settings already opened")
             return
-        MenuProfile.BTN_SETTINGS.click(2000, verify=cls.is_open)
+        MenuProfile.BTN_SETTINGS.click(delay=2.0, verify=cls.is_open)
 
 
 class MenuCharacters(_Menu):
@@ -43,7 +43,7 @@ class MenuCharacters(_Menu):
         if cls.is_open():
             logger.warning("Menu Characters already opened")
             return
-        MenuSettings.BTN_CHARACTERS_MENU.click(2500, verify=cls.is_open)
+        MenuSettings.BTN_CHARACTERS_MENU.click(delay=2.5, verify=cls.is_open)
 
     @classmethod
     def is_login_menu_open(cls):
@@ -99,7 +99,7 @@ class MenuAccounts(_Menu):
         if cls.is_open():
             logger.warning("Menu Accounts already opened")
             return
-        MenuSettings.BTN_ACCOUNT_MENU.click(delay=1200, verify=cls.is_open)
+        MenuSettings.BTN_ACCOUNT_MENU.click(delay=1.2, verify=cls.is_open)
 
     @classmethod
     def is_switch_menu_open(cls):
