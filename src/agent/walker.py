@@ -91,9 +91,7 @@ class Walker:
             current_account.characters.remove(starting_char_id)
             current_account.characters.insert(0, starting_char_id)
         else:
-            logger.warning(
-                f"Starting character '{starting_char}' neither not found or in any accounts"
-            )
+            logger.warning(f"Starting character '{starting_char}' neither found or in any accounts")
 
         for char_id in current_account.characters:
             if char_id == "main":  # skip this shit
@@ -134,6 +132,7 @@ class Walker:
                 logger.info("Walk current account")
             else:
                 self.switcher.switch_account(acc_id)
+                starting_char = ""
             self.walk_account(acc_id, starting_char)
 
     def confirm_done(self):

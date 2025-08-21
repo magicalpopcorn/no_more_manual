@@ -6,7 +6,7 @@ import sys
 import time
 
 sys.path.insert(0, os.getcwd())
-from src import boot, element, task, ui, vision
+from src import boot, const, element, task, ui, vision
 from src.task import gather_gem
 
 FARM_INSTANCE = "farm1"
@@ -19,7 +19,8 @@ def test():
     """Test anything"""
     a = task.Assist()
     # a.execute("2f4")
-    element.CENTER_POINT.click(verify=ui.MenuMain.is_btn_assist_visible)
+    # element.CENTER_POINT.click(verify=ui.MenuMain.is_btn_assist_visible)
+    print(vision.ocr.extract_text_from_rect(element.BTN_GATHER))
 
 
 if __name__ == "__main__":

@@ -40,6 +40,82 @@ def format_dataframe_for_display(df, resource_columns=None):
     return df_display
 
 
+def get_rss_data(data):  # Accept "total_rss" or "avail_rss" as string
+    avail_rss = []
+    total_rss = []
+    for char_id, rss in data.items():
+        char = profile.chars.get(char_id)
+        if char is None:
+            # char_id in rss.json but not in profile.yaml → skip
+            continue
+        avail = ResourceSet.from_dict(rss["avail_rss"])
+        total = ResourceSet.from_dict(rss["total_rss"])
+        tax = TaxRate.from_ch(char.ch)
+        avail_rss.append(
+            {
+                "name": char.name,
+                "ch": char.ch,
+                "tax": tax,
+                "food": avail.food,
+                "gold": avail.gold,
+                "stone": avail.stone,
+                "wood": avail.wood,
+            }
+        )
+        total_rss.append(
+            {
+                "name": char.name,
+                "ch": char.ch,
+                "tax": tax,
+                "food": total.food,
+                "gold": total.gold,
+                "stone": total.stone,
+                "wood": total.wood,
+            }
+        )
+    return avail_rss, total_rss
+
+
+def create_resource_dataframe(rss_data):
+    # Create DataFrame with rows data
+    # Use dtype='object' for resource columns to preserve ResourceAmount type
+    df = pd.DataFrame(rss_data, dtype="object")
+
+    # Optional: order columns explicitly
+    df = df[["name", "ch", "tax", "food", "wood", "stone", "gold"]]
+    for col in ["food", "wood", "stone", "gold"]:
+        df[f"{col}_after_tax"] = df.apply(lambda row: row[col].after_tax(row["tax"]), axis=1)
+
+    # Use pandas .sum() and convert results back to ResourceAmount
+    totals = df[[f"{col}_after_tax" for col in ["food", "wood", "stone", "gold"]]].sum()
+
+    # Build the summary row - convert float totals back to ResourceAmount
+    summary_row = {
+        "name": "TOTAL (AFTER TAX)",
+        "ch": "",
+        "tax": "",
+        "food": ResourceAmount(totals["food_after_tax"]),
+        "wood": ResourceAmount(totals["wood_after_tax"]),
+        "stone": ResourceAmount(totals["stone_after_tax"]),
+        "gold": ResourceAmount(totals["gold_after_tax"]),
+    }
+
+    # Append row to df
+    df_with_total = df.drop(
+        columns=["food_after_tax", "wood_after_tax", "stone_after_tax", "gold_after_tax"]
+    )
+    df_with_total = pd.concat(
+        [df_with_total, pd.DataFrame([summary_row], dtype="object")], ignore_index=True
+    )
+    return df_with_total
+
+
+def report_df(df, title):
+    # Display final report with totals
+    print(f"\n{title}:")
+    print(format_dataframe_for_display(df).to_string(index=False))
+
+
 profile = rok_profile.RokProfile()
 chars = profile.chars
 
@@ -53,62 +129,21 @@ if not os.path.exists(rss_file):
 with open(rss_file, "r", encoding="utf-8") as f:
     rss_data = json.load(f)
 
-rows = []
-for char_id, rss in rss_data.items():
-    char = profile.chars.get(char_id)
-    if char is None:
-        # char_id in rss.json but not in profile.yaml → skip
-        continue
-    avail = ResourceSet.from_dict(rss["avail_rss"])
-    tax = TaxRate.from_ch(char.ch)
-    rows.append(
-        {
-            "name": char.name,
-            "ch": char.ch,
-            "tax": tax,
-            "food": avail.food,
-            "gold": avail.gold,
-            "stone": avail.stone,
-            "wood": avail.wood,
-        }
-    )
+avail_rss, total_rss = get_rss_data(rss_data)
+avail_df = create_resource_dataframe(avail_rss)
+total_df = create_resource_dataframe(total_rss)
 
-# Create DataFrame with rows data
-# Use dtype='object' for resource columns to preserve ResourceAmount type
-df = pd.DataFrame(rows, dtype="object")
+report_df(avail_df, "Available Resources")
+report_df(total_df, "Total Resources")
 
-# Optional: order columns explicitly
-df = df[["name", "ch", "tax", "food", "wood", "stone", "gold"]]
-for col in ["food", "wood", "stone", "gold"]:
-    df[f"{col}_after_tax"] = df.apply(lambda row: row[col].after_tax(row["tax"]), axis=1)
+# Create a separator row with dashes
+separator_row = {col: "----------" for col in avail_df.columns}
+separator_df = pd.DataFrame([separator_row])
 
-# Use pandas .sum() and convert results back to ResourceAmount
-totals = df[[f"{col}_after_tax" for col in ["food", "wood", "stone", "gold"]]].sum()
+# Combine both dataframes with the separator
+combined_df = pd.concat([avail_df, separator_df, total_df], ignore_index=True)
 
-# Build the summary row - convert float totals back to ResourceAmount
-summary_row = {
-    "name": "TOTAL (AFTER TAX)",
-    "ch": "",
-    "tax": "",
-    "food": ResourceAmount(totals["food_after_tax"]),
-    "wood": ResourceAmount(totals["wood_after_tax"]),
-    "stone": ResourceAmount(totals["stone_after_tax"]),
-    "gold": ResourceAmount(totals["gold_after_tax"]),
-}
-
-# Append row to df
-df_with_total = df.drop(
-    columns=["food_after_tax", "wood_after_tax", "stone_after_tax", "gold_after_tax"]
-)
-df_with_total = pd.concat(
-    [df_with_total, pd.DataFrame([summary_row], dtype="object")], ignore_index=True
-)
-
-# Display final report with totals
-print("\nFinal Report with Totals:")
-print(format_dataframe_for_display(df_with_total).to_string(index=False))
-# Save DataFrame with totals to CSV
-output_path = PROJECT_ROOT / "tmp" / "record" / f"resources_after_tax_{_date_str}.csv"
-df_with_total.to_csv(output_path, index=False, encoding="utf-8")
-
-print(f"Saved to {output_path}")
+# Save combined dataframe to CSV
+output_path = PROJECT_ROOT / "tmp" / "record" / f"resources_{_date_str}.csv"
+combined_df.to_csv(output_path, index=False, encoding="utf-8")
+print(f"Saved combined resources to {output_path}")

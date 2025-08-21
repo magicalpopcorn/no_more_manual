@@ -82,8 +82,9 @@ class Gather:
                 if btn_march:
                     btn_march.click(verify=MenuQueue.is_new_troop_btn_visible)
                     break
-            if not btn_march:
-                attempts += 1
+            if btn_march:
+                break
+            attempts += 1
             utils.sleep_random(1, 1.5)
         else:
             # Fallback
@@ -114,10 +115,10 @@ class Gather:
         MenuSearch.open()
         Gather.find_and_click_deposit_button(rss_type)
 
-        is_valid_node_level = lambda n: 6 <= n <= 8
+        is_valid_node_level = lambda n: 5 <= n <= 8
         while is_valid_node_level(node_level):
             Gather.find_and_click_level_button(rss_type, node_level)
-            MenuSearch.get_search_button(rss_type).click(delay=1.2)
+            MenuSearch.get_search_button(rss_type).click(delay=1.5)
 
             # Apply for all resource types
             if Gather.is_gather_popup_shown():
