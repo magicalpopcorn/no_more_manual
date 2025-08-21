@@ -1,10 +1,10 @@
-# Macro Automation Framework
+# Macro Automation Tool
 
 ---
 
 ## 🚀 Overview
 
-**Macro Automation Framework** is a robust, state-aware automation system designed for mobile applications. 
+**Macro Automation Tool** is a robust, state-aware automation system designed for mobile applications. 
 Built with Python and leveraging computer vision, it streamlines repetitive tasks with high precision and 
 human-like behavior. The system is modular, extensible, and engineered for reliability, making it ideal for 
 users seeking efficiency and consistency in managing multi-step workflows.
