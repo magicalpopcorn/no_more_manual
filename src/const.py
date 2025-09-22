@@ -11,7 +11,7 @@ BIL = 1000 * MIL  # 1B rss
 
 FARM_THREAD_POSITION = 1
 
-TIME_EARLY_MORNING = (datetime.time(6, 0), datetime.time(8, 0))
+TIME_EARLY_MORNING = (datetime.time(6, 0), datetime.time(9, 0))
 TIME_NIGHT = (datetime.time(20, 0), datetime.time(23, 59))
 
 

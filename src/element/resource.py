@@ -65,7 +65,7 @@ class ResourceAmount(float):
     conversion to int, and arithmetic operations.
     """
 
-    MULTIPLIERS = {"M": 1, "B": 1000}
+    MULTIPLIERS = {"M": 1, "B": 1000, "": 10**-6}  # default to millions if no unit
 
     def __new__(cls, value: float | str):
         if isinstance(value, str):
@@ -78,11 +78,13 @@ class ResourceAmount(float):
 
     @classmethod
     def _parse_string(cls, s: str) -> float:
-        """Parse a resource string like '100.0M' or '1.4B' to float value in millions."""
-        match = re.match(r"([\d.,]+)\s*([MB])", s.strip().upper())
+        """Parse a resource string like '100.0M' or '1.4B' or '0' to float value in millions."""
+        match = re.match(r"([\d.,]+)\s*([MB])?", s.strip().upper())
         if not match:
             raise ValueError(f"Invalid resource format: {s}")
         num, unit = match.groups()
+        if not unit:
+            unit = ""  # default to millions if no unit
         num = float(num.replace(",", ""))
         return num * cls.MULTIPLIERS[unit]
 

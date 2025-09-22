@@ -20,8 +20,8 @@ if __name__ == "__main__":
         boot.init_instance(instance)
 
         profile = RokProfile()
-        # mode = ActionMode(profile.action_mode)
-        mode = ActionMode.ACCOUNT
+        mode = ActionMode(profile.action_mode)
+        # mode = ActionMode.ACCOUNT
         walker = agent.Walker(mode)
 
         # Declare and register tasks to walker

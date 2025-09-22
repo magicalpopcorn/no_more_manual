@@ -28,7 +28,7 @@ class MenuMain:
 
     BTN_LOCATION = Button("Btn_Location", P(482, 13), P(646, 46))
 
-    BTN_ASSIST = TextButton("ASSIST", P(1047, 705), P(1300, 780))
+    BTN_ASSIST = TextButton("ASSIST", P(205, 680), P(465, 750))
 
     RECT_CITY_LOC = RectZone("City_Location", P(1360, 280), P(1508, 315))
     CITY_INFO_ICON = RectZone("City_Info_Symbol", P(1089, 277), P(1108, 302))
@@ -93,9 +93,10 @@ class MenuMain:
 
     @classmethod
     def is_btn_assist_visible(cls):
-        return cv.match_region_with_template(
-            cls.BTN_ASSIST, image.RokImages.BTN_ASSIST, verbose=False
-        )
+        # return cv.match_region_with_template(
+        #     cls.BTN_ASSIST, image.RokImages.BTN_ASSIST, verbose=False
+        # )
+        return ocr.extract_text_from_rect(cls.BTN_ASSIST, verbose=False) == cls.BTN_ASSIST.name
 
     @classmethod
     def is_city_info_visible(cls):

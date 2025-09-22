@@ -27,13 +27,16 @@ class Assist:
 
     def __init__(self):
         self.profile = RokProfile()
-        self.target: P = None
+        self.target: P = P(*tuple(self.profile.data["assist"]["target"]))
+        self.MAX_CAP = ResourceAmount(self.profile.data.get("assist", {}).get("max_cap", "1B"))
+        self.total_transfered = ResourceAmount(0)
 
     def transport_rss(self, char_id):
-        self.target = P(*tuple(self.profile.data["assist"]["target"]))
+
+        self.total_transfered = ResourceAmount(0)
 
         # open menu main buildings
-        MenuCity.open()
+        # MenuCity.open()
         MenuMain.open_map_screen()
         CENTER_POINT.click(verify=MenuMain.is_city_info_visible)
         self.city_loc = self.get_city_loc()
@@ -105,16 +108,16 @@ class Assist:
         )
 
         slider = MenuRssAssist.get_slider(rss_type)
-        while avail_amount > 0:
+        while avail_amount > 0 and self.total_transfered < self.MAX_CAP:
             # Open menu resource assistance
-            CENTER_POINT.click(verify=MenuMain.is_btn_assist_visible)
+            CENTER_POINT.click(delay=0.8, verify=MenuMain.is_btn_assist_visible)
 
             start_time = time.time()
             max_timeout = 30  # 30 seconds timeout
 
             while True:
                 try:
-                    MenuMain.BTN_ASSIST.click(verify=MenuRssAssist.is_open)
+                    MenuMain.BTN_ASSIST.click(delay=0.8, verify=MenuRssAssist.is_open)
                 except TimeoutError:
                     pass
                 if MenuRssAssist.is_open():
@@ -128,7 +131,10 @@ class Assist:
 
             MenuRssAssist.transport()
             avail_amount -= send_amount
-            logger.debug(f"Leftover: {avail_amount}")
+            self.total_transfered += send_amount
+            logger.debug(
+                f"total_transfer: {self.total_transfered} ,{rss_type} leftover: {avail_amount}"
+            )
             utils.sleep_random(interval, interval + 0.5)
 
     def get_rss_set(self, char_id) -> ResourceSet:
@@ -143,7 +149,7 @@ class Assist:
         dy = p1.y - p2.y
         distance = math.hypot(dx, dy)
         if distance <= 5:
-            v *= 3
+            v *= 5  # speed up for short distance
         logger.debug(f"Distance between {p1} and {p2}: {distance:.2f} pixels")
         return distance / v
 

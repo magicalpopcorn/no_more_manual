@@ -5,12 +5,13 @@ import datetime
 import json
 import os
 import sys
+import time
+from pathlib import Path
 from pprint import pprint
 
 import pandas as pd
 
-sys.path.insert(0, os.getcwd())
-
+sys.path.insert(0, str(Path(__file__).resolve() / ".." / ".."))
 from src import const, rok_profile
 from src.const import PROJECT_ROOT
 from src.element import ResourceAmount, ResourceSet, TaxRate
@@ -147,3 +148,4 @@ combined_df = pd.concat([avail_df, separator_df, total_df], ignore_index=True)
 output_path = PROJECT_ROOT / "tmp" / "record" / f"resources_{_date_str}.csv"
 combined_df.to_csv(output_path, index=False, encoding="utf-8")
 print(f"Saved combined resources to {output_path}")
+input()

@@ -1,6 +1,7 @@
 from src.element import P, TextButton
 from src.vision import ocr
 
+
 class MenuQueue:
     """
     Represents the MenuQueue interface.
@@ -14,4 +15,4 @@ class MenuQueue:
         """
         Check if the 'New Troop' button is visible on the screen.
         """
-        return ocr.extract_text_from_rect(cls.BTN_NEW_TROOP) == "New Troop"
+        return "New Troop" in ocr.extract_text_from_rect(cls.BTN_NEW_TROOP)
