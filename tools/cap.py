@@ -22,17 +22,13 @@ def capture():
                 input()
 
     # capture button
-    btn = ui.MenuMain.CITY_INFO_SYMBOL
+    btn = ui.MenuMain.CITY_INFO_ICON
     vision.image.get_image_from_rect(btn, save=True)
-
-    # for i in range(1, 6):
-    #     btn = ui.MenuDispatch.get_march_button(i)
-    #     vision.image.get_image_from_rect(btn, save=True)
 
     return
 
 
 if __name__ == "__main__":
-    boot.init_instance(sys.argv[1], rok_ready=True)
+    boot.init_instance(instance, rok_ready=True)
     capture()
     sys.exit(0)

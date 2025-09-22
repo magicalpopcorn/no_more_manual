@@ -7,8 +7,8 @@ from src.element.resource import ResourceAmount, ResourceSet
 from src.rok_profile import RokProfile
 from src.vision import cv, image, ocr
 
-from .base_menu import _Menu
-from .menu_main import MenuMain
+from ..base_menu import _Menu
+from ..menu_main import MenuMain
 
 
 class MenuItems(_Menu):

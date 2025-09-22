@@ -19,6 +19,7 @@ class MenuMain:
     # Expansion
     BTN_SUB_MENU = Button("Sub_Menu", P(1800, 970), P(1890, 1037))
     BTN_ITEMS = Button("Items", P(1203, 970), P(1284, 1037))
+    BTN_ALLIANCE = Button("Alliance", P(1355, 970), P(1430, 1037))
 
     RECT_SWORD = RectZone("Sword_of_Power", P(144, 16), P(180, 54))
     RECT_MARCH = RectZone("Rect_March_Status", P(1815, 207), P(1860, 232))

@@ -1,8 +1,8 @@
-import re
 import time
 
 from src import const, logger
 from src.ui import MenuCity, MenuMerchant
+from src.ui.sub_menu.menu_alliance import MenuAlliance
 from src.utils import only_during_periods
 from src.vision import ocr
 
@@ -11,7 +11,7 @@ class Collect:
     def __init__(self):
         pass
 
-    def collect_all(self, char_id: str):
+    def collect_all(self, char_id=None):
         """Open menu City to collect some rewards
         + Purchase items from Merchant boutique
         + Claim resources from deposite
@@ -19,10 +19,17 @@ class Collect:
         + TODO: Claim expedition chests
         + TODO: Claim alliance chests
         """
+        self.collect_alliance_rss()
         with MenuCity():
             self.purchase_items()
             # self.claim_vip()
             # self.claim_rss_in_city()
+
+    def collect_alliance_rss(self):
+        logger.debug("Collect Alliance RSS")
+        with MenuAlliance() as ma:
+            with ma.MenuAllianceTerritory() as mat:
+                mat.BTN_CLAIM.click()
 
     @only_during_periods([const.TIME_EARLY_MORNING, const.TIME_NIGHT])
     def claim_rss_in_city(self):

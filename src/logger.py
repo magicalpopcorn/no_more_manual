@@ -1,5 +1,6 @@
 import logging
 import shutil
+import uuid
 from datetime import datetime
 from functools import partial
 from logging.handlers import RotatingFileHandler
@@ -9,16 +10,16 @@ from .const import PROJECT_ROOT
 
 # === Dynamically build today's timestamped log folder ===
 _TMP_DIR = PROJECT_ROOT / "tmp" / "logs"
-_date_str = datetime.now().strftime("%Y-%m-%d")
-_time_str = datetime.now().strftime("%H-%M-%S")
-LOG_FOLDER = _TMP_DIR / _date_str / _time_str
+# Create a unique ID for this run
+_run_id = str(uuid.uuid4())
+LOG_FOLDER = _TMP_DIR / _run_id
 
 
 # === Logger Setup ===
 def action(label: str, detail: str = ""):
     n_dash = 20
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    header = f"{"-"*n_dash} {label.upper()} {"-"*n_dash}"
+    header = f"{'-'*n_dash} {label.upper()} {'-'*n_dash}"
     # _tooltip(msg=f"{label}: {detail}")
     _logger.info(f"\n{header}\n[{timestamp}] {detail}")
 

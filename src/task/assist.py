@@ -17,7 +17,8 @@ from src.element import (
     TransportCapacity,
 )
 from src.rok_profile import RokProfile
-from src.ui import MenuCity, MenuItems, MenuMain, MenuRssAssist, MenuSearchLocation, MenuStatistics
+from src.ui import MenuMain, MenuRssAssist, MenuSearchLocation
+from src.ui.sub_menu import MenuItems, MenuStatistics
 from src.vision import cv, image, ocr
 
 

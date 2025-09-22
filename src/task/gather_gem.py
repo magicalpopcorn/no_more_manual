@@ -17,14 +17,13 @@ from src.ui import (
     MenuCity,
     MenuDispatch,
     MenuHomeResources,
-    MenuItems,
     MenuMain,
     MenuNetWorkDisconnect,
     MenuNotice,
     MenuProfile,
     MenuQueue,
-    MenuStatistics,
 )
+from src.ui.sub_menu import MenuItems, MenuStatistics
 from src.vision import cv, image, ocr, yolo
 from src.vision.yolo import YoloClass
 

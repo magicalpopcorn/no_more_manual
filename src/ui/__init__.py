@@ -1,7 +1,6 @@
 from .menu_chatbox import ChatBox
 from .menu_city import MenuCity, MenuMerchant
 from .menu_dispatch import MenuDispatch
-from .menu_items import MenuItems, MenuStatistics
 from .menu_main import MenuHomeResources, MenuMain, MenuSearchLocation
 from .menu_notice import MenuNetWorkDisconnect, MenuNotice
 from .menu_profile import MenuProfile

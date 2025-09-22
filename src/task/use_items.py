@@ -1,5 +1,5 @@
 from src import const, logger
-from src.ui import MenuItems
+from src.ui.sub_menu import MenuItems
 from src.utils import only_during_periods
 
 

@@ -3,8 +3,8 @@ import os
 
 from src import const, logger, utils
 from src.rok_profile import RokProfile
-from src.ui import MenuItems, MenuStatistics
-from src.ui.menu_items import ResourceSet
+from src.ui.sub_menu import MenuItems, MenuStatistics
+from src.ui.sub_menu.menu_items import ResourceSet
 
 
 class Report:
