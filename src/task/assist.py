@@ -1,15 +1,12 @@
 """ """
 
-import json
 import math
 import time
 
-from src import const, logger, utils
-from src.api import adb
+from src import logger, utils
 from src.element import (
     CENTER_POINT,
     P,
-    RectZone,
     ResourceAmount,
     ResourceSet,
     ResourceType,
@@ -19,7 +16,7 @@ from src.element import (
 from src.rok_profile import RokProfile
 from src.ui import MenuMain, MenuRssAssist, MenuSearchLocation
 from src.ui.sub_menu import MenuItems, MenuStatistics
-from src.vision import cv, image, ocr
+from src.vision import ocr
 
 
 class Assist:

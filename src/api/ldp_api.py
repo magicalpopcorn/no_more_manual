@@ -1,5 +1,3 @@
-import time
-
 from pyldplayer import LDAppAttr, LDConsole
 
 from src import const, logger

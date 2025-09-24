@@ -17,3 +17,6 @@ screenshot:
 
 pylint:
 	python3 -m pylint --disable=all --enable=E,W src
+
+build:
+	python3 -m PyInstaller --noconfirm --onefile --windowed --icon=assets/ico/seondeok.ico --add-data "tools;tools" pyqt_ui.py

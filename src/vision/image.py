@@ -85,7 +85,7 @@ class TemplateImage:
         self._image = None  # Not loaded yet
 
         if not os.path.exists(self.path):
-            raise FileNotFoundError(f"image {image_name} not found")
+            raise FileNotFoundError(f"image {self.path} not found")
 
     def as_array(self) -> np.ndarray:
         """Returns the image as a NumPy array. Loads it if not already loaded."""

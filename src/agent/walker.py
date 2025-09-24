@@ -1,15 +1,13 @@
 import copy
-import re
 from typing import Callable, List, Tuple
 
 from src import logger, utils
-from src.action import Switch
 from src.action.reload import reload_game
+from src.action.switching import Switch
 from src.const import ActionMode
 from src.rok_profile import RokProfile
-from src.ui import MenuAccounts, MenuProfile, MenuSettings
+from src.ui import MenuProfile
 from src.utils import sleep_random
-from src.vision import image, ocr
 
 
 class Walker:

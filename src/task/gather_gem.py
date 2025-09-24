@@ -9,8 +9,8 @@ import numpy as np
 from PIL import Image
 
 from src import const, logger, utils
-from src.action import Switch
 from src.action.reload import reload_game
+from src.action.switching import Switch
 from src.api import adb
 from src.element import CENTER_POINT, Button, Direction, P, RectZone
 from src.ui import (

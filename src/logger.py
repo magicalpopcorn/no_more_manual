@@ -47,9 +47,16 @@ def setup_logger(max_log_folders=3):
     def _cleanup_old_logs(root_dir: Path, max_folders: int):
         if not root_dir.exists():
             return
-        dated_folders = sorted(root_dir.glob("*/*"), key=lambda f: f.stat().st_mtime, reverse=True)
-        for old_folder in dated_folders[max_folders:]:
-            shutil.rmtree(old_folder, ignore_errors=True)
+        # Get all UUID-based log folders and sort by modification time
+        log_folders = sorted(
+            root_dir.glob("*"),
+            key=lambda f: f.stat().st_mtime if f.is_dir() else float("-inf"),
+            reverse=True,
+        )
+        # Keep only the specified number of most recent folders
+        for old_folder in log_folders[max_folders:]:
+            if old_folder.is_dir():
+                shutil.rmtree(old_folder, ignore_errors=True)
 
     _cleanup_old_logs(_TMP_DIR, max_folders=max_log_folders)
     LOG_FOLDER.mkdir(parents=True, exist_ok=True)

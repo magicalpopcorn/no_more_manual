@@ -44,3 +44,8 @@ yolo11n.pt
 runs
 sample
 profile.yml
+
+# pyinstaller
+*.spec
+dist
+build

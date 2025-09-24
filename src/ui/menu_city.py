@@ -1,5 +1,5 @@
 from src import logger
-from src.element import Button, Distance, P, RectZone, TextButton
+from src.element import Button, P, RectZone, TextButton
 from src.vision import cv, image
 
 from .base_menu import _Menu

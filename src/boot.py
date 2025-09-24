@@ -1,4 +1,3 @@
-import io
 import sys
 import time
 
@@ -45,7 +44,6 @@ def init_rok(instance_name):
 def init_instance(instance_name, rok_ready: bool = False):
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    logger.setup_logger()
     logger.action("Init start", f"Instance name: '{instance_name}'")
 
     if instance_name not in (instances := ldc.list()):

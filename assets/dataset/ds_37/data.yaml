@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 6
+names: ['gem-z-out', 'march_attacking', 'march_farming', 'march_idle', 'march_marching', 'march_returning']
+
+roboflow:
+  workspace: deiworkspace
+  project: rok-additional-images-8kh4b
+  version: 8
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/deiworkspace/rok-additional-images-8kh4b/dataset/8
