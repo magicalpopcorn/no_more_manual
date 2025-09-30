@@ -7,7 +7,8 @@ from multiprocessing import Process
 from typing import Dict, List
 
 from fastapi import FastAPI
-from pydantic import BaseModel
+
+from src.server.models import TaskRequest
 
 start_time = time.time()
 print("Starting import...")
@@ -24,16 +25,10 @@ else:
     logger.info("Imports completed.")
 
 
-app = FastAPI()
+app = FastAPI(title="RoK Automation", version="3.0.0")
 task_registry: Dict[str, Dict] = {}  # keep track of running jobs
 
 logger.setup_logger()
-
-
-class TaskRequest(BaseModel):
-    instance_name: str
-    tasks: List[str]
-    mode: int
 
 
 def execute_task(task_id: str, request: TaskRequest):
@@ -58,11 +53,6 @@ def execute_task(task_id: str, request: TaskRequest):
 
         logger.info(f"Running walker with mode={action_mode}, tasks={request.tasks}")
         walker.execute()
-        # i = 10
-        # while i > 0:
-        #     logger.info(f"Task {task_id} running... {i} iterations left")
-        #     i -= 1
-        #     time.sleep(10)
         logger.info("Finished !!!")
 
     except Exception:
@@ -72,12 +62,12 @@ def execute_task(task_id: str, request: TaskRequest):
 
 
 @app.get("/healthcheck")
-def healthcheck():
+async def healthcheck():
     return {"status": "ok"}
 
 
 @app.post("/run_task")
-def run_task(request: TaskRequest):
+async def run_task(request: TaskRequest):
     task_id = str(uuid.uuid4())
     logger.debug(f"Received task {task_id}\n{request}")
 
@@ -101,7 +91,7 @@ def run_task(request: TaskRequest):
 
 
 @app.post("/stop_task")
-def stop_task(task_id: str):
+async def stop_task(task_id: str):
     if task_id in task_registry:
         proc = task_registry[task_id]["process"]
         logger.debug(f"Stopping task {task_id}, process: {proc}")
@@ -115,7 +105,7 @@ def stop_task(task_id: str):
 
 
 @app.get("/task_status")
-def task_status(task_id: str):
+async def task_status(task_id: str):
     if task_id in task_registry:
         proc = task_registry[task_id]["process"]
         running = proc.is_alive()

@@ -57,6 +57,7 @@ class RegularTask(QWidget):
         self._setup_player_instance(regular_task_layout)
         self._setup_mode(regular_task_layout)
         self._setup_tasks(regular_task_layout)
+        self._setup_post_actions(regular_task_layout)
         self._setup_buttons(regular_task_layout)
         self._setup_output_box(regular_task_layout)
 
@@ -146,6 +147,22 @@ class RegularTask(QWidget):
         btn_layout.addWidget(self.run_btn)
         btn_layout.addWidget(self.stop_btn)
         layout.addLayout(btn_layout)
+
+    def _setup_post_actions(self, layout: QVBoxLayout):
+        post_group = QGroupBox("After Task")
+        post_layout = QHBoxLayout()
+
+        self.action_none = QRadioButton("None")
+        self.action_none.setChecked(True)  # default
+        self.action_sleep = QRadioButton("Sleep")
+        self.action_shutdown = QRadioButton("Shutdown")
+
+        post_layout.addWidget(self.action_none)
+        post_layout.addWidget(self.action_sleep)
+        post_layout.addWidget(self.action_shutdown)
+
+        post_group.setLayout(post_layout)
+        layout.addWidget(post_group)
 
     def append_log(self, text: str):
         self.output_box.setReadOnly(False)
