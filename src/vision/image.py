@@ -104,6 +104,7 @@ class TemplateImage:
 class RokImages:
     # Sub folders
     _DISPATCH = Path("dispatch")
+    _MENU_ALLIANCE = Path("menu_alliance")
 
     # Menu Main
     CASTLE_ICON = TemplateImage("castle_icon.png")
@@ -151,6 +152,9 @@ class RokImages:
     BTN_M3_CHECKED = TemplateImage(_DISPATCH / "m3_checked.png")
     BTN_M4_CHECKED = TemplateImage(_DISPATCH / "m4_checked.png")
     BTN_M5_CHECKED = TemplateImage(_DISPATCH / "m5_checked.png")
+
+    # Menu Alliance
+    BTN_TERRITORY = TemplateImage(_MENU_ALLIANCE / "btn_territory.png")
 
     @staticmethod
     def get_march_image(march_number: int) -> TemplateImage:

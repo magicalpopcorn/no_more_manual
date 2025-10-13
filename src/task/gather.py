@@ -49,8 +49,8 @@ class Gather:
             else:
                 BTN_GATHER.click(
                     delay=1,
-                    verify=lambda: ocr.extract_text_from_rect(MenuQueue.BTN_NEW_TROOP)
-                    == "New Troop",
+                    verify=lambda: "New Troop"
+                    in ocr.extract_text_from_rect(MenuQueue.BTN_NEW_TROOP),
                 )
                 MenuDispatch.dispatch_march(march_number)
 
