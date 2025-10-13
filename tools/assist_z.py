@@ -4,10 +4,10 @@ import sys
 import time
 
 try:
-    from src import boot, const, logger, task
-    from src.agent.walker import Walker
-    from src.const import ActionMode
-    from src.rok_profile import RokProfile
+    from src.lib import boot, const, logger, task
+    from src.lib.agent.walker import Walker
+    from src.lib.const import ActionMode
+    from src.lib.rok_profile import RokProfile
 except ImportError as e:
     print(f"Import error: {e}")
     sys.exit(1)

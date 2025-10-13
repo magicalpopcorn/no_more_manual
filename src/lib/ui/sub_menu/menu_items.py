@@ -4,7 +4,6 @@ import os
 from src.lib import const, logger
 from src.lib.element import Button, Gap, P, RectZone, TextButton
 from src.lib.element.resource import ResourceAmount, ResourceSet
-from src.lib.rok_profile import RokProfile
 from src.lib.vision import cv, image, ocr
 
 from ..base_menu import _Menu
@@ -57,7 +56,6 @@ class MenuItems(_Menu):
         """Each character has their own item inventory"""
         self.char_id = char_id
         self._item_data = self._load_data()
-        self.profile = RokProfile()
 
     def __del__(self):
         self._save_cache()

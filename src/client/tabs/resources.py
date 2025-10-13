@@ -28,10 +28,13 @@ class ResourceTab(QWidget):
     def load_report(self):
         from tools import report
 
-        avail_df, total_df = report.process_rss()
+        try:
+            avail_df, total_df = report.process_rss()
 
-        self.avail_table.setModel(DataFrameModel(avail_df))
-        self.avail_table.resizeColumnsToContents()
+            self.avail_table.setModel(DataFrameModel(avail_df))
+            self.avail_table.resizeColumnsToContents()
 
-        self.total_table.setModel(DataFrameModel(total_df))
-        self.total_table.resizeColumnsToContents()
+            self.total_table.setModel(DataFrameModel(total_df))
+            self.total_table.resizeColumnsToContents()
+        except Exception as err:
+            print(f"Error {err}")

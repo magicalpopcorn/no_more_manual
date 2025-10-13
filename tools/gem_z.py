@@ -3,9 +3,9 @@
 import sys
 import time
 
-from src import boot, logger, task, ui
-from src.const import FARM_INSTANCE, MAIN_INSTANCE
-from src.element.swipe_strategy import Direction
+from src.lib import boot, logger, task, ui
+from src.lib.const import FARM_INSTANCE, MAIN_INSTANCE
+from src.lib.element.swipe_strategy import Direction
 
 instance = MAIN_INSTANCE
 rok_ready = False  # Set to True if Rok is ready to use

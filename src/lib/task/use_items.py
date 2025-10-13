@@ -1,4 +1,5 @@
 from src.lib import const, logger
+from src.lib.rok_data import Character
 from src.lib.ui.sub_menu import MenuItems
 from src.lib.utils import only_during_periods
 
@@ -14,19 +15,19 @@ class UseItems:
                 return
             mi.use_boost_item(force)
 
-    def use_8h_gather_boost(self, char_id: str):
+    def use_8h_gather_boost(self, char: Character):
         """
         Use 8h gathering boost item for character
         """
         item = MenuItems.BOOST_GATHER_8
         logger.action("Use boost item", item)
-        self.use_item(char_id, item, force=False)
+        self.use_item(char._id, item, force=False)
 
     @only_during_periods(const.TIME_EARLY_MORNING)
-    def use_24h_gather_boost(self, char_id: str):
+    def use_24h_gather_boost(self, char: Character):
         """
         Use 24h gathering boost item for character
         """
         item = MenuItems.BOOST_GATHER_24
         logger.action("Use boost item", item)
-        self.use_item(char_id, item, force=True)
+        self.use_item(char._id, item, force=True)

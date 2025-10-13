@@ -8,22 +8,8 @@ from typing import Dict, List
 
 from fastapi import FastAPI
 
+from src.lib import logger
 from src.server.models import TaskRequest
-
-start_time = time.time()
-print("Starting import...")
-try:
-    from src import boot, const, logger, task
-    from src.agent.walker import Walker
-    from src.const import ActionMode
-except ImportError as e:
-    print(f"Import error: {e}")
-    sys.exit(1)
-else:
-    import_time = time.time() - start_time
-    print(f"Import time: {import_time:.4f} seconds")
-    logger.info("Imports completed.")
-
 
 app = FastAPI(title="RoK Automation", version="3.0.0")
 task_registry: Dict[str, Dict] = {}  # keep track of running jobs
@@ -33,6 +19,19 @@ logger.setup_logger()
 
 def execute_task(task_id: str, request: TaskRequest):
     """Wrapper to run your existing tool logic."""
+    start_time = time.time()
+    print("Starting import...")
+    try:
+        from src.lib import boot, task
+        from src.lib.agent.walker import Walker
+        from src.lib.const import ActionMode
+    except ImportError as e:
+        print(f"Import error: {e}")
+        sys.exit(1)
+    else:
+        import_time = time.time() - start_time
+        print(f"Import time: {import_time:.4f} seconds")
+
     try:
         boot.init_instance(request.instance_name)
 

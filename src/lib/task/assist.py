@@ -13,6 +13,7 @@ from src.lib.element import (
     TaxRate,
     TransportCapacity,
 )
+from src.lib.rok_data import Character
 from src.lib.rok_profile import RokProfile
 from src.lib.ui import MenuMain, MenuRssAssist, MenuSearchLocation
 from src.lib.ui.sub_menu import MenuItems, MenuStatistics
@@ -29,7 +30,7 @@ class Assist:
         self.MAX_CAP = ResourceAmount(self.profile.data.get("assist", {}).get("max_cap", "1B"))
         self.total_transfered = ResourceAmount(0)
 
-    def transport_rss(self, char_id):
+    def transport_rss(self, char: Character):
 
         self.total_transfered = ResourceAmount(0)
 
@@ -38,11 +39,11 @@ class Assist:
         MenuMain.open_map_screen()
         CENTER_POINT.click(verify=MenuMain.is_city_info_visible)
         self.city_loc = self.get_city_loc()
-        rss_set = self.get_rss_set(char_id)
+        rss_set = self.get_rss_set(char._id)
 
         # we can capture tax rate and trans_cap in menu resource assistance
-        trans_cap = TransportCapacity.from_ch(self.profile.chars[char_id].ch)
-        tax = TaxRate.from_ch(self.profile.chars[char_id].ch)
+        trans_cap = TransportCapacity.from_ch(char.ch)
+        tax = TaxRate.from_ch(char.ch)
         interval = self.calc_interval(avail_marches=5)
         if interval > 30:
             logger.warning(f"Long interval detected: {interval:.2f}s")

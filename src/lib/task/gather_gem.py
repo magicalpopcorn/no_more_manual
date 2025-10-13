@@ -8,11 +8,11 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from src.lib import const, logger, utils
+from src.lib import logger, utils
 from src.lib.action.reload import reload_game
 from src.lib.action.switching import Switch
 from src.lib.api import adb
-from src.lib.element import CENTER_POINT, Button, Direction, P, RectZone
+from src.lib.element import Button, Direction, P, RectZone
 from src.lib.ui import (
     MenuCity,
     MenuDispatch,
@@ -24,7 +24,7 @@ from src.lib.ui import (
     MenuQueue,
 )
 from src.lib.ui.sub_menu import MenuItems, MenuStatistics
-from src.lib.vision import cv, image, ocr, yolo
+from src.lib.vision import cv, image, yolo
 from src.lib.vision.yolo import YoloClass
 
 
@@ -58,10 +58,9 @@ class GatherGem:
         self.avail_marches = []
         self.char_id = "main"  # Default character ID
 
-    def execute(self, char_id: str):
+    def execute(self, char):
         """Main execution loop with anti-detection measures"""
-        Switch().switch_character(char_id)
-        self.char_id = char_id
+        Switch().switch_character(char._id)
 
         consecutive_errors = 0
         max_consecutive_errors = GatherConfig.MAX_CONSECUTIVE_ERRORS

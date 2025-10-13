@@ -2,7 +2,7 @@ import time
 
 from src.lib import logger, utils
 from src.lib.element import BTN_GATHER, Button, P
-from src.lib.rok_profile import RokProfile
+from src.lib.rok_data import Character, RssOrdersDB
 from src.lib.ui import MenuDispatch, MenuMain, MenuQueue, MenuSearch
 from src.lib.vision import cv, image, ocr
 
@@ -11,12 +11,11 @@ class Gather:
     MAX_MARCHES = 5
 
     def __init__(self):
-        self.profile = RokProfile()
+        pass
 
-    def gather(self, char_id: str):
-        char = self.profile.chars[char_id]
-        rss_order = list(char.rss_order)
+    def gather(self, char: Character):
         rss_level = char.rss_level
+        rss_order = RssOrdersDB().get_by_id(char.rss_order)
 
         unused = MenuMain.get_unused_march_on_screen()
         if unused == 0:
@@ -43,7 +42,7 @@ class Gather:
                 self.search_rss(rss_type, rss_level)
             except RuntimeWarning as warning:
                 logger.warning(
-                    f"NO DEPOSITE LEFT !!! REALLY ???. Skip this gathering for char {char_id}\n{warning}"
+                    f"NO DEPOSITE LEFT !!! REALLY ???. Skip this gathering for char {char._id}\n{warning}"
                 )
                 break
             else:

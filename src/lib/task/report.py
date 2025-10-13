@@ -3,24 +3,24 @@ import os
 
 from src.lib import const, logger, utils
 from src.lib.element.resource import ResourceSet
-from src.lib.rok_profile import RokProfile
+from src.lib.rok_data import Character
 from src.lib.ui.sub_menu import MenuItems, MenuStatistics
 
 
 class Report:
     def __init__(self):
-        self.profile = RokProfile()
+        pass
 
     @utils.only_during_periods(const.TIME_EARLY_MORNING)
-    def collect_info(self, char_id):
-        with MenuItems(char_id):
-            with MenuStatistics(char_id) as ms:
+    def collect_info(self, char: Character):
+        with MenuItems(char._id):
+            with MenuStatistics(char._id) as ms:
                 try:
                     ms.get_total_rss()
                     ms.get_available_rss()
                     ms.save_rss_stats()
                 except Exception as err:
-                    logger.error(f"Failed to get rss info for {char_id}: {err}", exc_info=True)
+                    logger.error(f"Failed to get rss info for {char._id}: {err}", exc_info=True)
 
     def report(self):
         # rss.json is a general file for all char_id

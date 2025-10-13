@@ -1,21 +1,20 @@
 import copy
-from typing import Callable, List, Tuple
+from typing import Callable, List, Optional, Tuple
 
 from src.lib import logger, utils
 from src.lib.action.reload import reload_game
 from src.lib.action.switching import Switch
 from src.lib.const import ActionMode
-from src.lib.rok_profile import RokProfile
+from src.lib.rok_data import Account, AccountsDB, Character, CharactersDB
 from src.lib.ui import MenuProfile
 from src.lib.utils import sleep_random
 
 
 class Walker:
     def __init__(self, mode: ActionMode = ActionMode.DEFAULT):
-        self.profile = RokProfile()
-        self._tasks: List[Callable[[str], None]] = []
-        self.confirm_after_done = self.profile.data["gather"]["confirm_after_done"]
-        self.fallback = True
+        self.char_db = CharactersDB()
+        self.account_db = AccountsDB()
+        self._tasks: List[Callable[[Character], None]] = []
         self.mode = mode
         self.switcher = Switch()
 
@@ -30,29 +29,24 @@ class Walker:
             case _:
                 raise RuntimeError(f"Weird action mode {self.mode}")
 
-    def register_task(self, task: Callable[[str], None]):
+    def register_task(self, task: Callable[[Character], None]):
         if callable(task):
             self._tasks.append(task)
         else:
             raise TypeError(f"Expected a callable, got {type(task).__name__}")
 
-    def walk_character(self, char_id: str = ""):
+    def walk_character(self, char: Optional[Character] = None):
         # if not set, run task with current character profile
-        # if current character not in RokProfile, return
-        if not char_id:
-            char_id = self.profile.get_char_id_by_name(self._get_current_char_name())
-            if char_id is None:
-                return
-        logger.info(f"walk_character {char_id}")
-        char = self.profile.chars[char_id]
+        # if current character not in CharactersDB, return
+        if char is None:
+            char = self._get_current_character()
+
+        logger.info(f"walk_character {char._id}")
         if self._tasks:
             logger.info(f"Proceed tasks on character '{char.name}'")
             for task in self._tasks:
                 try:
-                    # task(char_id)
-                    utils.retry_on_exception(max_attempts=2, action_if_fail=reload_game)(task)(
-                        char_id
-                    )
+                    utils.retry_on_exception(max_attempts=2, action_if_fail=reload_game)(task)(char)
                 except (RuntimeError, TimeoutError) as e:
                     logger.error(
                         f"Error occurred while processing task {task.__name__} on character '{char.name}':\n{e}",
@@ -62,11 +56,10 @@ class Walker:
                     reload_game()
         else:
             logger.warning(f"No tasks registered on character '{char.name}', ignore")
-        # TODO: this should be one of registered tasks
-        if self.confirm_after_done:
-            self.confirm_done()
 
-    def walk_account(self, acc_id: str = "", starting_char: str = ""):
+    def walk_account(
+        self, account: Optional[Account] = None, starting_char: Optional[Character] = None
+    ):
         """
         Walk through characters in the given account.
         If no account is passed, it will detect the current account.
@@ -74,31 +67,32 @@ class Walker:
         This method reorders characters so that the currently active one
         is walked first, avoiding redundant character switching.
         """
-        if not acc_id:
-            acc_id, starting_char = self._get_current_acc_id()
-        logger.info(f"walk_account {acc_id}")
-        account = self.profile.accounts[acc_id]
+        if account is None:
+            account, starting_char = self._get_current_account()
+        logger.info(f"walk_account {account._id}")
 
         current_account = copy.deepcopy(account)
         if not starting_char:
-            starting_char = self._get_current_char_name()
-        starting_char_id = self.profile.get_char_id_by_name(starting_char)
+            starting_char = self._get_current_character()
 
         # Re-order, current character should be prioritized to walk to reduce redundant moves
-        if starting_char_id and starting_char_id in current_account.characters:
-            current_account.characters.remove(starting_char_id)
-            current_account.characters.insert(0, starting_char_id)
+        if starting_char is not None and starting_char._id in current_account.characters:
+            current_account.characters.remove(starting_char._id)
+            current_account.characters.insert(0, starting_char._id)
         else:
-            logger.warning(f"Starting character '{starting_char}' neither found or in any accounts")
+            logger.warning(
+                f"Starting character '{starting_char.name}' neither found or in any accounts"
+            )
 
         for char_id in current_account.characters:
             if char_id == "main":  # skip this shit
                 continue
-            if starting_char_id == char_id:
+            char = self.char_db.get_by_id(char_id)
+            if starting_char._id == char_id:
                 logger.info("Walk current character")
             else:
-                self.switcher.switch_character(char_id)
-            self.walk_character(char_id)
+                self.switcher.switch_character(char)
+            self.walk_character(char)
 
     def walk_all(self):
         """
@@ -118,37 +112,32 @@ class Walker:
             RuntimeError: If no valid account or profile is found.
         """
         logger.action("WALK ALL", "start with current account & user")
-        all_accounts = self.profile.all_accounts()
-        uid, starting_char = self._get_current_acc_id()
+        all_accounts = self.account_db.get_all()
+        stating_account, starting_char = self._get_current_account()
         # if account is configured, it should be prioritized
-        if uid in self.profile.accounts:
-            all_accounts.remove(uid)
-            all_accounts.insert(0, uid)
+        if stating_account in all_accounts:
+            all_accounts.remove(stating_account)
+            all_accounts.insert(0, stating_account)
 
-        for i, acc_id in enumerate(all_accounts):
+        for i, account in enumerate(all_accounts):
             if i == 0:
                 logger.info("Walk current account")
             else:
-                self.switcher.switch_account(acc_id)
-                starting_char = ""
-            self.walk_account(acc_id, starting_char)
+                self.switcher.switch_account(account)
+                starting_char = None
+            self.walk_account(account, starting_char)
 
-    def confirm_done(self):
-        """UI logic to confirm farming completion"""
-        # confirm_done()
-
-    def _get_current_char_name(self) -> str:
-        """Open profile menu to capture character name, retrieve char_id from RokProfile"""
+    def _get_current_character(self) -> Character:
+        """Open profile menu to capture character name, retrieve character from db"""
         with MenuProfile() as mp:
             sleep_random(0.3, 0.5)
             char_name = mp.get_char_name()
-        return char_name
+        return self.char_db.get_by_name(char_name)
 
-    def _get_current_acc_id(self) -> Tuple[str, str]:
-        """Open sub menu Accounts in Settings to capture account ID"""
-        char_name = self._get_current_char_name()
-        char_id = self.profile.get_char_id_by_name(char_name)
-        for account in self.profile.accounts:
-            if char_id in self.profile.accounts[account].characters:
-                return account, char_name
+    def _get_current_account(self) -> Tuple[Account, Character]:
+        """get Account & Character based on current character"""
+        character = self._get_current_character()
+        for account in self.account_db.get_all():
+            if character._id in account.characters:
+                return account, character
         raise RuntimeError("Failed to get current account ID, no character found in any accounts")

@@ -11,9 +11,9 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve() / ".." / ".."))
-from src import const, rok_profile
-from src.const import PROJECT_ROOT
-from src.element import ResourceAmount, ResourceSet, TaxRate
+from src.lib import const, rok_profile
+from src.lib.const import PROJECT_ROOT
+from src.lib.element import ResourceAmount, ResourceSet, TaxRate
 
 
 def format_dataframe_for_display(df):
