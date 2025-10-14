@@ -268,7 +268,7 @@ class RegularTask(QWidget):
     def healthcheck_once(self):
         """Ping /health every 5s and update status icon."""
         try:
-            r = requests.get(f"{self.backend_url}/healthcheck", timeout=2)
+            r = requests.get(f"{self.backend_url}/api/v1/healthcheck", timeout=2)
             if r.status_code == 200:
                 self.status_icon.setPixmap(self.create_circle_pixmap(QColor("green")))
             else:

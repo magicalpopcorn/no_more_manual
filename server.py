@@ -10,11 +10,15 @@ from fastapi import FastAPI
 
 from src.lib import logger
 from src.server.models import TaskRequest
+from src.server.routes import accounts, characters
 
 app = FastAPI(title="RoK Automation", version="3.0.0")
 task_registry: Dict[str, Dict] = {}  # keep track of running jobs
 
 logger.setup_logger()
+# Register routers (resource-based)
+app.include_router(characters.router)
+app.include_router(accounts.router)
 
 
 def execute_task(task_id: str, request: TaskRequest):
@@ -60,7 +64,7 @@ def execute_task(task_id: str, request: TaskRequest):
         logger.info("Task ended")
 
 
-@app.get("/healthcheck")
+@app.get("/api/v1/healthcheck")
 async def healthcheck():
     return {"status": "ok"}
 
