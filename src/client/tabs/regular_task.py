@@ -205,7 +205,7 @@ class RegularTask(QWidget):
         # send request to backend
         try:
             resp = requests.post(
-                f"{self.backend_url}/run_task",
+                f"{self.backend_url}/api/v1/tasks",
                 json={"tasks": tasks, "mode": mode, "instance_name": instance},
                 timeout=10,
             )
@@ -245,8 +245,7 @@ class RegularTask(QWidget):
             try:
                 # Tell backend to stop this task
                 resp = requests.post(
-                    f"{self.backend_url}/stop_task",
-                    params={"task_id": self.task_id},
+                    f"{self.backend_url}/api/v1/tasks/{self.task_id}/stop",
                     timeout=5,
                 )
                 if resp.status_code == 200:

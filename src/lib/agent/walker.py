@@ -11,15 +11,14 @@ from src.lib.utils import sleep_random
 
 
 class Walker:
-    def __init__(self, mode: ActionMode = ActionMode.DEFAULT):
+    def __init__(self):
         self.char_db = CharactersDB()
         self.account_db = AccountsDB()
         self._tasks: List[Callable[[Character], None]] = []
-        self.mode = mode
         self.switcher = Switch()
 
-    def execute(self):
-        match self.mode:
+    def execute(self, mode: ActionMode = ActionMode.DEFAULT):
+        match mode:
             case ActionMode.CHARACTER:
                 self.walk_character()
             case ActionMode.ACCOUNT:
@@ -27,7 +26,7 @@ class Walker:
             case ActionMode.ALL_ACCOUNTS:
                 self.walk_all()
             case _:
-                raise RuntimeError(f"Weird action mode {self.mode}")
+                raise RuntimeError(f"Weird action mode {mode}")
 
     def register_task(self, task: Callable[[Character], None]):
         if callable(task):

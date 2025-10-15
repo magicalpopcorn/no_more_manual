@@ -20,3 +20,6 @@ pylint:
 
 build:
 	python3 -m PyInstaller --noconfirm --onefile --windowed --icon=assets/ico/seondeok.ico --add-data "tools;tools" pyqt_ui.py
+
+run-server:
+	python3 -m uvicorn server:app --reload

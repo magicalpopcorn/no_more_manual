@@ -1,4 +1,6 @@
-from typing import List, Optional
+import uuid
+from datetime import datetime
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -11,13 +13,8 @@ class Character(BaseModel):
     rss_level: Optional[int] = None
     slot_number: Optional[int] = None
 
-
-class CharacterUpdate(BaseModel):
-    name: Optional[str] = None
-    ch: Optional[int] = None
-    rss_order: Optional[str] = None
-    rss_level: Optional[int] = None
-    slot_number: Optional[int] = None
+    class Config:
+        populate_by_name = True
 
 
 class Account(BaseModel):
@@ -29,17 +26,26 @@ class Account(BaseModel):
     name: str
     characters: Optional[List[str]] = []
 
-
-class AccountUpdate(BaseModel):
-    """
-    Represents a partial update to an account.
-    """
-
-    name: Optional[str] = None
-    characters: Optional[List[str]] = None
+    class Config:
+        populate_by_name = True
 
 
 class TaskRequest(BaseModel):
-    instance_name: str
     tasks: List[str]
+    instance_name: str
     mode: int
+
+
+# match TaskRecord with MongoDB document structure
+class TaskRecord(BaseModel):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    tasks: List[str]
+    instance_name: str
+    mode: int
+    status: Literal["queued", "running", "completed", "failed", "stopped"] = "queued"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    finished_at: Optional[datetime] = None
+    log_file: Optional[str] = None
+
+    class Config:
+        populate_by_name = True

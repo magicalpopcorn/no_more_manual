@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
 from src.server.db import characters_collection
-from src.server.models import Character, CharacterUpdate
+from src.server.models import Character
 
 router = APIRouter(prefix="/api/v1/characters", tags=["Characters"])
 
@@ -46,16 +46,6 @@ async def replace_character(char_id: str, character: Character):
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Character not found")
     return {"message": f"Replaced {char_id}"}
-
-
-@router.patch("/{char_id}")
-async def update_character(char_id: str, update: CharacterUpdate):
-    """Update partial fields of a character"""
-    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
-    result = await characters_collection.update_one({"_id": char_id}, {"$set": update_data})
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Character not found")
-    return {"message": f"Updated {char_id}"}
 
 
 @router.delete("/{char_id}")

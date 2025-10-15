@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 
 from src.server.db import accounts_collection, characters_collection
-from src.server.models import Account, AccountUpdate
+from src.server.models import Account
 
 router = APIRouter(prefix="/api/v1/accounts", tags=["Accounts"])
 
@@ -65,18 +65,6 @@ async def replace_account(account_id: str, account: Account):
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Account not found")
     return {"message": f"Replaced {account_id}"}
-
-
-@router.patch("/{account_id}")
-async def update_account(account_id: str, update: AccountUpdate):
-    """
-    Partially update an account.
-    """
-    update_data = {k: v for k, v in update.model_dump().items() if v is not None}
-    result = await accounts_collection.update_one({"_id": account_id}, {"$set": update_data})
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Account not found")
-    return {"message": f"Updated {account_id}"}
 
 
 @router.delete("/{account_id}")

@@ -13,6 +13,7 @@ _TMP_DIR = PROJECT_ROOT / "tmp" / "logs"
 # Create a unique ID for this run
 _run_id = str(uuid.uuid4())
 LOG_FOLDER = _TMP_DIR / _run_id
+log_file = ""
 
 
 # === Logger Setup ===
@@ -42,6 +43,7 @@ exception = partial(_logger.exception)
 
 
 def setup_logger(max_log_folders=3):
+    global log_file
 
     # Cleanup old logs
     def _cleanup_old_logs(root_dir: Path, max_folders: int):

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import List
 
 from pymongo import MongoClient
 from pymongo.collection import Collection

@@ -30,7 +30,7 @@ if __name__ == "__main__":
         profile = RokProfile()
         mode = ActionMode(profile.action_mode)
         # mode = ActionMode.CHARACTER
-        walker = Walker(mode)
+        walker = Walker()
 
         # Declare and register tasks to walker
         gatherer = task.Gather()
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             walker.register_task(task)
 
         logger.info(f"Running walker with mode: {mode}")
-        walker.execute()
+        walker.execute(mode)
 
         logger.info("Finished !!!")
     except KeyboardInterrupt:
